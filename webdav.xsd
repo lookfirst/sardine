@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="DAV:"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:dav="DAV:"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        elementFormDefault="qualified">
+
+    <element name="activelock">
+        <complexType>
+            <sequence>
+                <element ref="dav:lockscope"/>
+                <element ref="dav:locktype"/>
+                <element ref="dav:depth"/>
+                <element ref="dav:owner" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:timeout" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:locktoken" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="lockentry">
+        <complexType>
+            <sequence>
+                <element ref="dav:lockscope"/>
+                <element ref="dav:locktype"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="lockinfo">
+        <complexType>
+            <sequence>
+                <element ref="dav:lockscope"/>
+                <element ref="dav:locktype"/>
+                <element ref="dav:owner" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="locktype">
+        <complexType>
+            <sequence>
+                <element ref="dav:write"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="write">
+        <complexType/>
+    </element>
+
+    <element name="lockscope">
+        <complexType>
+            <choice>
+                <element ref="dav:exclusive"/>
+                <element ref="dav:shared"/>
+            </choice>
+        </complexType>
+    </element>
+
+    <element name="exclusive">
+        <complexType/>
+    </element>
+
+    <element name="shared">
+        <complexType/>
+    </element>
+
+    <element name="depth" type="xsd:string"/>
+
+    <element name="owner">
+        <complexType mixed="true">
+            <sequence>
+                <any namespace="http://www.w3.org/namespace/"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="timeout" type="xsd:string"/>
+
+    <element name="locktoken">
+        <complexType>
+            <sequence>
+                <element ref="dav:href" maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="href" type="xsd:string"/>
+
+    <element name="link">
+        <complexType>
+            <sequence>
+                <element ref="dav:src" maxOccurs="unbounded"/>
+                <element ref="dav:dst" maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="dst" type="xsd:string"/>
+
+    <element name="src" type="xsd:string"/>
+
+    <element name="multistatus">
+        <complexType>
+            <sequence>
+                <element ref="dav:response" maxOccurs="unbounded"/>
+                <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="response">
+        <complexType>
+            <sequence>
+                <element ref="dav:href" minOccurs="1" maxOccurs="unbounded"/>
+                <choice>
+                    <sequence>
+                        <element ref="dav:status"/>
+                    </sequence>
+                    <sequence>
+                        <element ref="dav:propstat" maxOccurs="unbounded"/>
+                    </sequence>
+                </choice>
+                <element ref="dav:error" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="status" type="xsd:string"/>
+
+    <element name="error">
+        <complexType>
+            <sequence>
+                <any namespace="http://www.w3.org/namespace/"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="propstat">
+        <complexType>
+            <sequence>
+                <element ref="dav:prop"/>
+                <element ref="dav:status"/>
+                <element ref="dav:error" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="responsedescription" type="xsd:string"/>
+
+    <element name="prop">
+        <complexType>
+            <all>
+                <element ref="dav:creationdate" minOccurs="0"/>
+                <element ref="dav:displayname" minOccurs="0"/>
+                <element ref="dav:getcontentlanguage" minOccurs="0"/>
+                <element ref="dav:getcontentlength" minOccurs="0"/>
+                <element ref="dav:getcontenttype" minOccurs="0"/>
+                <element ref="dav:getetag" minOccurs="0"/>
+                <element ref="dav:getlastmodified" minOccurs="0"/>
+                <element ref="dav:lockdiscovery" minOccurs="0"/>
+                <element ref="dav:resourcetype" minOccurs="0"/>
+                <element ref="dav:supportedlock" minOccurs="0"/>
+                <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
+                <!--
+                <element ref="dav:contentclass" minOccurs="0"/>
+                <element ref="dav:defaultdocument" minOccurs="0"/>
+                <element ref="dav:href" minOccurs="0"/>
+                <element ref="dav:iscollection" minOccurs="0"/>
+                <element ref="dav:ishidden" minOccurs="0"/>
+                <element ref="dav:isreadonly" minOccurs="0"/>
+                <element ref="dav:isroot" minOccurs="0"/>
+                <element ref="dav:isstructureddocument" minOccurs="0"/>
+                <element ref="dav:lastaccessed" minOccurs="0"/>
+                <element ref="dav:name" minOccurs="0"/>
+                <element ref="dav:parentname" minOccurs="0"/>
+                -->
+                <any processContents="skip" namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+            </all>
+        </complexType>
+    </element>
+
+    <element name="propertybehavior">
+        <complexType>
+            <choice>
+                <element ref="dav:omit"/>
+                <element ref="dav:keepalive"/>
+            </choice>
+        </complexType>
+    </element>
+
+    <element name="omit">
+        <complexType/>
+    </element>
+
+    <element name="keepalive">
+        <complexType mixed="true">
+            <sequence>
+                <element ref="dav:href" maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="propertyupdate">
+        <complexType>
+            <choice maxOccurs="unbounded">
+                <element ref="dav:remove"/>
+                <element ref="dav:set"/>
+            </choice>
+        </complexType>
+    </element>
+
+    <element name="remove">
+        <complexType>
+            <sequence>
+                <element ref="dav:prop"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="set">
+        <complexType>
+            <sequence>
+                <element ref="dav:prop"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="propfind">
+        <complexType>
+            <choice>
+                <element ref="dav:allprop"/>
+                <element ref="dav:propname"/>
+                <element ref="dav:prop"/>
+            </choice>
+        </complexType>
+    </element>
+
+    <element name="allprop">
+        <complexType/>
+    </element>
+
+    <element name="propname">
+        <complexType/>
+    </element>
+
+    <element name="collection">
+        <complexType/>
+    </element>
+
+    <element name="creationdate">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="displayname">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="getcontentlanguage">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="getcontentlength">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="getcontenttype">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="getetag">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="getlastmodified">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="lockdiscovery">
+        <complexType>
+            <sequence minOccurs="0" maxOccurs="unbounded">
+                <element ref="dav:activelock"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="resourcetype">
+        <complexType>
+            <sequence>
+                <element ref="dav:collection" minOccurs="0"/>
+                <any processContents="skip" namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="supportedlock">
+        <complexType>
+            <sequence minOccurs="0" maxOccurs="unbounded">
+                <element ref="dav:lockentry"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="source">
+        <complexType>
+            <sequence minOccurs="0" maxOccurs="unbounded">
+                <element ref="dav:link"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
+    <!--
+    <element name="contentclass" type="xsd:string"/>
+    <element name="defaultdocument" type="xsd:string"/>
+    <element name="iscollection" type="xsd:string"/>
+    <element name="ishidden" type="xsd:string"/>
+    <element name="isreadonly" type="xsd:string"/>
+    <element name="isroot" type="xsd:string"/>
+    <element name="isstructureddocument" type="xsd:string"/>
+    <element name="lastaccessed" type="xsd:string"/>
+    <element name="name" type="xsd:string"/>
+    <element name="parentname" type="xsd:string"/>
+    -->
+</schema>
+
