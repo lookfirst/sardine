@@ -4,6 +4,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * The factory class is responsible for instantiating the JAXB stuff
+ * as well as the instance to SardineImpl.
+ *
+ * @author jonstevens
+ */
 public class Factory
 {
 	/** */

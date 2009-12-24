@@ -6,7 +6,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 /**
- * The perfect name for a class.
+ * The perfect name for a class. Provides the
+ * static methods for working with the Sardine
+ * interface.
  *
  * @author jonstevens
  */
@@ -36,10 +38,13 @@ public class SardineFactory
 		return Factory.instance().begin();
 	}
 
+	/**
+	 * for testing
+	 */
 	public static void main(String[] args) throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		List<DavResource> resources = sardine.getResources("http://webdav.prod.365.kink.y/");
-		System.out.println("resources: " + resources);
+		List<DavResource> resources = sardine.getResources("http://webdav.prod.365.kink.y/boundgods/members/7454/pictures/hires/Scene%201/");
+		System.out.println(resources);
 	}
 }

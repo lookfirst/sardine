@@ -2,6 +2,8 @@ package com.googlecode.sardine;
 
 import java.util.Date;
 
+import com.googlecode.sardine.util.SardineUtil;
+
 /**
  *
  * @author jonstevens
@@ -16,6 +18,7 @@ public class DavResource
 	private Long contentLength;
 
 	private String url;
+	private String nameDecoded;
 
 	/**
 	 * Represents a webdav response block.
@@ -42,9 +45,21 @@ public class DavResource
 		return this.baseUrl;
 	}
 
-	/** */
+	/**
+	 * A URLEncoded version of the name as returned by the server.
+	 */
 	public String getName()
 	{
+		return this.name;
+	}
+
+	/**
+	 * A URLDecoded version of the name.
+	 */
+	public String getNameDecoded()
+	{
+		if (this.nameDecoded == null)
+			this.name = SardineUtil.decode(this.name);
 		return this.name;
 	}
 
@@ -72,8 +87,10 @@ public class DavResource
 		return this.contentLength;
 	}
 
-	/** */
-	public String getUrlString()
+	/**
+	 * Absolute url to the resource.
+	 */
+	public String getAbsoluteUrl()
 	{
 		if (this.url == null)
 		{
@@ -96,7 +113,7 @@ public class DavResource
 	{
 		return "DavResource [baseUrl=" + this.baseUrl + ", contentLength=" + this.contentLength + ", contentType="
 				+ this.contentType + ", creation=" + this.creation + ", modified=" + this.modified + ", name="
-				+ this.name + ", url=" + this.getUrlString() + "]";
+				+ this.name + ", url=" + this.getAbsoluteUrl() + "]\n";
 	}
 
 }
