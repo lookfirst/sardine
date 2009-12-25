@@ -100,7 +100,7 @@ public class DavResource
 			else
 				result = this.baseUrl + "/" + this.name;
 
-			if (this.contentType != null && this.contentType.equals("httpd/unix-directory") && this.name != null && this.name.length() > 0)
+			if (this.contentType != null && this.isDirectory() && this.name != null && this.name.length() > 0)
 				result = result + "/";
 
 			this.url = result;
@@ -108,12 +108,21 @@ public class DavResource
 		return this.url;
 	}
 
+	/**
+	 * Does this resource have a contentType of httpd/unix-directory?
+	 */
+	public boolean isDirectory()
+	{
+		return (this.contentType.equals("httpd/unix-directory"));
+	}
+
+	/** */
 	@Override
 	public String toString()
 	{
 		return "DavResource [baseUrl=" + this.baseUrl + ", contentLength=" + this.contentLength + ", contentType="
 				+ this.contentType + ", creation=" + this.creation + ", modified=" + this.modified + ", name="
-				+ this.name + ", url=" + this.getAbsoluteUrl() + "]\n";
+				+ this.name + ", nameDecoded=" + this.nameDecoded + ", getAbsoluteUrl()="
+				+ this.getAbsoluteUrl() + ", isDirectory()=" + this.isDirectory() + "]";
 	}
-
 }

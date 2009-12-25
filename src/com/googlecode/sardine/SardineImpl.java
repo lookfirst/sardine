@@ -1,6 +1,7 @@
 package com.googlecode.sardine;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +9,22 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
@@ -34,13 +49,22 @@ public class SardineImpl implements Sardine
 	public SardineImpl(Factory factory)
 	{
 		this.factory = factory;
-		this.client = new DefaultHttpClient();
+
+		HttpParams params = new BasicHttpParams();
+        ConnManagerParams.setMaxTotalConnections(params, 100);
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(
+		        new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+
+		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
+		this.client = new DefaultHttpClient(cm, params);
 	}
 
-	/**
-	 * Getting a directory listing.
-	 *
-	 * @throws IOException
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
 	 */
 	public List<DavResource> getResources(String url) throws IOException
 	{
@@ -51,7 +75,7 @@ public class SardineImpl implements Sardine
 		HttpResponse response = this.client.execute(pf);
 
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode != HttpStatus.SC_OK)
+		if (!SardineUtil.isGoodResponse(statusCode))
 			throw new IOException("Got status code: '" + statusCode + "'. Is the url valid? " + url);
 
 		Multistatus r = null;
@@ -108,4 +132,45 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#getInputStream(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public InputStream getInputStream(String url, String username, String password) throws IOException
+	{
+		HttpGet get = new HttpGet(url);
+		HttpResponse response = this.client.execute(get);
+
+		URL urlObj = new URL(url);
+		this.client.getCredentialsProvider().setCredentials(
+                new AuthScope(urlObj.getHost(), urlObj.getPort()),
+                new UsernamePasswordCredentials(username, password));
+
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (!SardineUtil.isGoodResponse(statusCode))
+			throw new IOException("Got status code: '" + statusCode + "'. Is the url valid? " + url);
+
+		return response.getEntity().getContent();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#putData(java.lang.String, byte[])
+	 */
+	public boolean putData(String url, String username, String password, byte[] data) throws IOException
+	{
+		HttpPut put = new HttpPut(url);
+
+		URL urlObj = new URL(url);
+		this.client.getCredentialsProvider().setCredentials(
+                new AuthScope(urlObj.getHost(), urlObj.getPort()),
+                new UsernamePasswordCredentials(username, password));
+
+		ByteArrayEntity entity = new ByteArrayEntity(data);
+		put.setEntity(entity);
+
+		HttpResponse response = this.client.execute(put);
+
+		return (SardineUtil.isGoodResponse(response.getStatusLine().getStatusCode()));
+	}
 }

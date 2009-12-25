@@ -119,4 +119,12 @@ public class SardineUtil
 			this.setHeader("Depth", String.valueOf(val));
 		}
 	}
+
+	/**
+	 * Is the status code < 200 || > 299
+	 */
+	public static boolean isGoodResponse(int statusCode)
+	{
+		return (statusCode < 200 || statusCode > 299);
+	}
 }
