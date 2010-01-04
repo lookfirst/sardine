@@ -34,6 +34,7 @@ import com.googlecode.sardine.util.SardineUtil;
 import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
 
 /**
+ * Implementation of the Sardine interface.
  *
  * @author jonstevens
  */
@@ -48,6 +49,12 @@ public class SardineImpl implements Sardine
 	/** */
 	public SardineImpl(Factory factory)
 	{
+		this(factory, null, null);
+	}
+
+	/** */
+	public SardineImpl(Factory factory, String username, String password)
+	{
 		this.factory = factory;
 
 		HttpParams params = new BasicHttpParams();
@@ -60,6 +67,11 @@ public class SardineImpl implements Sardine
 
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);
+
+		if (username != null && password != null)
+			this.client.getCredentialsProvider().setCredentials(
+	                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+	                new UsernamePasswordCredentials(username, password));
 	}
 
 	/*
@@ -134,17 +146,12 @@ public class SardineImpl implements Sardine
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#getInputStream(java.lang.String, java.lang.String, java.lang.String)
+	 * @see com.googlecode.sardine.Sardine#getInputStream(java.lang.String)
 	 */
-	public InputStream getInputStream(String url, String username, String password) throws IOException
+	public InputStream getInputStream(String url) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
 		HttpResponse response = this.client.execute(get);
-
-		URL urlObj = new URL(url);
-		this.client.getCredentialsProvider().setCredentials(
-                new AuthScope(urlObj.getHost(), urlObj.getPort()),
-                new UsernamePasswordCredentials(username, password));
 
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (!SardineUtil.isGoodResponse(statusCode))
@@ -157,14 +164,9 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#putData(java.lang.String, byte[])
 	 */
-	public boolean putData(String url, String username, String password, byte[] data) throws IOException
+	public boolean putData(String url, byte[] data) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
-
-		URL urlObj = new URL(url);
-		this.client.getCredentialsProvider().setCredentials(
-                new AuthScope(urlObj.getHost(), urlObj.getPort()),
-                new UsernamePasswordCredentials(username, password));
 
 		ByteArrayEntity entity = new ByteArrayEntity(data);
 		put.setEntity(entity);

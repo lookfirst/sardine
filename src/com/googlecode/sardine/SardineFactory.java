@@ -31,11 +31,20 @@ public class SardineFactory
 	}
 
 	/**
-	 * @return
+	 *
 	 */
 	public static Sardine begin()
 	{
 		return Factory.instance().begin();
+	}
+
+	/**
+	 * Pass in a HTTP Auth username/password for being used with all
+	 * connections
+	 */
+	public static Sardine begin(String username, String password)
+	{
+		return Factory.instance().begin(username, password);
 	}
 
 	/**

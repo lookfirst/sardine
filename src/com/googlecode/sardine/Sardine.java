@@ -18,10 +18,10 @@ public interface Sardine
 	/**
 	 * Uses HttpGet to get an input stream for a url
 	 */
-	public InputStream getInputStream(String url, String username, String password) throws IOException;
+	public InputStream getInputStream(String url) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
 	 */
-	public boolean putData(String url, String username, String password, byte[] data) throws IOException;
+	public boolean putData(String url, byte[] data) throws IOException;
 }

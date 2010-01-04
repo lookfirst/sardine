@@ -60,4 +60,10 @@ public class Factory
 	{
 		return new SardineImpl(this);
 	}
+
+	/** */
+	public Sardine begin(String username, String password)
+	{
+		return new SardineImpl(this, username, password);
+	}
 }
