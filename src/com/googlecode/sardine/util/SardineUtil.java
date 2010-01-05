@@ -75,7 +75,6 @@ public class SardineUtil
 	/**
 	 * Loops over all the possible date formats and tries to find the right one.
 	 * @param dateValue
-	 * @return
 	 */
 	public static Date parseDate(String dateValue)
 	{

@@ -11,6 +11,8 @@
 	<property file="${user.home}/build.properties" />
 	<property file="build.properties" />
 
+	<property name="base.dir" location="." />
+
 	<property name="build.debug" value="on" />
 	<property name="build.deprecation" value="on" />
 
@@ -59,6 +61,7 @@
 
 		<!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
 		<property name="version" value="${revisionVersion}" />
+		<property name="build.version" value="${revisionVersion}" />
 	</target>
 
 	<target name="clean">
@@ -78,21 +81,23 @@
 	</target>
 
 	<target name="jar" depends="classes">
-		<jar destfile="${build.jar.file}" basedir="${build.classes.dir}" />
+		<jar destfile="${build.jar.file}" basedir="${build.classes.dir}">
+			<manifest>
+				<attribute name="Specification-Version" value="${version}" />
+				<attribute name="Implementation-Version" value="${TODAY}" />
+				<attribute name="Main-Class" value="com.googlecode.sardine.Version" />
+			</manifest>
+		</jar>
 	</target>
 
-	<target name="init-version">
-		<input addproperty="build.version" message="Version number?" />
-	</target>
-
-	<target name="javadoc" depends="init-version, classes">
+	<target name="javadoc" depends="classes">
 		<javadoc
 			destdir="${build.javadoc.dir}"
 			packagenames="*"
 			classpathref="run.classpath"
 			author="true"
 			version="true"
-			Windowtitle="Objectify-AppEngine Javadoc"
+			Windowtitle="Sardine Javadoc"
 		>
 			<fileset dir="${src.dir}"/>
 			<doctitle><![CDATA[<h1>sardine</h1>]]></doctitle>
@@ -106,4 +111,47 @@
 			</preserveintarget>
 		</sync>
 	</target>
+
+	<target name="dist" depends="clean, jar, javadoc">
+		<property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
+		<property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
+
+		<copy todir="${build.dist.dir}">
+			<fileset dir="${build.dir}">
+				<include name="javadoc/**" />
+			</fileset>
+
+			<fileset dir=".">
+				<include name="build.xml" />
+				<include name="webdav.xsd" />
+				<include name="README.html" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.dist.dir}">
+			<fileset dir="${build.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.dist.dir}/lib">
+			<fileset dir="lib">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.dist.dir}/src">
+			<fileset dir="${base.dir}/src">
+				<include name="**" />
+			</fileset>
+		</copy>
+
+		<dirname property="build.dist.dir.dirname" file="${build.dist.dir}" />
+		<basename property="build.dist.dir.basename" file="${build.dist.dir}" />
+
+		<zip zipfile="${build.dist.zip}" basedir="${build.dist.dir.dirname}">
+			<include name="${build.dist.dir.basename}/**" />
+		</zip>
+	</target>
+
 </project>
