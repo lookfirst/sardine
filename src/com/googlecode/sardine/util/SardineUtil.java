@@ -1,6 +1,7 @@
 package com.googlecode.sardine.util;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -9,7 +10,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.entity.StringEntity;
 
 /**
  * Basic utility code. I borrowed some code from the webdavlib for
@@ -19,6 +21,9 @@ import org.apache.http.client.methods.HttpGet;
  */
 public class SardineUtil
 {
+	/** cached version of getResources() webdav xml GET request */
+	private static StringEntity GET_RESOURCES = null;
+
 	/**
 	 * Date formats using for Date parsing.
 	 */
@@ -99,12 +104,13 @@ public class SardineUtil
 	/**
 	 * Simple class for making propfind a bit easier to deal with.
 	 */
-	public static class HttpPropFind extends HttpGet
+	public static class HttpPropFind extends HttpEntityEnclosingRequestBase
 	{
 		public HttpPropFind(String url)
 		{
-			super(url);
+			super();
 			this.setDepth(1);
+			this.setURI(URI.create(url));
 		}
 
 		@Override
@@ -120,10 +126,33 @@ public class SardineUtil
 	}
 
 	/**
-	 * Is the status code < 200 || > 299
+	 * Is the status code 2xx
 	 */
 	public static boolean isGoodResponse(int statusCode)
 	{
-		return (statusCode < 200 || statusCode > 299);
+		return (statusCode >= 200 && statusCode <= 299);
+	}
+
+	/**
+	 * Stupid wrapper cause it needs to be in a try/catch
+	 */
+	public static StringEntity getResourcesEntity()
+	{
+		if (GET_RESOURCES == null)
+		{
+			try
+			{
+				GET_RESOURCES = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+													"<propfind xmlns=\"DAV:\">\n" +
+													"	<allprop/>\n" +
+													"</propfind>", "UTF-8");
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// Ignored
+			}
+		}
+
+		return GET_RESOURCES;
 	}
 }
