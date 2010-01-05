@@ -24,4 +24,9 @@ public interface Sardine
 	 * Uses webdav put to send data to a server
 	 */
 	public boolean putData(String url, byte[] data) throws IOException;
+
+	/**
+	 * Uses webdav put to delete url
+	 */
+	public void delete(String url) throws IOException;
 }

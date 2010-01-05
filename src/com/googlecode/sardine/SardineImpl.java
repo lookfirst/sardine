@@ -9,8 +9,10 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ClientConnectionManager;
@@ -153,9 +155,10 @@ public class SardineImpl implements Sardine
 		HttpGet get = new HttpGet(url);
 		HttpResponse response = this.client.execute(get);
 
-		int statusCode = response.getStatusLine().getStatusCode();
-		if (!SardineUtil.isGoodResponse(statusCode))
-			throw new IOException("Got status code: '" + statusCode + "'. Is the url valid? " + url);
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
+				+ statusLine.getReasonPhrase() + "'. Is the url valid? " + url);
 
 		return response.getEntity().getContent();
 	}
@@ -174,5 +177,21 @@ public class SardineImpl implements Sardine
 		HttpResponse response = this.client.execute(put);
 
 		return (SardineUtil.isGoodResponse(response.getStatusLine().getStatusCode()));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
+	 */
+	public void delete(String url) throws IOException
+	{
+		HttpDelete delete = new HttpDelete(url);
+
+		HttpResponse response = this.client.execute(delete);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
+				+ statusLine.getReasonPhrase());
 	}
 }
