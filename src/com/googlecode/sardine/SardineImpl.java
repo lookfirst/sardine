@@ -2,7 +2,6 @@ package com.googlecode.sardine;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,11 +79,9 @@ public class SardineImpl implements Sardine
 	 */
 	public List<DavResource> getResources(String url) throws IOException
 	{
-		URL urlObj = new URL(url);
-		String path = urlObj.getPath();
-
-		HttpPropFind pf = new HttpPropFind(url);
-		HttpResponse response = this.client.execute(pf);
+		HttpPropFind propFind = new HttpPropFind(url);
+		propFind.setEntity(SardineUtil.getResourcesEntity());
+		HttpResponse response = this.client.execute(propFind);
 
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (!SardineUtil.isGoodResponse(statusCode))
@@ -103,6 +100,9 @@ public class SardineImpl implements Sardine
 		List<Response> responses = r.getResponse();
 
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+
+		// Make sure the path is correctly detected even if the path identifier is changed by the server
+		String path = responses.get(0).getHref().get(0);
 
 		for (Response resp : responses)
 		{
