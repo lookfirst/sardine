@@ -96,7 +96,10 @@ public class SardineImpl implements Sardine
 		}
 		catch (JAXBException ex)
 		{
-			throw new IOException("Problem unmarshalling the data for url: " + url, ex);
+			// This is done to get around a Java5 limitation that has been resolved in Java6.
+			IOException exception = new IOException("Problem unmarshalling the data for url: " + url);
+			exception.initCause(ex);
+			throw exception;
 		}
 
 		List<Response> responses = r.getResponse();
