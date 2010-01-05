@@ -104,7 +104,7 @@
 			<bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens and a gang of smelly fish. All Rights Reserved. Build version: ${build.version}</i>]]></bottom>
 		</javadoc>
 
-		<sync todir="${javadoc.dir}">
+		<sync todir="${javadoc.dir}" includeEmptyDirs="true">
 			<fileset dir="${build.javadoc.dir}" />
 			<preserveintarget>
 				<include name="**/.svn/**"/>
