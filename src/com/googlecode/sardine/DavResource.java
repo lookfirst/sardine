@@ -5,6 +5,8 @@ import java.util.Date;
 import com.googlecode.sardine.util.SardineUtil;
 
 /**
+ * Describes a resource on a remote server. This could be a directory
+ * or an actual file.
  *
  * @author jonstevens
  */

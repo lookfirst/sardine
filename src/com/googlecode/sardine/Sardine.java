@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
+ * The main interface for Sardine operations.
  *
  * @author jonstevens
  */
@@ -23,7 +24,7 @@ public interface Sardine
 	/**
 	 * Uses webdav put to send data to a server
 	 */
-	public boolean putData(String url, byte[] data) throws IOException;
+	public void put(String url, byte[] data) throws IOException;
 
 	/**
 	 * Uses webdav put to delete url

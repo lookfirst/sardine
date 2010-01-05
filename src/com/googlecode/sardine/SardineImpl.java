@@ -165,9 +165,9 @@ public class SardineImpl implements Sardine
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#putData(java.lang.String, byte[])
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
 	 */
-	public boolean putData(String url, byte[] data) throws IOException
+	public void put(String url, byte[] data) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 
@@ -176,7 +176,10 @@ public class SardineImpl implements Sardine
 
 		HttpResponse response = this.client.execute(put);
 
-		return (SardineUtil.isGoodResponse(response.getStatusLine().getStatusCode()));
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
+				+ statusLine.getReasonPhrase());
 	}
 
 	/*
