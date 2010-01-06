@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
 
 /**
@@ -122,6 +123,24 @@ public class SardineUtil
 		public void setDepth(int val)
 		{
 			this.setHeader("Depth", String.valueOf(val));
+		}
+	}
+
+	/**
+	 * Simple class for making move a bit easier to deal with.
+	 */
+	public static class HttpMove extends HttpGet
+	{
+		public HttpMove(String sourceUrl, String destinationUrl)
+		{
+			super(sourceUrl);
+			this.setHeader("Destination", destinationUrl);
+		}
+
+		@Override
+		public String getMethod()
+		{
+			return "MOVE";
 		}
 	}
 

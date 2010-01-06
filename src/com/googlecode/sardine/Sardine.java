@@ -30,4 +30,9 @@ public interface Sardine
 	 * Uses webdav put to delete url
 	 */
 	public void delete(String url) throws IOException;
+
+	/**
+	 * Uses webdav put to move a url to another
+	 */
+	public void move(String sourceUrl, String destinationUrl) throws IOException;
 }

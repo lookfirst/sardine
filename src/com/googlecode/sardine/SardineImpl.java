@@ -33,6 +33,7 @@ import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
 import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
+import com.googlecode.sardine.util.SardineUtil.HttpMove;
 
 /**
  * Implementation of the Sardine interface.
@@ -194,6 +195,22 @@ public class SardineImpl implements Sardine
 		HttpDelete delete = new HttpDelete(url);
 
 		HttpResponse response = this.client.execute(delete);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
+				+ statusLine.getReasonPhrase());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
+	 */
+	public void move(String sourceUrl, String destinationUrl) throws IOException
+	{
+		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
+
+		HttpResponse response = this.client.execute(move);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
