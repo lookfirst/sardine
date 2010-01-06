@@ -15,6 +15,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -31,12 +32,15 @@ import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.util.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
-import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
+import com.googlecode.sardine.util.SardineUtil.HttpMkCol;
 import com.googlecode.sardine.util.SardineUtil.HttpMove;
+import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
 
 /**
- * Implementation of the Sardine interface.
+ * Implementation of the Sardine interface. This
+ * is where the meat of the Sardine library lives.
  *
  * @author jonstevens
  */
@@ -80,30 +84,33 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
 	 */
-	public List<DavResource> getResources(String url) throws IOException
+	public List<DavResource> getResources(String url) throws SardineException
 	{
 		HttpPropFind propFind = new HttpPropFind(url);
 		propFind.setEntity(SardineUtil.getResourcesEntity());
-		HttpResponse response = this.client.execute(propFind);
 
-		int statusCode = response.getStatusLine().getStatusCode();
-		if (!SardineUtil.isGoodResponse(statusCode))
-			throw new IOException("Got status code: '" + statusCode + "'. Is the url valid? " + url);
+		HttpResponse response = this.executeWrapper(propFind);
 
-		Multistatus r = null;
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new SardineException("Failed to get resources. Is the url valid?", url,
+					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+
+		Multistatus multistatus = null;
 		try
 		{
-			r = (Multistatus) this.factory.getUnmarshaller().unmarshal(response.getEntity().getContent());
+			multistatus = (Multistatus) this.factory.getUnmarshaller().unmarshal(response.getEntity().getContent());
 		}
 		catch (JAXBException ex)
 		{
-			// This is done to get around a Java5 limitation that has been resolved in Java6.
-			IOException exception = new IOException("Problem unmarshalling the data for url: " + url);
-			exception.initCause(ex);
-			throw exception;
+			throw new SardineException("Problem unmarshalling the data", url, ex);
+		}
+		catch (IOException ex)
+		{
+			throw new SardineException(ex);
 		}
 
-		List<Response> responses = r.getResponse();
+		List<Response> responses = multistatus.getResponse();
 
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 
@@ -154,67 +161,104 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#getInputStream(java.lang.String)
 	 */
-	public InputStream getInputStream(String url) throws IOException
+	public InputStream getInputStream(String url) throws SardineException
 	{
 		HttpGet get = new HttpGet(url);
-		HttpResponse response = this.client.execute(get);
+
+		HttpResponse response = this.executeWrapper(get);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
-			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
-				+ statusLine.getReasonPhrase() + "'. Is the url valid? " + url);
+			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 
-		return response.getEntity().getContent();
+		try
+		{
+			return response.getEntity().getContent();
+		}
+		catch (IOException ex)
+		{
+			throw new SardineException(ex);
+		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
 	 */
-	public void put(String url, byte[] data) throws IOException
+	public void put(String url, byte[] data) throws SardineException
 	{
 		HttpPut put = new HttpPut(url);
 
 		ByteArrayEntity entity = new ByteArrayEntity(data);
 		put.setEntity(entity);
 
-		HttpResponse response = this.client.execute(put);
+		HttpResponse response = this.executeWrapper(put);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
-			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
-				+ statusLine.getReasonPhrase());
+			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
 	 */
-	public void delete(String url) throws IOException
+	public void delete(String url) throws SardineException
 	{
 		HttpDelete delete = new HttpDelete(url);
 
-		HttpResponse response = this.client.execute(delete);
+		HttpResponse response = this.executeWrapper(delete);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
-			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
-				+ statusLine.getReasonPhrase());
+			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
 	 */
-	public void move(String sourceUrl, String destinationUrl) throws IOException
+	public void move(String sourceUrl, String destinationUrl) throws SardineException
 	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
 
-		HttpResponse response = this.client.execute(move);
+		HttpResponse response = this.executeWrapper(move);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
-			throw new IOException("The server has returned an HTTP error " + statusLine.getStatusCode() + ": "
-				+ statusLine.getReasonPhrase());
+			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
+					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#createDirectory(java.lang.String)
+	 */
+	public void createDirectory(String url) throws SardineException
+	{
+		HttpMkCol mkcol = new HttpMkCol(url);
+		mkcol.setEntity(SardineUtil.createDirectoryEntity());
+
+		HttpResponse response = this.executeWrapper(mkcol);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	}
+
+	/**
+	 * Small wrapper around HttpClient.execute() in order to wrap the IOException
+	 * into a SardineException.
+	 */
+	private HttpResponse executeWrapper(HttpRequestBase base) throws SardineException
+	{
+		try
+		{
+			return this.client.execute(base);
+		}
+		catch (IOException ex)
+		{
+			throw new SardineException(ex);
+		}
 	}
 }
