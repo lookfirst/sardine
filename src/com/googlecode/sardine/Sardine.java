@@ -28,6 +28,11 @@ public interface Sardine
 	public void put(String url, byte[] data) throws SardineException;
 
 	/**
+	 * Uses webdav put to send data to a server
+	 */
+	public void put(String url, InputStream dataStream) throws SardineException;
+
+	/**
 	 * Delete a resource at the specified url
 	 */
 	public void delete(String url) throws SardineException;

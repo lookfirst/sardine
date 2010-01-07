@@ -20,6 +20,7 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -189,6 +190,25 @@ public class SardineImpl implements Sardine
 		HttpPut put = new HttpPut(url);
 
 		ByteArrayEntity entity = new ByteArrayEntity(data);
+		put.setEntity(entity);
+
+		HttpResponse response = this.executeWrapper(put);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, InputStream)
+	 */
+	public void put(String url, InputStream dataStream) throws SardineException
+	{
+		HttpPut put = new HttpPut(url);
+
+		// A length of -1 means "go until end of stream"
+		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
 		put.setEntity(entity);
 
 		HttpResponse response = this.executeWrapper(put);
