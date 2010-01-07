@@ -38,7 +38,7 @@ public interface Sardine
 	public void createDirectory(String url) throws SardineException;
 
 	/**
-	 * Move a url to from source to destination.
+	 * Move a url to from source to destination. Assumes overwrite.
 	 */
 	public void move(String sourceUrl, String destinationUrl) throws SardineException;
 

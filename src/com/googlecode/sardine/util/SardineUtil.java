@@ -144,6 +144,7 @@ public class SardineUtil
 		{
 			super();
 			this.setHeader("Destination", destinationUrl);
+			this.setHeader("Overwrite", "T");
 			this.setURI(URI.create(sourceUrl));
 
 			if (sourceUrl.endsWith("/") && !destinationUrl.endsWith("/"))
