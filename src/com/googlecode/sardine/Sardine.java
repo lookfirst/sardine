@@ -51,4 +51,10 @@ public interface Sardine
 	 * Copy a url from source to destination. Assumes overwrite.
 	 */
 	public void copy(String sourceUrl, String destinationUrl) throws SardineException;
+
+	/**
+	 * Performs a HEAD request to see if a resource exists or not. Anything outside
+	 * of the 200-299 response code range returns false.
+	 */
+	public boolean exists(String url) throws SardineException;
 }

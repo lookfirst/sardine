@@ -12,6 +12,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
@@ -280,6 +281,21 @@ public class SardineImpl implements Sardine
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#exists(java.lang.String)
+	 */
+	public boolean exists(String url) throws SardineException
+	{
+		HttpHead head = new HttpHead(url);
+
+		HttpResponse response = this.executeWrapper(head);
+
+		StatusLine statusLine = response.getStatusLine();
+
+		return (SardineUtil.isGoodResponse(statusLine.getStatusCode()));
 	}
 
 	/**
