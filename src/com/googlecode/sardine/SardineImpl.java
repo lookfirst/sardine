@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -34,6 +32,7 @@ import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
+import com.googlecode.sardine.util.SardineUtil.HttpCopy;
 import com.googlecode.sardine.util.SardineUtil.HttpMkCol;
 import com.googlecode.sardine.util.SardineUtil.HttpMove;
 import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
@@ -74,7 +73,7 @@ public class SardineImpl implements Sardine
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);
 
-		if (username != null && password != null)
+		if ((username != null) && (password != null))
 			this.client.getCredentialsProvider().setCredentials(
 	                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
 	                new UsernamePasswordCredentials(username, password));
@@ -96,19 +95,8 @@ public class SardineImpl implements Sardine
 			throw new SardineException("Failed to get resources. Is the url valid?", url,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
 
-		Multistatus multistatus = null;
-		try
-		{
-			multistatus = (Multistatus) this.factory.getUnmarshaller().unmarshal(response.getEntity().getContent());
-		}
-		catch (JAXBException ex)
-		{
-			throw new SardineException("Problem unmarshalling the data", url, ex);
-		}
-		catch (IOException ex)
-		{
-			throw new SardineException(ex);
-		}
+		// Process the response from the server.
+		Multistatus multistatus = SardineUtil.getMulitstatus(this.factory.getUnmarshaller(), response, url);
 
 		List<Response> responses = multistatus.getResponse();
 
@@ -223,6 +211,23 @@ public class SardineImpl implements Sardine
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
 
 		HttpResponse response = this.executeWrapper(move);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
+					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#copy(java.lang.String, java.lang.String)
+	 */
+	public void copy(String sourceUrl, String destinationUrl)
+		throws SardineException
+	{
+		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
+
+		HttpResponse response = this.executeWrapper(copy);
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))

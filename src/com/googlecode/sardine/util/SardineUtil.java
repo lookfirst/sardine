@@ -1,5 +1,6 @@
 package com.googlecode.sardine.util;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -10,9 +11,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
+
+import com.googlecode.sardine.model.Multistatus;
 
 /**
  * Basic utility code. I borrowed some code from the webdavlib for
@@ -132,18 +138,45 @@ public class SardineUtil
 	/**
 	 * Simple class for making move a bit easier to deal with.
 	 */
-	public static class HttpMove extends HttpGet
+	public static class HttpMove extends HttpEntityEnclosingRequestBase
 	{
-		public HttpMove(String sourceUrl, String destinationUrl)
+		public HttpMove(String sourceUrl, String destinationUrl) throws SardineException
 		{
-			super(sourceUrl);
+			super();
 			this.setHeader("Destination", destinationUrl);
+			this.setURI(URI.create(sourceUrl));
+
+			if (sourceUrl.endsWith("/") && !destinationUrl.endsWith("/"))
+				throw new SardineException("Destinationurl must end with a /", destinationUrl);
 		}
 
 		@Override
 		public String getMethod()
 		{
 			return "MOVE";
+		}
+	}
+
+	/**
+	 * Simple class for making copy a bit easier to deal with. Assumes Overwrite = T.
+	 */
+	public static class HttpCopy extends HttpEntityEnclosingRequestBase
+	{
+		public HttpCopy(String sourceUrl, String destinationUrl) throws SardineException
+		{
+			super();
+			this.setHeader("Destination", destinationUrl);
+			this.setHeader("Overwrite", "T");
+			this.setURI(URI.create(sourceUrl));
+
+			if (sourceUrl.endsWith("/") && !destinationUrl.endsWith("/"))
+				throw new SardineException("Destinationurl must end with a /", destinationUrl);
+		}
+
+		@Override
+		public String getMethod()
+		{
+			return "COPY";
 		}
 	}
 
@@ -170,7 +203,7 @@ public class SardineUtil
 	 */
 	public static boolean isGoodResponse(int statusCode)
 	{
-		return (statusCode >= 200 && statusCode <= 299);
+		return ((statusCode >= 200) && (statusCode <= 299));
 	}
 
 	/**
@@ -182,7 +215,7 @@ public class SardineUtil
 		{
 			try
 			{
-				GET_RESOURCES = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+				GET_RESOURCES = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
 													"<propfind xmlns=\"DAV:\">\n" +
 													"	<allprop/>\n" +
 													"</propfind>", "UTF-8");
@@ -205,7 +238,7 @@ public class SardineUtil
 		{
 			try
 			{
-				CREATE_DIRECTORY = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+				CREATE_DIRECTORY = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
 													"<mkcol xmlns=\"DAV:\">\n" +
 													"	<set>\n" +
 													"		<prop>\n" +
@@ -224,5 +257,25 @@ public class SardineUtil
 		}
 
 		return CREATE_DIRECTORY;
+	}
+
+	/**
+	 * Helper method for getting the Multistatus response processor.
+	 */
+	public static Multistatus getMulitstatus(Unmarshaller unmarshaller, HttpResponse response, String url)
+		throws SardineException
+	{
+		try
+		{
+			return (Multistatus) unmarshaller.unmarshal(response.getEntity().getContent());
+		}
+		catch (JAXBException ex)
+		{
+			throw new SardineException("Problem unmarshalling the data", url, ex);
+		}
+		catch (IOException ex)
+		{
+			throw new SardineException(ex);
+		}
 	}
 }

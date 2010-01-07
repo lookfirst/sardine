@@ -28,17 +28,22 @@ public interface Sardine
 	public void put(String url, byte[] data) throws SardineException;
 
 	/**
-	 * Uses webdav put to delete url
+	 * Delete a resource at the specified url
 	 */
 	public void delete(String url) throws SardineException;
 
 	/**
-	 * Uses webdav to create a directory using url
+	 * Uses webdav to create a directory at the specified url
 	 */
 	public void createDirectory(String url) throws SardineException;
 
 	/**
-	 * Uses webdav put to move a url to another
+	 * Move a url to from source to destination.
 	 */
 	public void move(String sourceUrl, String destinationUrl) throws SardineException;
+
+	/**
+	 * Copy a url from source to destination. Assumes overwrite.
+	 */
+	public void copy(String sourceUrl, String destinationUrl) throws SardineException;
 }
