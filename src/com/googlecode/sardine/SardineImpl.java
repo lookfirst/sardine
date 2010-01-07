@@ -28,7 +28,9 @@ import org.apache.http.params.HttpProtocolParams;
 
 import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
+import com.googlecode.sardine.model.Getlastmodified;
 import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Prop;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
@@ -124,16 +126,25 @@ public class SardineImpl implements Sardine
 			if (name.endsWith("/"))
 				name = name.substring(0, name.length() - 1);
 
-			String creationdate = resp.getPropstat().get(0).getProp().getCreationdate().getContent().get(0);
-			String modifieddate = resp.getPropstat().get(0).getProp().getGetlastmodified().getContent().get(0);
+			Prop prop = resp.getPropstat().get(0).getProp();
+			String creationdate = prop.getCreationdate().getContent().get(0);
+
+			// modifieddate is sometimes not set
+			// if that's the case, use creationdate
+			String modifieddate;
+			Getlastmodified glm = prop.getGetlastmodified();
+			if (glm != null)
+				modifieddate = glm.getContent().get(0);
+			else
+				modifieddate = creationdate;
 
 			String contentType = "";
-			Getcontenttype gtt = resp.getPropstat().get(0).getProp().getGetcontenttype();
+			Getcontenttype gtt = prop.getGetcontenttype();
 			if (gtt != null)
 				contentType = gtt.getContent().get(0);
 
 			String contentLength = "0";
-			Getcontentlength gcl = resp.getPropstat().get(0).getProp().getGetcontentlength();
+			Getcontentlength gcl = prop.getGetcontentlength();
 			if (gcl != null)
 				contentLength = gcl.getContent().get(0);
 
