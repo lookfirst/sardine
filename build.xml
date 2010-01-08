@@ -59,6 +59,8 @@
 
 		<svn><info path="${basedir}" revisionProperty="revisionVersion" /></svn>
 
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
+
 		<!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
 		<property name="version" value="${revisionVersion}" />
 		<property name="build.version" value="${revisionVersion}" />
@@ -154,4 +156,11 @@
 		</zip>
 	</target>
 
+	<target name="dist-upload" depends="dist">
+		<gcupload projectname="sardine"
+			filename="${build.dist.zip}"
+			targetfilename="${build.dist.zip}"
+			summary="Sardine distribution"
+			labels="Featured, Type-Package, OpSys-All" />
+	</target>
 </project>
