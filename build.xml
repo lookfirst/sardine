@@ -158,6 +158,8 @@
 
 	<target name="dist-upload" depends="dist">
 		<gcupload projectname="sardine"
+			username="${gc.username}"
+			password="${gc.password}"
 			filename="${build.dist.zip}"
 			targetfilename="${build.dist.zip}"
 			summary="Sardine distribution"
