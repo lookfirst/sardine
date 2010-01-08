@@ -10,6 +10,7 @@
 	<property file="user.properties" />
 	<property file="${user.home}/build.properties" />
 	<property file="build.properties" />
+	<property file="build.credentials.properties" />
 
 	<property name="base.dir" location="." />
 
@@ -158,7 +159,7 @@
 
 	<target name="dist-upload" depends="dist">
 		<gcupload projectname="sardine"
-			username="${gc.username}"
+			userName="${gc.username}"
 			password="${gc.password}"
 			filename="${build.dist.zip}"
 			targetfilename="${build.dist.zip}"
