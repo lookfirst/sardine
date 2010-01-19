@@ -4,6 +4,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.googlecode.sardine.util.SardineException;
+
 /**
  * The factory class is responsible for instantiating the JAXB stuff
  * as well as the instance to SardineImpl.
@@ -56,13 +58,13 @@ public class Factory
 	}
 
 	/** */
-	public Sardine begin()
+	public Sardine begin() throws SardineException
 	{
 		return new SardineImpl(this);
 	}
 
 	/** */
-	public Sardine begin(String username, String password)
+	public Sardine begin(String username, String password) throws SardineException
 	{
 		return new SardineImpl(this, username, password);
 	}

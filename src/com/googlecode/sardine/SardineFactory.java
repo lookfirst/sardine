@@ -5,6 +5,8 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
+import com.googlecode.sardine.util.SardineException;
+
 /**
  * The perfect name for a class. Provides the
  * static methods for working with the Sardine
@@ -33,7 +35,7 @@ public class SardineFactory
 	/**
 	 *
 	 */
-	public static Sardine begin()
+	public static Sardine begin() throws SardineException
 	{
 		return Factory.instance().begin();
 	}
@@ -42,7 +44,7 @@ public class SardineFactory
 	 * Pass in a HTTP Auth username/password for being used with all
 	 * connections
 	 */
-	public static Sardine begin(String username, String password)
+	public static Sardine begin(String username, String password) throws SardineException
 	{
 		return Factory.instance().begin(username, password);
 	}

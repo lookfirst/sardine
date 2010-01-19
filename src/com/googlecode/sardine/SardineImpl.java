@@ -2,8 +2,11 @@ package com.googlecode.sardine;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -20,6 +23,7 @@ import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -56,13 +60,13 @@ public class SardineImpl implements Sardine
 	DefaultHttpClient client;
 
 	/** */
-	public SardineImpl(Factory factory)
+	public SardineImpl(Factory factory) throws SardineException
 	{
 		this(factory, null, null);
 	}
 
 	/** */
-	public SardineImpl(Factory factory, String username, String password)
+	public SardineImpl(Factory factory, String username, String password) throws SardineException
 	{
 		this.factory = factory;
 
@@ -70,9 +74,22 @@ public class SardineImpl implements Sardine
         ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
+		SSLSocketFactory sf;
+		try
+		{
+			sf = new SSLSocketFactory(SSLContext.getInstance("TLS"));
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			throw new SardineException(e);
+		}
+		sf.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(
 		        new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		schemeRegistry.register(
+				new Scheme("https", sf, 443));
 
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);
