@@ -32,6 +32,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
+import com.googlecode.sardine.model.Creationdate;
 import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
 import com.googlecode.sardine.model.Getlastmodified;
@@ -146,25 +147,29 @@ public class SardineImpl implements Sardine
 				name = name.substring(0, name.length() - 1);
 
 			Prop prop = resp.getPropstat().get(0).getProp();
-			String creationdate = prop.getCreationdate().getContent().get(0);
+
+			String creationdate = null;
+			Creationdate gcd = prop.getCreationdate();
+			if (gcd != null && gcd.getContent().size() == 1)
+				creationdate = gcd.getContent().get(0);
 
 			// modifieddate is sometimes not set
 			// if that's the case, use creationdate
-			String modifieddate;
+			String modifieddate = null;
 			Getlastmodified glm = prop.getGetlastmodified();
-			if (glm != null)
+			if (glm != null && glm.getContent().size() == 1)
 				modifieddate = glm.getContent().get(0);
 			else
 				modifieddate = creationdate;
 
 			String contentType = "";
 			Getcontenttype gtt = prop.getGetcontenttype();
-			if (gtt != null)
+			if (gtt != null && gtt.getContent().size() == 1)
 				contentType = gtt.getContent().get(0);
 
 			String contentLength = "0";
 			Getcontentlength gcl = prop.getGetcontentlength();
-			if (gcl != null)
+			if (gcl != null && gcl.getContent().size() == 1)
 				contentLength = gcl.getContent().get(0);
 
 			DavResource dr = new DavResource(url, name, SardineUtil.parseDate(creationdate),
