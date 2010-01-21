@@ -1,5 +1,7 @@
 package com.googlecode.sardine;
 
+import java.security.KeyStore;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -60,11 +62,23 @@ public class Factory
 	/** */
 	public Sardine begin() throws SardineException
 	{
-		return new SardineImpl(this);
+		return this.begin(null, null, null);
+	}
+
+	/** */
+	public Sardine begin(KeyStore trustStore) throws SardineException
+	{
+		return this.begin(null, null, trustStore);
 	}
 
 	/** */
 	public Sardine begin(String username, String password) throws SardineException
+	{
+		return this.begin(username, password, null);
+	}
+
+	/** */
+	public Sardine begin(String username, String password, KeyStore trustStore) throws SardineException
 	{
 		return new SardineImpl(this, username, password);
 	}

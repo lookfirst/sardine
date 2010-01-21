@@ -1,5 +1,7 @@
 package com.googlecode.sardine;
 
+import java.security.KeyStore;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -35,7 +37,15 @@ public class SardineFactory
 	 */
 	public static Sardine begin() throws SardineException
 	{
-		return Factory.instance().begin();
+		return Factory.instance().begin(null, null);
+	}
+
+	/**
+	 *
+	 */
+	public static Sardine begin(KeyStore trustStore) throws SardineException
+	{
+		return Factory.instance().begin(null, null, trustStore);
 	}
 
 	/**
@@ -45,5 +55,14 @@ public class SardineFactory
 	public static Sardine begin(String username, String password) throws SardineException
 	{
 		return Factory.instance().begin(username, password);
+	}
+
+	/**
+	 * Pass in a HTTP Auth username/password for being used with all
+	 * connections and a KeyStore.
+	 */
+	public static Sardine begin(String username, String password, KeyStore trustStore) throws SardineException
+	{
+		return Factory.instance().begin(username, password, trustStore);
 	}
 }

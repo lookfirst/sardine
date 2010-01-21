@@ -2,7 +2,7 @@ package com.googlecode.sardine;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,11 +63,17 @@ public class SardineImpl implements Sardine
 	/** */
 	public SardineImpl(Factory factory) throws SardineException
 	{
-		this(factory, null, null);
+		this(factory, null, null, null);
 	}
 
 	/** */
 	public SardineImpl(Factory factory, String username, String password) throws SardineException
+	{
+		this(factory, username, password, null);
+	}
+
+	/** */
+	public SardineImpl(Factory factory, String username, String password, KeyStore trustStore) throws SardineException
 	{
 		this.factory = factory;
 
@@ -75,23 +81,11 @@ public class SardineImpl implements Sardine
         ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
-		SSLSocketFactory sf;
-		try
-		{
-			SSLContext context = SSLContext.getDefault();
-			sf = new SSLSocketFactory(context);
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			throw new SardineException(e);
-		}
-		sf.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
-
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(
 		        new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 		schemeRegistry.register(
-				new Scheme("https", sf, 443));
+				new Scheme("https", this.getSSLSocketFactory(trustStore), 443));
 
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);
@@ -100,6 +94,33 @@ public class SardineImpl implements Sardine
 			this.client.getCredentialsProvider().setCredentials(
 	                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
 	                new UsernamePasswordCredentials(username, password));
+	}
+
+	/**
+	 * Helper method for generating a SSLSocketFactory from an optional trustStore.
+	 */
+	private SSLSocketFactory getSSLSocketFactory(KeyStore trustStore) throws SardineException
+	{
+		SSLSocketFactory sslSocketFactory = null;
+		try
+		{
+			if (trustStore != null)
+			{
+				sslSocketFactory = new SSLSocketFactory(trustStore);
+				sslSocketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+			}
+			else
+			{
+				SSLContext context = SSLContext.getDefault();
+				sslSocketFactory = new SSLSocketFactory(context);
+				sslSocketFactory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new SardineException(e);
+		}
+		return sslSocketFactory;
 	}
 
 	/*
