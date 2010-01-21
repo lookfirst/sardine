@@ -1,7 +1,5 @@
 package com.googlecode.sardine;
 
-import java.util.List;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -47,16 +45,5 @@ public class SardineFactory
 	public static Sardine begin(String username, String password) throws SardineException
 	{
 		return Factory.instance().begin(username, password);
-	}
-
-	/**
-	 * for testing
-	 */
-	public static void main(String[] args) throws Exception
-	{
-		Sardine sardine = SardineFactory.begin();
-		List<DavResource> resources = sardine.getResources("http://webdav.prod.365.kink.y/cybernetentertainment/imagedb/7761/v/h/320/");
-		for (DavResource res : resources)
-			System.out.println(res);
 	}
 }

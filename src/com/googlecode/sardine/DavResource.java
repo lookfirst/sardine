@@ -18,6 +18,7 @@ public class DavResource
 	private Date modified;
 	private String contentType;
 	private Long contentLength;
+	private boolean currentDirectory;
 
 	private String url;
 	private String nameDecoded;
@@ -31,7 +32,7 @@ public class DavResource
 	 * @param modified
 	 * @param contentType
 	 */
-	public DavResource(String baseUrl, String name, Date creation, Date modified, String contentType, Long contentLength)
+	public DavResource(String baseUrl, String name, Date creation, Date modified, String contentType, Long contentLength, boolean currentDirectory)
 	{
 		this.baseUrl = baseUrl;
 		this.name = name;
@@ -39,6 +40,7 @@ public class DavResource
 		this.modified = modified;
 		this.contentType = contentType;
 		this.contentLength = contentLength;
+		this.currentDirectory = currentDirectory;
 	}
 
 	/** */
@@ -118,13 +120,23 @@ public class DavResource
 		return (this.contentType != null && this.contentType.equals("httpd/unix-directory"));
 	}
 
+	/**
+	 * Is this the current directory for the path we requested?
+	 * ie: if we requested: http://foo.com/bar/dir/, is this the
+	 * DavResource for that directory?
+	 */
+	public boolean isCurrentDirectory()
+	{
+		return this.currentDirectory;
+	}
+
 	/** */
 	@Override
 	public String toString()
 	{
 		return "DavResource [baseUrl=" + this.baseUrl + ", contentLength=" + this.contentLength + ", contentType="
 				+ this.contentType + ", creation=" + this.creation + ", modified=" + this.modified + ", name="
-				+ this.name + ", nameDecoded=" + this.nameDecoded + ", getAbsoluteUrl()="
+				+ this.name + ", nameDecoded=" + this.getNameDecoded() + ", getAbsoluteUrl()="
 				+ this.getAbsoluteUrl() + ", isDirectory()=" + this.isDirectory() + "]";
 	}
 }

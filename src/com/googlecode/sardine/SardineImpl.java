@@ -1,6 +1,5 @@
 package com.googlecode.sardine;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -126,27 +125,44 @@ public class SardineImpl implements Sardine
 
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 
-		// Make sure the path is correctly detected even if the path identifier is changed by the server
-		String path = responses.get(0).getHref().get(0);
+		// Are we getting a directory listing or not?
+		// the path after the host stuff
+		int firstSlash = url.indexOf('/', 8);
+		String baseUrl = null;
+		if (url.endsWith("/"))
+			baseUrl = url.substring(firstSlash);
+
+		// http://server.com
+		String hostPart = url.substring(0, firstSlash);
 
 		for (Response resp : responses)
 		{
 			String href = resp.getHref().get(0);
 
-			// Ignore the pointless result which is the current path
-			// if the response is 1, then we want that back cause we
-			// were pointing at a file or empty directory.
-			if (responses.size() > 1 && href.equals(path) && !href.endsWith("/"))
-				continue;
-
-			File file = new File(path);
-			String name = file.getName();
+			// figure out the name of the file and set
+			// the baseUrl if it isn't already set (like when
+			// we are looking for just one file)
+			String name = null;
+			if (baseUrl != null)
+			{
+				name = href.substring(baseUrl.length());
+			}
+			else
+			{
+				int last = href.lastIndexOf("/") + 1;
+				name = href.substring(last);
+				baseUrl = href.substring(0, last);
+			}
 
 			// Ignore crap files
 			if (name.equals(".DS_Store"))
 				continue;
 
-			// Remove the final / from directories
+			boolean currentDirectory = false;
+			if (baseUrl.equals(href))
+				currentDirectory = true;
+
+			// Remove the final / from the name for directories
 			if (name.endsWith("/"))
 				name = name.substring(0, name.length() - 1);
 
@@ -176,8 +192,8 @@ public class SardineImpl implements Sardine
 			if (gcl != null && gcl.getContent().size() == 1)
 				contentLength = gcl.getContent().get(0);
 
-			DavResource dr = new DavResource(url, name, SardineUtil.parseDate(creationdate),
-					SardineUtil.parseDate(modifieddate), contentType, Long.valueOf(contentLength));
+			DavResource dr = new DavResource(hostPart + baseUrl, name, SardineUtil.parseDate(creationdate),
+					SardineUtil.parseDate(modifieddate), contentType, Long.valueOf(contentLength), currentDirectory);
 
 			resources.add(dr);
 		}
