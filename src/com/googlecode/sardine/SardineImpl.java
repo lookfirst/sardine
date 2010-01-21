@@ -1,5 +1,6 @@
 package com.googlecode.sardine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -132,12 +133,14 @@ public class SardineImpl implements Sardine
 		{
 			String href = resp.getHref().get(0);
 
-			// Ignore the pointless result
-			if (href.equals(path))
+			// Ignore the pointless result which is the current path
+			// if the response is 1, then we want that back cause we
+			// were pointing at a file or empty directory.
+			if (responses.size() > 1 && href.equals(path) && !href.endsWith("/"))
 				continue;
 
-			// Each href includes the full path, so chop off to get the name of the current item.
-			String name = href.substring(path.length(), href.length());
+			File file = new File(path);
+			String name = file.getName();
 
 			// Ignore crap files
 			if (name.equals(".DS_Store"))
@@ -163,7 +166,7 @@ public class SardineImpl implements Sardine
 			else
 				modifieddate = creationdate;
 
-			String contentType = "";
+			String contentType = null;
 			Getcontenttype gtt = prop.getGetcontenttype();
 			if (gtt != null && gtt.getContent().size() == 1)
 				contentType = gtt.getContent().get(0);

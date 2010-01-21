@@ -55,7 +55,8 @@ public class SardineFactory
 	public static void main(String[] args) throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		List<DavResource> resources = sardine.getResources("http://webdav.prod.365.kink.y/boundg/");
-		System.out.println(resources);
+		List<DavResource> resources = sardine.getResources("http://webdav.prod.365.kink.y/cybernetentertainment/imagedb/7761/v/h/320/");
+		for (DavResource res : resources)
+			System.out.println(res);
 	}
 }

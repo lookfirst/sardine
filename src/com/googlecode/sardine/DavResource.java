@@ -61,8 +61,8 @@ public class DavResource
 	public String getNameDecoded()
 	{
 		if (this.nameDecoded == null)
-			this.name = SardineUtil.decode(this.name);
-		return this.name;
+			this.nameDecoded = SardineUtil.decode(this.name);
+		return this.nameDecoded;
 	}
 
 	/** */
@@ -115,7 +115,7 @@ public class DavResource
 	 */
 	public boolean isDirectory()
 	{
-		return (this.contentType.equals("httpd/unix-directory"));
+		return (this.contentType != null && this.contentType.equals("httpd/unix-directory"));
 	}
 
 	/** */
