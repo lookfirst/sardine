@@ -78,7 +78,8 @@ public class SardineImpl implements Sardine
 		SSLSocketFactory sf;
 		try
 		{
-			sf = new SSLSocketFactory(SSLContext.getInstance("TLS"));
+			SSLContext context = SSLContext.getDefault();
+			sf = new SSLSocketFactory(context);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
