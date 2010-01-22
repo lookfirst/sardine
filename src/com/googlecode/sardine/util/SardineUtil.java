@@ -93,6 +93,9 @@ public class SardineUtil
 	 */
 	public static Date parseDate(String dateValue)
 	{
+		if (dateValue == null)
+			return null;
+
 		Date date = null;
 		for (int i = 0; (date == null) && (i < formats.length); i++)
 		{
