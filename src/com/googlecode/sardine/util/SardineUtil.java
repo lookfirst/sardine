@@ -41,6 +41,7 @@ public class SardineUtil
 	{
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US),
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.US),
+		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US),
 		new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
 		new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US),
 		new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
