@@ -2,9 +2,6 @@ package com.googlecode.sardine;
 
 import java.security.KeyStore;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-
 import com.googlecode.sardine.util.SardineException;
 
 /**
@@ -16,22 +13,6 @@ import com.googlecode.sardine.util.SardineException;
  */
 public class SardineFactory
 {
-	/**
-	 * @return the JAXBContext
-	 */
-	public static JAXBContext getContext()
-	{
-		return Factory.instance().getContext();
-	}
-
-	/**
-	 * @return the JAXB Unmarshaller
-	 */
-	public static Unmarshaller getUnmarshaller()
-	{
-		return Factory.instance().getUnmarshaller();
-	}
-
 	/**
 	 *
 	 */

@@ -24,7 +24,6 @@ public class Factory
 
 	/** */
 	private JAXBContext context = null;
-	private Unmarshaller unmarshaller = null;
 
 	/** */
 	public Factory()
@@ -33,9 +32,6 @@ public class Factory
 		{
 			if (this.context == null)
 				this.context = JAXBContext.newInstance("com.googlecode.sardine.model");
-
-			if (this.unmarshaller == null)
-				this.unmarshaller = this.context.createUnmarshaller();
 		}
 		catch (JAXBException e)
 		{
@@ -54,9 +50,16 @@ public class Factory
 	/**
 	 * @return the JAXB Unmarshaller
 	 */
-	public Unmarshaller getUnmarshaller()
+	public Unmarshaller getUnmarshaller() throws SardineException
 	{
-		return this.unmarshaller;
+		try
+		{
+			return this.context.createUnmarshaller();
+		}
+		catch (JAXBException e)
+		{
+			throw new SardineException(e);
+		}
 	}
 
 	/** */
