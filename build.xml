@@ -65,6 +65,9 @@
 		<!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
 		<property name="version" value="${revisionVersion}" />
 		<property name="build.version" value="${revisionVersion}" />
+
+		<property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
+		<property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
 	</target>
 
 	<target name="clean">
@@ -118,9 +121,6 @@
 	</target>
 
 	<target name="dist" depends="clean, jar, javadoc">
-		<property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
-		<property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
-
 		<copy todir="${build.dist.dir}">
 			<fileset dir="${build.dir}">
 				<include name="javadoc/**" />
@@ -159,7 +159,7 @@
 		</zip>
 	</target>
 
-	<target name="dist-upload" depends="dist">
+	<target name="upload" depends="init">
 		<gcupload projectname="sardine"
 			userName="${gc.username}"
 			password="${gc.password}"
