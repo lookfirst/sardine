@@ -1,6 +1,6 @@
 package com.googlecode.sardine;
 
-import java.security.KeyStore;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import com.googlecode.sardine.util.SardineException;
 
@@ -14,7 +14,8 @@ import com.googlecode.sardine.util.SardineException;
 public class SardineFactory
 {
 	/**
-	 *
+	 * Default begin() for when you don't need anything but no authentication
+	 * and default settings for SSL.
 	 */
 	public static Sardine begin() throws SardineException
 	{
@@ -22,11 +23,14 @@ public class SardineFactory
 	}
 
 	/**
+	 * If you want to use custom HTTPS settings with Sardine, this allows you
+	 * to pass in a SSLSocketFactory.
 	 *
+	 * @see <a href="http://hc.apache.org/httpcomponents-client/httpclient/xref/org/apache/http/conn/ssl/SSLSocketFactory.html">SSLSocketFactory</a>
 	 */
-	public static Sardine begin(KeyStore trustStore) throws SardineException
+	public static Sardine begin(SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return Factory.instance().begin(null, null, trustStore);
+		return Factory.instance().begin(null, null, sslSocketFactory);
 	}
 
 	/**
@@ -39,11 +43,13 @@ public class SardineFactory
 	}
 
 	/**
-	 * Pass in a HTTP Auth username/password for being used with all
-	 * connections and a KeyStore.
+	 * If you want to use custom HTTPS settings with Sardine, this allows you
+	 * to pass in a SSLSocketFactory.
+	 *
+	 * @see <a href="http://hc.apache.org/httpcomponents-client/httpclient/xref/org/apache/http/conn/ssl/SSLSocketFactory.html">SSLSocketFactory</a>
 	 */
-	public static Sardine begin(String username, String password, KeyStore trustStore) throws SardineException
+	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return Factory.instance().begin(username, password, trustStore);
+		return Factory.instance().begin(username, password, sslSocketFactory);
 	}
 }

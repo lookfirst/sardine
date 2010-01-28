@@ -1,10 +1,10 @@
 package com.googlecode.sardine;
 
-import java.security.KeyStore;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
+import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import com.googlecode.sardine.util.SardineException;
 
@@ -48,6 +48,9 @@ public class Factory
 	}
 
 	/**
+	 * Note: the unmarshaller is not thread safe, so it must be
+	 * created for every request.
+	 *
 	 * @return the JAXB Unmarshaller
 	 */
 	public Unmarshaller getUnmarshaller() throws SardineException
@@ -69,9 +72,9 @@ public class Factory
 	}
 
 	/** */
-	public Sardine begin(KeyStore trustStore) throws SardineException
+	public Sardine begin(SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return this.begin(null, null, trustStore);
+		return this.begin(null, null, sslSocketFactory);
 	}
 
 	/** */
@@ -81,7 +84,7 @@ public class Factory
 	}
 
 	/** */
-	public Sardine begin(String username, String password, KeyStore trustStore) throws SardineException
+	public Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
 	{
 		return new SardineImpl(this, username, password);
 	}
