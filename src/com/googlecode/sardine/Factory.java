@@ -86,6 +86,6 @@ public class Factory
 	/** */
 	public Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return new SardineImpl(this, username, password);
+		return new SardineImpl(this, username, password, sslSocketFactory);
 	}
 }
