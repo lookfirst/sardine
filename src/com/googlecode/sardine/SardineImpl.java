@@ -79,6 +79,7 @@ public class SardineImpl implements Sardine
 		HttpParams params = new BasicHttpParams();
         ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
