@@ -41,7 +41,7 @@ public class SardineException extends IOException
 	/** */
 	public SardineException(String url, int statusCode, String responsePhrase)
 	{
-		this("The server has returned an HTTP error", url, -1, null, null);
+		this("The server has returned an HTTP error", url, -1, responsePhrase, null);
 	}
 
 	/** */
