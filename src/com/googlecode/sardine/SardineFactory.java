@@ -1,5 +1,6 @@
 package com.googlecode.sardine;
 
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import com.googlecode.sardine.util.SardineException;
@@ -49,6 +50,38 @@ public class SardineFactory
 	 * @see <a href="http://hc.apache.org/httpcomponents-client/httpclient/xref/org/apache/http/conn/ssl/SSLSocketFactory.html">SSLSocketFactory</a>
 	 */
 	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
+	{
+		return Factory.instance().begin(username, password, sslSocketFactory);
+	}
+
+	/**
+	 * Useful for when you need to define a http proxy
+	 */
+	public static Sardine begin(HttpRoutePlanner routePlanner) throws SardineException
+	{
+		return Factory.instance().begin(null, null);
+	}
+
+	/**
+	 * Useful for when you need to define a http proxy
+	 */
+	public static Sardine begin(HttpRoutePlanner routePlanner, SSLSocketFactory sslSocketFactory) throws SardineException
+	{
+		return Factory.instance().begin(null, null, sslSocketFactory);
+	}
+
+	/**
+	 * Useful for when you need to define a http proxy
+	 */
+	public static Sardine begin(String username, String password, HttpRoutePlanner routePlanner) throws SardineException
+	{
+		return Factory.instance().begin(username, password);
+	}
+
+	/**
+	 * Useful for when you need to define a http proxy
+	 */
+	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
 	{
 		return Factory.instance().begin(username, password, sslSocketFactory);
 	}

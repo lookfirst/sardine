@@ -4,6 +4,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import com.googlecode.sardine.util.SardineException;
@@ -86,6 +87,12 @@ public class Factory
 	/** */
 	public Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return new SardineImpl(this, username, password, sslSocketFactory);
+		return this.begin(username, password, sslSocketFactory, null);
+	}
+
+	/** */
+	public Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
+	{
+		return new SardineImpl(this, username, password, sslSocketFactory, routePlanner);
 	}
 }

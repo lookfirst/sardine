@@ -17,6 +17,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -60,19 +61,19 @@ public class SardineImpl implements Sardine
 	/** */
 	public SardineImpl(Factory factory) throws SardineException
 	{
-		this(factory, null, null, null);
+		this(factory, null, null, null, null);
 	}
 
 	/** */
 	public SardineImpl(Factory factory, String username, String password) throws SardineException
 	{
-		this(factory, username, password, null);
+		this(factory, username, password, null, null);
 	}
 
 	/**
 	 * Main constructor.
 	 */
-	public SardineImpl(Factory factory, String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
+	public SardineImpl(Factory factory, String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
 	{
 		this.factory = factory;
 
@@ -90,6 +91,10 @@ public class SardineImpl implements Sardine
 
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);
+
+		// for proxy configurations
+		if (routePlanner != null)
+			this.client.setRoutePlanner(routePlanner);
 
 		if ((username != null) && (password != null))
 			this.client.getCredentialsProvider().setCredentials(
