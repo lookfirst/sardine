@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -58,6 +60,9 @@ public class SardineImpl implements Sardine
 	/** */
 	DefaultHttpClient client;
 
+	/** was a username/password passed in? */
+	boolean authEnabled;
+
 	/** */
 	public SardineImpl(Factory factory) throws SardineException
 	{
@@ -97,9 +102,13 @@ public class SardineImpl implements Sardine
 			this.client.setRoutePlanner(routePlanner);
 
 		if ((username != null) && (password != null))
+		{
 			this.client.getCredentialsProvider().setCredentials(
 	                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
 	                new UsernamePasswordCredentials(username, password));
+
+			this.authEnabled = true;
+		}
 	}
 
 	/*
@@ -348,6 +357,13 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
+			if (this.authEnabled)
+			{
+				Credentials creds = this.client.getCredentialsProvider().getCredentials(AuthScope.ANY);
+				String value = "Basic " + new String(Base64.encodeBase64(new String(creds.getUserPrincipal().getName() + ":" + creds.getPassword()).getBytes()));
+				base.setHeader("Authorization", value);
+			}
+
 			return this.client.execute(base);
 		}
 		catch (IOException ex)

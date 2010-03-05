@@ -3,6 +3,8 @@ package com.googlecode.sardine.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import org.junit.Test;
@@ -50,5 +52,12 @@ public class SardineTest
 //			System.out.println(res);
 //		}
 		assertEquals(31, resources.size());
+	}
+
+	@Test
+	public void testPutFile() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin("admin", "admin");
+		sardine.put("http://localhost/uploads/file2.txt", new FileInputStream(new File("/tmp/mysql.log.jon")));
 	}
 }
