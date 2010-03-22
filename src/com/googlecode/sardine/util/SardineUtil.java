@@ -125,6 +125,7 @@ public class SardineUtil
 			super();
 			this.setDepth(1);
 			this.setURI(URI.create(url));
+			this.setHeader("Content-Type", "text/xml");
 		}
 
 		@Override
@@ -194,6 +195,7 @@ public class SardineUtil
 		{
 			super();
 			this.setURI(URI.create(url));
+			this.setHeader("Content-Type", "text/xml");
 		}
 
 		@Override
