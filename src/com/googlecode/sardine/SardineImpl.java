@@ -179,26 +179,26 @@ public class SardineImpl implements Sardine
 
 			String creationdate = null;
 			Creationdate gcd = prop.getCreationdate();
-			if (gcd != null && gcd.getContent().size() == 1)
+			if ((gcd != null) && (gcd.getContent().size() == 1))
 				creationdate = gcd.getContent().get(0);
 
 			// modifieddate is sometimes not set
 			// if that's the case, use creationdate
 			String modifieddate = null;
 			Getlastmodified glm = prop.getGetlastmodified();
-			if (glm != null && glm.getContent().size() == 1)
+			if ((glm != null) && (glm.getContent().size() == 1))
 				modifieddate = glm.getContent().get(0);
 			else
 				modifieddate = creationdate;
 
 			String contentType = null;
 			Getcontenttype gtt = prop.getGetcontenttype();
-			if (gtt != null && gtt.getContent().size() == 1)
+			if ((gtt != null) && (gtt.getContent().size() == 1))
 				contentType = gtt.getContent().get(0);
 
 			String contentLength = "0";
 			Getcontentlength gcl = prop.getGetcontentlength();
-			if (gcl != null && gcl.getContent().size() == 1)
+			if ((gcl != null) && (gcl.getContent().size() == 1))
 				contentLength = gcl.getContent().get(0);
 
 			DavResource dr = new DavResource(hostPart + baseUrl, name, SardineUtil.parseDate(creationdate),
@@ -325,8 +325,6 @@ public class SardineImpl implements Sardine
 	public void createDirectory(String url) throws SardineException
 	{
 		HttpMkCol mkcol = new HttpMkCol(url);
-		mkcol.setEntity(SardineUtil.createDirectoryEntity());
-
 		HttpResponse response = this.executeWrapper(mkcol);
 
 		StatusLine statusLine = response.getStatusLine();

@@ -31,9 +31,6 @@ public class SardineUtil
 	/** cached version of getResources() webdav xml GET request */
 	private static StringEntity GET_RESOURCES = null;
 
-	/** cached version of createDirectory() webdav xml MKCOL request */
-	private static StringEntity CREATE_DIRECTORY = null;
-
 	/**
 	 * Date formats using for Date parsing.
 	 */
@@ -195,7 +192,6 @@ public class SardineUtil
 		{
 			super();
 			this.setURI(URI.create(url));
-			this.setHeader("Content-Type", "text/xml");
 		}
 
 		@Override
@@ -234,36 +230,6 @@ public class SardineUtil
 		}
 
 		return GET_RESOURCES;
-	}
-
-	/**
-	 * Stupid wrapper cause it needs to be in a try/catch
-	 */
-	public static StringEntity createDirectoryEntity()
-	{
-		if (CREATE_DIRECTORY == null)
-		{
-			try
-			{
-				CREATE_DIRECTORY = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
-													"<mkcol xmlns=\"DAV:\">\n" +
-													"	<set>\n" +
-													"		<prop>\n" +
-													"			<resourcetype>\n" +
-													"				<collection/>\n" +
-													"			</resourcetype>\n" +
-													"			<displayname/>\n" +
-													"		</prop>\n" +
-													"	</set>\n" +
-													"</mkcol>", "UTF-8");
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				// Ignored
-			}
-		}
-
-		return CREATE_DIRECTORY;
 	}
 
 	/**
