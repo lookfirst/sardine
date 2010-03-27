@@ -141,11 +141,15 @@ public class SardineImpl implements Sardine
 		if (url.endsWith("/"))
 			baseUrl = url.substring(firstSlash);
 
-		// http://server.com
+		// Get the part of the url from the start to the first slash
+		// ie: http://server.com
 		String hostPart = url.substring(0, firstSlash);
 
 		for (Response resp : responses)
 		{
+			boolean currentDirectory = false;
+			boolean isDirectory = false;
+
 			String href = resp.getHref().get(0);
 
 			// figure out the name of the file and set
@@ -154,12 +158,25 @@ public class SardineImpl implements Sardine
 			String name = null;
 			if (baseUrl != null)
 			{
-				name = href.substring(baseUrl.length());
+				if (href.startsWith(hostPart))
+					name = href.substring(hostPart.length() + baseUrl.length());
+				else
+					name = href.substring(baseUrl.length());
+
+				if ("".equals(name) || name.length() == 0)
+				{
+					// This is the directory itself.
+					isDirectory = true;
+					currentDirectory = true;
+				}
 			}
 			else
 			{
+				// figure out the name of the file
 				int last = href.lastIndexOf("/") + 1;
 				name = href.substring(last);
+
+				// this is the part after the host, but without the file
 				baseUrl = href.substring(0, last);
 			}
 
@@ -167,13 +184,12 @@ public class SardineImpl implements Sardine
 			if (name.equals(".DS_Store"))
 				continue;
 
-			boolean currentDirectory = false;
-			if (baseUrl.equals(href))
-				currentDirectory = true;
-
 			// Remove the final / from the name for directories
 			if (name.endsWith("/"))
+			{
 				name = name.substring(0, name.length() - 1);
+				isDirectory = true;
+			}
 
 			Prop prop = resp.getPropstat().get(0).getProp();
 
@@ -195,6 +211,13 @@ public class SardineImpl implements Sardine
 			Getcontenttype gtt = prop.getGetcontenttype();
 			if ((gtt != null) && (gtt.getContent().size() == 1))
 				contentType = gtt.getContent().get(0);
+
+			// Make sure that directories have the correct content type.
+			if (isDirectory && contentType == null)
+			{
+				// Need to correct the contentType to identify as a directory.
+				contentType = "httpd/unix-directory";
+			}
 
 			String contentLength = "0";
 			Getcontentlength gcl = prop.getGetcontentlength();
