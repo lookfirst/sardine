@@ -59,7 +59,7 @@ public class SardineFactory
 	 */
 	public static Sardine begin(HttpRoutePlanner routePlanner) throws SardineException
 	{
-		return Factory.instance().begin(null, null);
+		return Factory.instance().begin(null, null, null, routePlanner);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class SardineFactory
 	 */
 	public static Sardine begin(HttpRoutePlanner routePlanner, SSLSocketFactory sslSocketFactory) throws SardineException
 	{
-		return Factory.instance().begin(null, null, sslSocketFactory);
+		return Factory.instance().begin(null, null, sslSocketFactory, routePlanner);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class SardineFactory
 	 */
 	public static Sardine begin(String username, String password, HttpRoutePlanner routePlanner) throws SardineException
 	{
-		return Factory.instance().begin(username, password);
+		return Factory.instance().begin(username, password, null, routePlanner);
 	}
 
 	/**
