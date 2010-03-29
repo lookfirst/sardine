@@ -159,11 +159,18 @@ public class SardineImpl implements Sardine
 			if (baseUrl != null)
 			{
 				if (href.startsWith(hostPart))
+				{
+					// Some (broken) servers don't return a url with a trailing /
+					if ((href.length() == baseUrl.length() - 1) && baseUrl.endsWith("/"))
+					{
+						href += "/";
+					}
 					name = href.substring(hostPart.length() + baseUrl.length());
+				}
 				else
 					name = href.substring(baseUrl.length());
 
-				if ("".equals(name) || name.length() == 0)
+				if ("".equals(name) || (name.length() == 0))
 				{
 					// This is the directory itself.
 					isDirectory = true;
@@ -213,7 +220,7 @@ public class SardineImpl implements Sardine
 				contentType = gtt.getContent().get(0);
 
 			// Make sure that directories have the correct content type.
-			if (isDirectory && contentType == null)
+			if (isDirectory && (contentType == null))
 			{
 				// Need to correct the contentType to identify as a directory.
 				contentType = "httpd/unix-directory";
