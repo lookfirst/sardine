@@ -108,6 +108,7 @@
 		>
 			<fileset dir="${src.dir}">
 				<exclude name="**/test/**" />
+				<exclude name="**/*.xml" />
 			</fileset>
 			<doctitle><![CDATA[<h1>sardine</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens and a gang of smelly fish. All Rights Reserved. Build version: ${build.version}</i>]]></bottom>
