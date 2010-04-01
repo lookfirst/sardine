@@ -1,3 +1,5 @@
 com.googlecode.sardine
+com.googlecode.sardine.ant
+com.googlecode.sardine.ant.command
 com.googlecode.sardine.model
 com.googlecode.sardine.util
