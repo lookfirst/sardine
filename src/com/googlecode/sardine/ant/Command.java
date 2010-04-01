@@ -4,8 +4,8 @@ import org.apache.tools.ant.ProjectComponent;
 
 
 /**
- * Base class for a Command which represents an svn command
- * such as svn info.
+ * Base class for a Command which represents a sardine command
+ * such as sardine.put().
  *
  * @author jonstevens
  */
