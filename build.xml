@@ -23,7 +23,6 @@
 	<property name="build.dir" location="target" />
 	<property name="build.classes.dir" location="${build.dir}/classes" />
 	<property name="build.javadoc.dir" location="${build.dir}/javadoc" />
-
 	<property name="build.jar.file" location="${build.dir}/${name}.jar" />
 
 	<property name="docs.dir" value="${build.dir}/docs" />
@@ -84,6 +83,8 @@
 			>
 			<classpath refid="master.classpath" />
 		</javac>
+		<copy file="${base.dir}/src/com/googlecode/sardine/ant/sardinetask.xml" 
+			todir="${build.dir}/classes/com/googlecode/sardine/ant/" />	
 	</target>
 
 	<target name="jar" depends="classes">

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!--
+	Build file for the sardine task examples.
+-->
+<project name="sardineTask" basedir=".">
+
+	<target name="init">
+		<typedef resource="com/googlecode/sardine/ant/sardinetask.xml">
+			<classpath>
+				<fileset dir="./target">
+					<include name="sardine.jar"/>
+				</fileset>
+				<fileset dir="./lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</typedef>
+	</target>
+
+	<target name="delete" depends="init">
+		<sardine username="" password="">
+			<delete url="" />
+		</sardine>
+	</target>
+
+	<target name="move" depends="init">
+		<sardine username="" password="">
+			<move srcUrl="" dstUrl="" />
+		</sardine>
+	</target>
+
+	<target name="copy" depends="init">
+		<sardine username="" password="">
+			<copy srcUrl="" dstUrl="" />
+		</sardine>
+	</target>
+
+	<target name="exists" depends="init">
+		<sardine username="" password="">
+			<exists url="" property="sardine" />
+		</sardine>
+	</target>
+	
+	<target name="put1" depends="init">
+		<sardine username="jon" password="stevens">
+			<put url="http://www.foo.com/">
+				<fileset dir="${somedir}">
+					<include name="*" />
+				</fileset>
+			</put>
+		</sardine>
+	</target>
+
+	<target name="put2" depends="init">
+		<sardine username="jon" password="stevens">
+			<put url="http://www.foo.com/" file="/tmp/foo" />
+		</sardine>
+	</target>
+</project>
