@@ -158,13 +158,14 @@ public class SardineImpl implements Sardine
 			String name = null;
 			if (baseUrl != null)
 			{
+				// Some (broken) servers don't return a href with a trailing /
+				if ((href.length() == baseUrl.length() - 1) && baseUrl.endsWith("/"))
+				{
+					href += "/";
+				}
+
 				if (href.startsWith(hostPart))
 				{
-					// Some (broken) servers don't return a url with a trailing /
-					if ((href.length() == baseUrl.length() - 1) && baseUrl.endsWith("/"))
-					{
-						href += "/";
-					}
 					name = href.substring(hostPart.length() + baseUrl.length());
 				}
 				else
