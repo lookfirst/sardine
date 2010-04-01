@@ -7,6 +7,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
+import com.googlecode.sardine.model.ObjectFactory;
 import com.googlecode.sardine.util.SardineException;
 
 /**
@@ -32,7 +33,7 @@ public class Factory
 		try
 		{
 			if (this.context == null)
-				this.context = JAXBContext.newInstance("com.googlecode.sardine.model");
+				this.context = JAXBContext.newInstance(ObjectFactory.class);
 		}
 		catch (JAXBException e)
 		{
