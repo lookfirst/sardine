@@ -35,19 +35,19 @@ public class SardineException extends IOException
 	/** */
 	public SardineException(String msg, String url, int statusCode, String responsePhrase)
 	{
-		this(msg, url, -1, null, null);
+		this(msg, url, statusCode, responsePhrase, null);
 	}
 
 	/** */
 	public SardineException(String url, int statusCode, String responsePhrase)
 	{
-		this("The server has returned an HTTP error", url, -1, responsePhrase, null);
+		this("The server has returned an HTTP error", url, statusCode, responsePhrase, null);
 	}
 
 	/** */
 	public SardineException(String msg, String url, int statusCode, String responsePhrase, Exception initCause)
 	{
-		super(msg);
+		super(msg + responsePhrase != null ? ", response: " + responsePhrase : "" + ", statusCode: " + statusCode);
 		this.url = url;
 		this.statusCode = statusCode;
 		this.responsePhrase = responsePhrase;
