@@ -8,8 +8,11 @@ import org.apache.tools.ant.Task;
 
 import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.SardineFactory;
+import com.googlecode.sardine.ant.command.Copy;
+import com.googlecode.sardine.ant.command.CreateDirectory;
 import com.googlecode.sardine.ant.command.Delete;
 import com.googlecode.sardine.ant.command.Exists;
+import com.googlecode.sardine.ant.command.Move;
 import com.googlecode.sardine.ant.command.Put;
 
 /**
@@ -29,6 +32,18 @@ public class SardineTask extends Task
 	private Sardine sardine = null;
 
 	/** */
+	public void addCopy(Copy copy)
+	{
+		this.addCommand(copy);
+	}
+
+	/** */
+	public void addCreateDirectory(CreateDirectory createDirectory)
+	{
+		this.addCommand(createDirectory);
+	}
+
+	/** */
 	public void addDelete(Delete delete)
 	{
 		this.addCommand(delete);
@@ -38,6 +53,12 @@ public class SardineTask extends Task
 	public void addExists(Exists exists)
 	{
 		this.addCommand(exists);
+	}
+
+	/** */
+	public void addMove(Move move)
+	{
+		this.addCommand(move);
 	}
 
 	/** */

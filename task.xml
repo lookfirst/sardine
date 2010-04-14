@@ -36,6 +36,12 @@
 		</sardine>
 	</target>
 
+	<target name="createDirectory" depends="init">
+		<sardine username="" password="">
+			<createDirectory url="" />
+		</sardine>
+	</target>
+
 	<target name="exists" depends="init">
 		<sardine username="" password="">
 			<exists url="" property="sardine" />
