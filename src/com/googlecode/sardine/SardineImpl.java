@@ -124,8 +124,11 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			propFind.abort();
 			throw new SardineException("Failed to get resources. Is the url valid?", url,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 
 		// Process the response from the server.
 		Multistatus multistatus = SardineUtil.getMulitstatus(this.factory.getUnmarshaller(), response, url);
@@ -252,7 +255,10 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			get.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 
 		try
 		{
@@ -260,6 +266,7 @@ public class SardineImpl implements Sardine
 		}
 		catch (IOException ex)
 		{
+			get.abort();
 			throw new SardineException(ex);
 		}
 	}
@@ -279,7 +286,10 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			put.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -298,7 +308,10 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			put.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -313,7 +326,10 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			delete.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -328,8 +344,11 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			move.abort();
 			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -345,8 +364,11 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			copy.abort();
 			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -360,7 +382,10 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			mkcol.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
 	}
 
 	/*
@@ -375,7 +400,7 @@ public class SardineImpl implements Sardine
 
 		StatusLine statusLine = response.getStatusLine();
 
-		return (SardineUtil.isGoodResponse(statusLine.getStatusCode()));
+		return SardineUtil.isGoodResponse(statusLine.getStatusCode());
 	}
 
 	/**
@@ -397,6 +422,7 @@ public class SardineImpl implements Sardine
 		}
 		catch (IOException ex)
 		{
+			base.abort();
 			throw new SardineException(ex);
 		}
 	}
