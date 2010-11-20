@@ -26,6 +26,9 @@ public class Put extends Command
 
 	/** */
 	File file = null;
+	
+	/** */
+	private String contentType;
 
 	/** */
 	@Override
@@ -59,7 +62,7 @@ public class Put extends Command
 	 */
 	protected void process(File file) throws Exception
 	{
-		this.getTask().getSardine().put(this.url, new FileInputStream(file));
+		this.getTask().getSardine().put(this.url, new FileInputStream(file), contentType);
 	}
 
 	/** */
@@ -82,15 +85,21 @@ public class Put extends Command
 		this.url = url;
 	}
 
+	/** */
 	public void setFile(File file)
 	{
 		this.file = file;
 	}
 
 	/** */
+	public void setContentType(String contentType)
+	{
+		this.contentType = contentType;
+	}
+
+	/** */
 	public void addConfiguredFileset(FileSet value)
 	{
-		this.getTask().log("here");
 		this.filesets.add(value);
 	}
 }
