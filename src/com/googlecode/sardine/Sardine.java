@@ -7,11 +7,10 @@ import com.googlecode.sardine.util.SardineException;
 
 /**
  * The main interface for Sardine operations.
- *
+ * 
  * @author jonstevens
  */
-public interface Sardine
-{
+public interface Sardine {
 	/**
 	 * Gets a directory listing.
 	 */
@@ -57,4 +56,29 @@ public interface Sardine
 	 * of the 200-299 response code range returns false.
 	 */
 	public boolean exists(String url) throws SardineException;
+
+	/**
+	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
+	 * will include "gzip" as an "Accept-Encoding" header.
+	 * <p/>
+	 * If the server also supports gzip compression, it should serve the
+	 * contents in compressed gzip format and include "gzip" as the
+	 * Content-Encoding. If the content encoding is present, Sardine will
+	 * automatically decompress the files upon reception.
+	 */
+	public void enableCompression();
+
+	/**
+	 * Disables support for HTTP compression.
+	 * 
+	 * @see Sardine#enableCompression()
+	 */
+	public void disableCompression();
+
+	/**
+	 * Checks whether support for compression is enabled or not.
+	 * 
+	 * @return <tt>true</tt> if compression is enabled, <tt>false</tt> otherwise.
+	 */
+	public boolean isCompressionEnabled();
 }
