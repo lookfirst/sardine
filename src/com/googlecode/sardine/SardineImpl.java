@@ -88,10 +88,16 @@ public class SardineImpl implements Sardine
 		this(factory, username, password, null, null);
 	}
 
+	/** */
+	public SardineImpl(Factory factory, String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
+	{
+		this(factory, username, password, null, null, null);
+	}
+
 	/**
 	 * Main constructor.
 	 */
-	public SardineImpl(Factory factory, String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
+	public SardineImpl(Factory factory, String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner, Integer port) throws SardineException
 	{
 		this.factory = factory;
 
@@ -101,11 +107,11 @@ public class SardineImpl implements Sardine
         HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), port != null ? port : 80));
 		if (sslSocketFactory != null)
-			schemeRegistry.register(new Scheme("https", sslSocketFactory, 443));
+			schemeRegistry.register(new Scheme("https", sslSocketFactory, port != null ? port : 443));
 		else
-			schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), port != null ? port : 443));
 
 		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
 		this.client = new DefaultHttpClient(cm, params);

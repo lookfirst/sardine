@@ -29,6 +29,7 @@ public class SardineTask extends Task
 	private boolean failonerror = false;
 	private String username = null;
 	private String password = null;
+	private Integer port = null;
 	private Sardine sardine = null;
 
 	/** */
@@ -80,7 +81,7 @@ public class SardineTask extends Task
 	{
 		try
 		{
-			this.sardine = SardineFactory.begin(this.username, this.password);
+			this.sardine = SardineFactory.begin(this.username, this.password, this.port);
 
 			for (Command command : this.commands)
 			{
@@ -115,6 +116,12 @@ public class SardineTask extends Task
 	public void setPassword(String password)
 	{
 		this.password = password;
+	}
+
+	/** */
+	public void setPort(Integer port)
+	{
+		this.port = port;
 	}
 
 	/** */
