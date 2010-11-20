@@ -32,6 +32,16 @@ public interface Sardine {
 	public void put(String url, InputStream dataStream) throws SardineException;
 
 	/**
+	 * Uses webdav put to send data to a server with a specific content type header
+	 */
+	public void put(String url, byte[] data, String contentType) throws SardineException;
+
+	/**
+	 * Uses webdav put to send data to a server with a specific content type header
+	 */
+	public void put(String url, InputStream dataStream, String contentType) throws SardineException;
+	
+	/**
 	 * Delete a resource at the specified url
 	 */
 	public void delete(String url) throws SardineException;

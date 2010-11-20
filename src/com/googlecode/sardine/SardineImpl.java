@@ -32,6 +32,7 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.entity.InputStreamEntity;
@@ -317,25 +318,18 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, byte[] data) throws SardineException
 	{
+		put(url, data, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
+	 */
+	public void put(String url, byte[] data, String contentType) throws SardineException
+	{
 		HttpPut put = new HttpPut(url);
-
 		ByteArrayEntity entity = new ByteArrayEntity(data);
-		put.setEntity(entity);
-
-		HttpResponse response = this.executeWrapper(put);
-
-		StatusLine statusLine = response.getStatusLine();
-		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
-		{
-			put.abort();
-			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
-		}
-
-		try
-		{
-			response.getEntity().getContent().close();
-		}
-		catch (Exception ex) { }
+		put(url, put, entity, null);
 	}
 
 	/*
@@ -344,11 +338,31 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, InputStream dataStream) throws SardineException
 	{
-		HttpPut put = new HttpPut(url);
+		put(url, dataStream, null);
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
+	 */
+	public void put(String url, InputStream dataStream, String contentType) throws SardineException
+	{
+		HttpPut put = new HttpPut(url);
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		put(url, put, entity, contentType);
+	}
+
+	/**
+	 * Private helper for doing the work of a put
+	 */
+	private void put(String url, HttpPut put, AbstractHttpEntity entity, String contentType) throws SardineException
+	{
 		put.setEntity(entity);
+		if (contentType != null)
+		{
+			put.setHeader("Content-Type", contentType);
+		}
 
 		HttpResponse response = this.executeWrapper(put);
 
@@ -365,7 +379,7 @@ public class SardineImpl implements Sardine
 		}
 		catch (Exception ex) { }
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
