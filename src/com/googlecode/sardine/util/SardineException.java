@@ -8,6 +8,7 @@ import java.io.IOException;
  *
  * @author jonstevens
  */
+@SuppressWarnings("serial")
 public class SardineException extends IOException
 {
 	private int statusCode;
