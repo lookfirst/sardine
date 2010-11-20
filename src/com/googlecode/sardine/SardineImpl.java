@@ -193,7 +193,7 @@ public class SardineImpl implements Sardine
 			boolean currentDirectory = false;
 			boolean isDirectory = false;
 
-			String href = resp.getHref().get(0);
+			String href = SardineUtil.decode(resp.getHref().get(0));
 
 			// figure out the name of the file and set
 			// the baseUrl if it isn't already set (like when
