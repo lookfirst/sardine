@@ -290,6 +290,12 @@ public class SardineImpl implements Sardine
 			put.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
@@ -312,6 +318,12 @@ public class SardineImpl implements Sardine
 			put.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
@@ -330,6 +342,12 @@ public class SardineImpl implements Sardine
 			delete.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
@@ -349,6 +367,12 @@ public class SardineImpl implements Sardine
 			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
@@ -369,6 +393,12 @@ public class SardineImpl implements Sardine
 			throw new SardineException("sourceUrl: " + sourceUrl + ", destinationUrl: " + destinationUrl,
 					statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
@@ -386,6 +416,12 @@ public class SardineImpl implements Sardine
 			mkcol.abort();
 			throw new SardineException(url, statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*
