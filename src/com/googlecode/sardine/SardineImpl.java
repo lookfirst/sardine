@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.codec.binary.Base64;
@@ -56,6 +57,7 @@ import com.googlecode.sardine.util.SardineUtil.HttpCopy;
 import com.googlecode.sardine.util.SardineUtil.HttpMkCol;
 import com.googlecode.sardine.util.SardineUtil.HttpMove;
 import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
+import com.googlecode.sardine.util.SardineUtil.HttpPropPatch;
 
 /**
  * Implementation of the Sardine interface. This
@@ -251,6 +253,8 @@ public class SardineImpl implements Sardine
 
 			Prop prop = resp.getPropstat().get(0).getProp();
 
+			Map<String,String> customProps = SardineUtil.extractCustomProps(prop.getAny());
+
 			String creationdate = null;
 			Creationdate gcd = prop.getCreationdate();
 			if ((gcd != null) && (gcd.getContent().size() == 1))
@@ -283,11 +287,37 @@ public class SardineImpl implements Sardine
 				contentLength = gcl.getContent().get(0);
 
 			DavResource dr = new DavResource(hostPart + baseUrl, name, SardineUtil.parseDate(creationdate),
-					SardineUtil.parseDate(modifieddate), contentType, Long.valueOf(contentLength), currentDirectory);
+					SardineUtil.parseDate(modifieddate), contentType, Long.valueOf(contentLength), currentDirectory, customProps);
 
 			resources.add(dr);
 		}
 		return resources;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#setCustomProps(java.lang.String, java.util.List<java.lang.String>)
+	 */
+	public void setCustomProps(String url, Map<String,String> setProps, List<String> removeProps) throws SardineException
+	{
+		HttpPropPatch propPatch = new HttpPropPatch(url);
+		propPatch.setEntity(SardineUtil.getResourcePatchEntity(setProps, removeProps));
+
+		HttpResponse response = this.executeWrapper(propPatch);
+
+		StatusLine statusLine = response.getStatusLine();
+		if (!SardineUtil.isGoodResponse(statusLine.getStatusCode()))
+		{
+			propPatch.abort();
+			throw new SardineException("Failed to set custom properties on resources.", url,
+					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		}
+
+		try
+		{
+			response.getEntity().getContent().close();
+		}
+		catch (Exception ex) { }
 	}
 
 	/*

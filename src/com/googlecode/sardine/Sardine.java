@@ -2,6 +2,7 @@ package com.googlecode.sardine;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import com.googlecode.sardine.util.SardineException;
 
@@ -15,6 +16,11 @@ public interface Sardine {
 	 * Gets a directory listing.
 	 */
 	public List<DavResource> getResources(String url) throws SardineException;
+
+	/**
+	 * Add or remove custom properties for a url.
+	 */
+	public void setCustomProps(String url, Map<String,String> addProps, List<String> removeProps) throws SardineException;
 
 	/**
 	 * Uses HttpGet to get an input stream for a url

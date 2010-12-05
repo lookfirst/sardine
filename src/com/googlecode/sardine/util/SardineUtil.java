@@ -8,7 +8,10 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
@@ -17,6 +20,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.w3c.dom.Element;
 
 import com.googlecode.sardine.model.Multistatus;
 
@@ -138,6 +142,25 @@ public class SardineUtil
 	}
 
 	/**
+	 * Simple class for making proppatch a bit easier to deal with.
+	 */
+	public static class HttpPropPatch extends HttpEntityEnclosingRequestBase
+	{
+		public HttpPropPatch(String url)
+		{
+			super();
+			this.setURI(URI.create(url));
+			this.setHeader("Content-Type", "text/xml");
+		}
+
+		@Override
+		public String getMethod()
+		{
+			return "PROPPATCH";
+		}
+	}
+
+	/**
 	 * Simple class for making move a bit easier to deal with.
 	 */
 	public static class HttpMove extends HttpEntityEnclosingRequestBase
@@ -233,6 +256,59 @@ public class SardineUtil
 	}
 
 	/**
+	 * Build PROPPATCH entity.
+	 */
+	public static StringEntity getResourcePatchEntity(Map<String,String> setProps, List<String> removeProps)
+	{
+		StringEntity patchEntity = null;
+
+		try
+		{
+			StringBuffer buf = new StringBuffer("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+			buf.append("<D:propertyupdate xmlns:D=\"DAV:\" xmlns:S=\"SAR:\">\n");
+
+			if(setProps != null)
+			{
+				buf.append("<D:set>\n");
+				buf.append("<D:prop>\n");
+				for(Map.Entry<String,String> prop : setProps.entrySet())
+				{
+					buf.append("<S:");
+					buf.append(prop.getKey()).append(">");
+					buf.append(prop.getValue()).append("</S:");
+					buf.append(prop.getKey()).append(">\n");
+				}
+				buf.append("</D:prop>\n");
+				buf.append("</D:set>\n");
+			}
+
+			if(removeProps != null)
+			{
+				buf.append("<D:remove>\n");
+				buf.append("<D:prop>\n");
+				for(String removeProp : removeProps)
+				{
+					buf.append("<S:");
+					buf.append(removeProp).append("/>");
+				}
+				buf.append("</D:prop>\n");
+				buf.append("</D:remove>\n");
+			}
+
+			buf.append("</D:propertyupdate>\n");
+
+			patchEntity = new StringEntity(buf.toString());
+
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// Ignored
+		}
+
+		return patchEntity;
+	}
+
+	/**
 	 * Helper method for getting the Multistatus response processor.
 	 */
 	public static Multistatus getMulitstatus(Unmarshaller unmarshaller, HttpResponse response, String url)
@@ -251,4 +327,21 @@ public class SardineUtil
 			throw new SardineException(ex);
 		}
 	}
+
+	/** */
+	public static Map<String,String> extractCustomProps(List<Element> elements)
+	{
+		Map<String,String> customPropsMap = new HashMap<String,String>(elements.size());
+
+		for (Element element : elements)
+		{
+			String[] keys = element.getTagName().split(":", 2);
+			String key = (keys.length > 1) ? keys[1] : keys[0];
+
+			customPropsMap.put(key, element.getTextContent());
+		}
+
+		return customPropsMap;
+	}
+
 }

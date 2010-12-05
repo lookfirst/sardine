@@ -1,6 +1,7 @@
 package com.googlecode.sardine;
 
 import java.util.Date;
+import java.util.Map;
 
 import com.googlecode.sardine.util.SardineUtil;
 
@@ -19,6 +20,7 @@ public class DavResource
 	private String contentType;
 	private Long contentLength;
 	private boolean currentDirectory;
+	private Map<String, String> customProps;
 
 	private String url;
 	private String nameDecoded;
@@ -26,13 +28,9 @@ public class DavResource
 	/**
 	 * Represents a webdav response block.
 	 *
-	 * @param baseUrl
 	 * @param name the name of the resource, with all /'s removed
-	 * @param creation
-	 * @param modified
-	 * @param contentType
 	 */
-	public DavResource(String baseUrl, String name, Date creation, Date modified, String contentType, Long contentLength, boolean currentDirectory)
+	public DavResource(String baseUrl, String name, Date creation, Date modified, String contentType, Long contentLength, boolean currentDirectory, Map<String,String> customProps)
 	{
 		this.baseUrl = baseUrl;
 		this.name = name;
@@ -41,6 +39,7 @@ public class DavResource
 		this.contentType = contentType;
 		this.contentLength = contentLength;
 		this.currentDirectory = currentDirectory;
+		this.customProps = customProps;
 	}
 
 	/** */
@@ -128,6 +127,12 @@ public class DavResource
 	public boolean isCurrentDirectory()
 	{
 		return this.currentDirectory;
+	}
+
+	/** */
+	public Map<String,String> getCustomProps()
+	{
+	    return this.customProps;
 	}
 
 	/** */
