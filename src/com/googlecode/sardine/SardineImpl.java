@@ -1,23 +1,7 @@
 package com.googlecode.sardine;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpVersion;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,7 +10,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -42,6 +25,13 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import com.googlecode.sardine.model.Creationdate;
 import com.googlecode.sardine.model.Getcontentlength;
@@ -581,9 +571,9 @@ public class SardineImpl implements Sardine
 	{
 		public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException
 		{
-			if (!request.containsHeader("Accept-Encoding"))
+			if (!request.containsHeader(HttpHeaders.ACCEPT_ENCODING))
 			{
-				request.addHeader("Accept-Encoding", "gzip");
+				request.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
 			}
 		}
 	}
