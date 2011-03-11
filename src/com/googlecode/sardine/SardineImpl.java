@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -104,18 +103,18 @@ public class SardineImpl implements Sardine
 		this.factory = factory;
 
 		HttpParams params = new BasicHttpParams();
-        ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), port != null ? port : 80));
+		schemeRegistry.register(new Scheme("http", port != null ? port : 80, PlainSocketFactory.getSocketFactory()));
 		if (sslSocketFactory != null)
-			schemeRegistry.register(new Scheme("https", sslSocketFactory, port != null ? port : 443));
+			schemeRegistry.register(new Scheme("https", port != null ? port : 443, sslSocketFactory));
 		else
-			schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), port != null ? port : 443));
+			schemeRegistry.register(new Scheme("https", port != null ? port : 443, SSLSocketFactory.getSocketFactory()));
 
-		ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
+		ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(schemeRegistry);
+        cm.setMaxTotal(100);
 		this.client = new DefaultHttpClient(cm, params);
 
 		// for proxy configurations
