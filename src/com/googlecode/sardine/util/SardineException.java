@@ -18,7 +18,7 @@ public class SardineException extends IOException
 	/** */
 	public SardineException(Exception ex)
 	{
-		this.initCause(ex);
+        this(ex.getMessage(), null, ex);
 	}
 
 	/** */
@@ -52,8 +52,6 @@ public class SardineException extends IOException
 		this.url = url;
 		this.statusCode = statusCode;
 		this.responsePhrase = responsePhrase;
-		if (initCause != null)
-			this.initCause(initCause);
 	}
 
 	/**
