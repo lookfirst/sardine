@@ -52,6 +52,12 @@
         <path refid="master.classpath"/>
     </path>
 
+    <path id="test.classpath">
+        <pathelement location="${build.classes.dir}"/>
+        <pathelement location="${test.dir}"/>
+        <path refid="master.classpath"/>
+    </path>
+
     <target name="init">
         <typedef resource="com/googlecode/svntask/svntask.xml">
             <classpath>
@@ -101,7 +107,7 @@
                destdir="${build.classes.dir}"
                debug="${build.debug}"
                deprecation="${build.deprecation}">
-            <classpath refid="run.classpath"/>
+            <classpath refid="test.classpath"/>
         </javac>
     </target>
 
@@ -110,7 +116,7 @@
 
         <junit fork="on" forkmode="perBatch" printsummary="on">
             <formatter type="plain"/>
-            <classpath refid="run.classpath"/>
+            <classpath refid="test.classpath"/>
             <batchtest todir="${build.test}">
                 <fileset dir="${test.dir}" includes="**/*"/>
             </batchtest>
