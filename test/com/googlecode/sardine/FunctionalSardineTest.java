@@ -24,19 +24,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringBufferInputStream;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.util.SardineException;
+
+import java.io.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.util.SardineException;
 
 import static org.junit.Assert.*;
 
@@ -150,7 +146,7 @@ public class FunctionalSardineTest {
     public void testPutFile() throws Exception {
         Sardine sardine = SardineFactory.begin();
         final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-        sardine.put(url, new StringBufferInputStream("Test"));
+        sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
         assertTrue(sardine.exists(url));
         assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.getInputStream(url), "UTF-8")).readLine());
     }
@@ -160,7 +156,7 @@ public class FunctionalSardineTest {
         Sardine sardine = SardineFactory.begin();
         String filename = UUID.randomUUID().toString();
         final String url = "http://sudo.ch/dav/anon/sardine/" + filename;
-        sardine.put(url, new StringBufferInputStream("Test"));
+        sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
         sardine.delete(url);
         assertFalse(sardine.exists(url));
     }
@@ -170,7 +166,7 @@ public class FunctionalSardineTest {
         Sardine sardine = SardineFactory.begin();
         final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
         final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-        sardine.put(source, new StringBufferInputStream("Test"));
+        sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
         assertTrue(sardine.exists(source));
         sardine.move(source, destination);
         assertFalse(sardine.exists(source));
