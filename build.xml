@@ -4,6 +4,9 @@
 	Build file for sardine.
 -->
 <project name="sardine" default="jar" basedir=".">
+    <description>
+        Sardine : An easy to use WebDAV client for Java
+    </description>
 
     <property name="name" value="${ant.project.name}"/>
 
@@ -105,7 +108,7 @@
     <target name="test" depends="test-classes">
         <mkdir dir="${build.test}"/>
 
-        <junit fork="on" forkmode="perBatch" printsummary="on" >
+        <junit fork="on" forkmode="perBatch" printsummary="on">
             <formatter type="plain"/>
             <classpath refid="run.classpath"/>
             <batchtest todir="${build.test}">
