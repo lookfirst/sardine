@@ -24,7 +24,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -539,62 +538,4 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/** */
-	private static final class GzipSupportResponseInterceptor implements HttpResponseInterceptor
-	{
-		public void process(final HttpResponse response, final HttpContext context) throws HttpException, IOException
-		{
-			HttpEntity entity = response.getEntity();
-			Header ceheader = entity.getContentEncoding();
-		
-			if (ceheader != null)
-			{
-				HeaderElement[] codecs = ceheader.getElements();
-				
-				for (int i = 0; i < codecs.length; i++)
-				{
-					if (codecs[i].getName().equalsIgnoreCase("gzip"))
-					{
-						response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-						return;
-					}
-				}
-			}
-		}
-	}
-
-	/** */
-	private static final class GzipSupportRequestInterceptor implements HttpRequestInterceptor
-	{
-		public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException
-		{
-			if (!request.containsHeader(HttpHeaders.ACCEPT_ENCODING))
-			{
-				request.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
-			}
-		}
-	}
-
-	/** */
-	private static final class GzipDecompressingEntity extends HttpEntityWrapper
-	{
-
-		public GzipDecompressingEntity(final HttpEntity entity)
-		{
-			super(entity);
-		}
-
-		@Override
-		public InputStream getContent() throws IOException, IllegalStateException
-		{
-			InputStream wrappedin = wrappedEntity.getContent();
-			return new GZIPInputStream(wrappedin);
-		}
-
-		@Override
-		public long getContentLength()
-		{
-			return -1;
-		}
-	}
 }
