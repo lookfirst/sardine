@@ -112,6 +112,7 @@ public class FunctionalSardineTest {
             // Expect Authorization Required
             assertEquals(401, e.getStatusCode());
         }
+        sardine.delete(url);
     }
 
     @Test
@@ -171,6 +172,7 @@ public class FunctionalSardineTest {
         sardine.move(source, destination);
         assertFalse(sardine.exists(source));
         assertTrue(sardine.exists(destination));
+        sardine.delete(destination);
     }
 
     @Test
@@ -179,6 +181,7 @@ public class FunctionalSardineTest {
         final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString() + "/";
         sardine.createDirectory(source);
         assertTrue(sardine.exists(source));
+        sardine.delete(source);
     }
 
     @Test
