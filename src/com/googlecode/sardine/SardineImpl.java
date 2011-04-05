@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import com.googlecode.sardine.impl.*;
 import com.googlecode.sardine.model.Creationdate;
 import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
@@ -42,11 +43,7 @@ import com.googlecode.sardine.model.Prop;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
-import com.googlecode.sardine.util.SardineUtil.HttpCopy;
-import com.googlecode.sardine.util.SardineUtil.HttpMkCol;
-import com.googlecode.sardine.util.SardineUtil.HttpMove;
-import com.googlecode.sardine.util.SardineUtil.HttpPropFind;
-import com.googlecode.sardine.util.SardineUtil.HttpPropPatch;
+import com.googlecode.sardine.impl.HttpMkCol;
 
 /**
  * Implementation of the Sardine interface. This
