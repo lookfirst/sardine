@@ -1,7 +1,6 @@
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.util.SardineException;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -17,79 +16,79 @@ public interface Sardine
 	/**
 	 * Gets a directory listing.
 	 */
-	public List<DavResource> getResources(String url) throws SardineException;
+	List<DavResource> getResources(String url) throws IOException;
 
 	/**
 	 * Add or remove custom properties for a url.
 	 */
-	public void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws SardineException;
+	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
 
 	/**
 	 * @see #get(String)
 	 * @deprecated
 	 */
 	@Deprecated
-	public InputStream getInputStream(String url) throws SardineException;
+	InputStream getInputStream(String url) throws IOException;
 
 	/**
 	 * Uses HttpGet to get an input stream for a url
 	 */
-	public InputStream get(String url) throws SardineException;
+	InputStream get(String url) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
 	 */
-	public void put(String url, byte[] data) throws SardineException;
+	void put(String url, byte[] data) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
 	 */
-	public void put(String url, InputStream dataStream) throws SardineException;
+	void put(String url, InputStream dataStream) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server with a specific content type header
 	 */
-	public void put(String url, byte[] data, String contentType) throws SardineException;
+	void put(String url, byte[] data, String contentType) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server with a specific content type header
 	 */
-	public void put(String url, InputStream dataStream, String contentType) throws SardineException;
+	void put(String url, InputStream dataStream, String contentType) throws IOException;
 
 	/**
 	 * @param url
 	 * @param dataStream
 	 * @param contentType
 	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
-	 * @throws SardineException
+	 * @throws IOException
 	 */
-	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws SardineException;
+	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
 
 	/**
 	 * Delete a resource at the specified url
 	 */
-	public void delete(String url) throws SardineException;
+	void delete(String url) throws IOException;
 
 	/**
 	 * Uses webdav to create a directory at the specified url
 	 */
-	public void createDirectory(String url) throws SardineException;
+	void createDirectory(String url) throws IOException;
 
 	/**
 	 * Move a url to from source to destination. Assumes overwrite.
 	 */
-	public void move(String sourceUrl, String destinationUrl) throws SardineException;
+	void move(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
 	 * Copy a url from source to destination. Assumes overwrite.
 	 */
-	public void copy(String sourceUrl, String destinationUrl) throws SardineException;
+	void copy(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
 	 * Performs a HEAD request to see if a resource exists or not. Anything outside
 	 * of the 200-299 response code range returns false.
 	 */
-	public boolean exists(String url) throws SardineException;
+	boolean exists(String url) throws IOException;
 
 	/**
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
@@ -100,12 +99,26 @@ public interface Sardine
 	 * Content-Encoding. If the content encoding is present, Sardine will
 	 * automatically decompress the files upon reception.
 	 */
-	public void enableCompression();
+	void enableCompression();
 
 	/**
 	 * Disables support for HTTP compression.
 	 *
 	 * @see Sardine#enableCompression()
 	 */
-	public void disableCompression();
+	void disableCompression();
+
+	/**
+	 * @param scheme
+	 * @param hostname
+	 * @param port
+	 */
+	void enablePreemptiveAuthentication(String scheme, String hostname, int port);
+
+	/**
+	 * @param scheme
+	 * @param hostname
+	 * @param port
+	 */
+	void disablePreemptiveAuthentication(String scheme, String hostname, int port);
 }

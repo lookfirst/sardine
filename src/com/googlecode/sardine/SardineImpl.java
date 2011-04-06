@@ -78,12 +78,12 @@ public class SardineImpl implements Sardine
 	/**
 	 * Local context with authentication cache
 	 */
-	private HttpContext localcontext = new BasicHttpContext();
+	private HttpContext context = new BasicHttpContext();
 
 	/**
 	 * @throws SardineException
 	 */
-	public SardineImpl() throws SardineException
+	public SardineImpl()
 	{
 		this(null, null, null, null, null);
 	}
@@ -93,7 +93,7 @@ public class SardineImpl implements Sardine
 	 * @param password
 	 * @throws SardineException
 	 */
-	public SardineImpl(String username, String password) throws SardineException
+	public SardineImpl(String username, String password)
 	{
 		this(username, password, null, null);
 	}
@@ -103,10 +103,10 @@ public class SardineImpl implements Sardine
 	 * @param password
 	 * @param factory
 	 * @param routePlanner
-	 * @throws SardineException
+	 * @throws IOException
 	 */
 	public SardineImpl(String username, String password, SSLSocketFactory factory,
-					   HttpRoutePlanner routePlanner) throws SardineException
+					   HttpRoutePlanner routePlanner)
 	{
 		this(username, password, factory, routePlanner, null);
 	}
@@ -117,10 +117,10 @@ public class SardineImpl implements Sardine
 	 * @param factory
 	 * @param routePlanner
 	 * @param port
-	 * @throws SardineException
+	 * @throws IOException
 	 */
 	public SardineImpl(String username, String password, SSLSocketFactory factory,
-					   HttpRoutePlanner routePlanner, Integer port) throws SardineException
+					   HttpRoutePlanner routePlanner, Integer port)
 	{
 
 		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry(factory, port);
@@ -191,15 +191,15 @@ public class SardineImpl implements Sardine
 		authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
 		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
 		// Add AuthCache to the execution context
-		localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
+		context.setAttribute(ClientContext.AUTH_CACHE, authCache);
 	}
 
 	public void disablePreemptiveAuthentication(String scheme, String hostname, int port)
 	{
-		localcontext.removeAttribute(ClientContext.AUTH_CACHE);
+		context.removeAttribute(ClientContext.AUTH_CACHE);
 	}
 
-	public List<DavResource> getResources(final String url) throws SardineException
+	public List<DavResource> getResources(final String url) throws IOException
 	{
 		HttpPropFind propFind = new HttpPropFind(url);
 		propFind.setEntity(SardineUtil.getResourcesEntity());
@@ -225,7 +225,7 @@ public class SardineImpl implements Sardine
 	 *
 	 * @see com.googlecode.sardine.Sardine#setCustomProps(java.lang.String, java.util.List<java.lang.String>)
 	 */
-	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws SardineException
+	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
 	{
 		HttpPropPatch propPatch = new HttpPropPatch(url);
 		propPatch.setEntity(SardineUtil.getResourcePatchEntity(setProps, removeProps));
@@ -237,7 +237,7 @@ public class SardineImpl implements Sardine
 	 *
 	 * @see com.googlecode.sardine.Sardine#getInputStream(String)
 	 */
-	public InputStream getInputStream(String url) throws SardineException
+	public InputStream getInputStream(String url) throws IOException
 	{
 		return this.get(url);
 	}
@@ -247,7 +247,7 @@ public class SardineImpl implements Sardine
 	 *
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String)
 	 */
-	public InputStream get(String url) throws SardineException
+	public InputStream get(String url) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
 		// Must use #execute without handler, otherwise the entity is consumed
@@ -260,15 +260,10 @@ public class SardineImpl implements Sardine
 			// Will consume the entity when the stream is closed.
 			return new WrappedInputStream(response);
 		}
-		catch (SardineException ex)
-		{
-			get.abort();
-			throw ex;
-		}
 		catch (IOException ex)
 		{
 			get.abort();
-			throw new SardineException(ex);
+			throw ex;
 		}
 	}
 
@@ -276,7 +271,7 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
 	 */
-	public void put(String url, byte[] data) throws SardineException
+	public void put(String url, byte[] data) throws IOException
 	{
 		put(url, data, null);
 	}
@@ -285,7 +280,7 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
 	 */
-	public void put(String url, byte[] data, String contentType) throws SardineException
+	public void put(String url, byte[] data, String contentType) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		ByteArrayEntity entity = new ByteArrayEntity(data);
@@ -296,7 +291,7 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, InputStream)
 	 */
-	public void put(String url, InputStream dataStream) throws SardineException
+	public void put(String url, InputStream dataStream) throws IOException
 	{
 		put(url, dataStream, null);
 	}
@@ -305,12 +300,12 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
 	 */
-	public void put(String url, InputStream dataStream, String contentType) throws SardineException
+	public void put(String url, InputStream dataStream, String contentType) throws IOException
 	{
 		put(url, dataStream, contentType, true);
 	}
 
-	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws SardineException
+	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		// A length of -1 means "go until end of stream"
@@ -321,7 +316,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * Private helper for doing the work of a put
 	 */
-	private void put(HttpPut put, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws SardineException
+	private void put(HttpPut put, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		put.setEntity(entity);
 		if (contentType != null)
@@ -339,7 +334,7 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
 	 */
-	public void delete(String url) throws SardineException
+	public void delete(String url) throws IOException
 	{
 		final HttpDelete delete = new HttpDelete(url);
 		execute(delete, new VoidResponseHandler());
@@ -349,7 +344,7 @@ public class SardineImpl implements Sardine
 		  * (non-Javadoc)
 		  * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
 		  */
-	public void move(String sourceUrl, String destinationUrl) throws SardineException
+	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
 		execute(move, new VoidResponseHandler());
@@ -359,7 +354,7 @@ public class SardineImpl implements Sardine
 		  * (non-Javadoc)
 		  * @see com.googlecode.sardine.Sardine#copy(java.lang.String, java.lang.String)
 		  */
-	public void copy(String sourceUrl, String destinationUrl) throws SardineException
+	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
 		execute(copy, new VoidResponseHandler());
@@ -369,7 +364,7 @@ public class SardineImpl implements Sardine
 		  * (non-Javadoc)
 		  * @see com.googlecode.sardine.Sardine#createDirectory(java.lang.String)
 		  */
-	public void createDirectory(String url) throws SardineException
+	public void createDirectory(String url) throws IOException
 	{
 		HttpMkCol mkcol = new HttpMkCol(url);
 		execute(mkcol, new VoidResponseHandler());
@@ -379,71 +374,61 @@ public class SardineImpl implements Sardine
 		  * (non-Javadoc)
 		  * @see com.googlecode.sardine.Sardine#exists(java.lang.String)
 		  */
-	public boolean exists(String url) throws SardineException
+	public boolean exists(String url) throws IOException
 	{
 		final HttpHead head = new HttpHead(url);
 		return execute(head, new ExistsResponseHandler());
 	}
 
 	/**
-	 * Wraps all checked exceptions to {@link SardineException}. Validate the response using the
+	 * Wraps all checked exceptions to {@link IOException}. Validate the response using the
 	 * response handler.
 	 *
 	 * @param <T>             Return type
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
-	 * @throws SardineException
+	 * @throws IOException
 	 */
 	private <T> T execute(final HttpRequestBase request, final ResponseHandler<T> responseHandler)
-			throws SardineException
+			throws IOException
 	{
 		try
 		{
-			return client.execute(request, responseHandler, localcontext);
+			return client.execute(request, responseHandler, context);
 		}
-		catch (SardineException e)
+		catch (IOException e)
 		{
 			// Catch first as we don't want to wrap again and throw again.
 			request.abort();
 			throw e;
 		}
-		catch (IOException e)
-		{
-			request.abort();
-			throw new SardineException(e);
-		}
 	}
 
 	/**
-	 * No validation of the response. Wraps all checked exceptions to {@link SardineException}.
+	 * No validation of the response. Wraps all checked exceptions to {@link IOException}.
 	 *
 	 * @param request Request to execute
 	 * @return Response
-	 * @throws com.googlecode.sardine.util.SardineException
+	 * @throws com.googlecode.sardine.util.IOException
 	 *
 	 */
 	private HttpResponse execute(final HttpRequestBase request)
-			throws SardineException
+			throws IOException
 	{
 		try
 		{
-			return client.execute(request, localcontext);
+			return client.execute(request, context);
 		}
-		catch (SardineException e)
+		catch (IOException e)
 		{
 			request.abort();
 			throw e;
 		}
-		catch (IOException e)
-		{
-			request.abort();
-			throw new SardineException(e);
-		}
 	}
 
 	/**
-	 * Creates default params, set maximal total connections to {@link #MAX_TOTAL_CONNECTIONS}.
+	 * Creates default params setting the user agent.
 	 *
 	 * @return httpParams
 	 */
