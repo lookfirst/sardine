@@ -10,6 +10,7 @@ import com.googlecode.sardine.util.SardineException;
  * The main interface for Sardine operations.
  * 
  * @author jonstevens
+ * @version $Id$
  */
 public interface Sardine {
 	/**
@@ -23,9 +24,16 @@ public interface Sardine {
 	public void setCustomProps(String url, Map<String,String> addProps, List<String> removeProps) throws SardineException;
 
 	/**
+	 * @deprecated
+	 * @see #get(String)
+	 */
+	@Deprecated
+	public InputStream getInputStream(String url) throws SardineException;
+
+	/**
 	 * Uses HttpGet to get an input stream for a url
 	 */
-	public InputStream getInputStream(String url) throws SardineException;
+	public InputStream get(String url) throws SardineException;
 
 	/**
 	 * Uses webdav put to send data to a server
@@ -90,11 +98,4 @@ public interface Sardine {
 	 * @see Sardine#enableCompression()
 	 */
 	public void disableCompression();
-
-	/**
-	 * Checks whether support for compression is enabled or not.
-	 * 
-	 * @return <tt>true</tt> if compression is enabled, <tt>false</tt> otherwise.
-	 */
-	public boolean isCompressionEnabled();
 }

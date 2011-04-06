@@ -1,147 +1,333 @@
+/*
+ * Copyright 2009-2011 Jon Stevens et al.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.googlecode.sardine;
 
+import com.googlecode.sardine.model.*;
+import com.googlecode.sardine.util.SardineUtil;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Map;
 
-import com.googlecode.sardine.util.SardineUtil;
-
 /**
- * Describes a resource on a remote server. This could be a directory
- * or an actual file.
+ * Describes a resource on a remote server. This could be a directory or an actual file.
  *
  * @author jonstevens
+ * @version $Id$
  */
 public class DavResource
 {
-	private String baseUrl;
-	private String name;
-	private Date creation;
-	private Date modified;
-	private String contentType;
-	private Long contentLength;
-	private boolean currentDirectory;
-	private Map<String, String> customProps;
 
-	private String url;
-	private String nameDecoded;
+	/**
+	 * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
+	 */
+	static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
+
+	/**
+	 * The default content-lenght if {@link Getcontentlength} is not set in the {@link Multistatus} response.
+	 */
+	static final long DEFAULT_CONTENT_LENGTH = -1;
+
+	/**
+	 * content-type for {@link Collection}.
+	 */
+	public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
+
+
+	private final URI href;
+	private final Date creation;
+	private final Date modified;
+	private final String contentType;
+	private final String etag;
+	private final Long contentLength;
+	private final Map<String, String> customProps;
 
 	/**
 	 * Represents a webdav response block.
 	 *
-	 * @param name the name of the resource, with all /'s removed
+	 * @param href		  URI to the resource as returned from the server
+	 * @param creation
+	 * @param modified
+	 * @param contentType
+	 * @param contentLength
+	 * @param etag
+	 * @param customProps
+	 * @throws java.net.URISyntaxException
 	 */
-	public DavResource(String baseUrl, String name, Date creation, Date modified, String contentType, Long contentLength, boolean currentDirectory, Map<String,String> customProps)
+	public DavResource(String href, Date creation, Date modified, String contentType,
+					   Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
 	{
-		this.baseUrl = baseUrl;
-		this.name = name;
+		this.href = new URI(href);
 		this.creation = creation;
 		this.modified = modified;
 		this.contentType = contentType;
 		this.contentLength = contentLength;
-		this.currentDirectory = currentDirectory;
+		this.etag = etag;
 		this.customProps = customProps;
 	}
 
-	/** */
-	public String getBaseUrl()
+
+	/**
+	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
+	 *
+	 * @return new {@link com.googlecode.sardine.DavResource} from {@link Response}.
+	 * @throws java.net.URISyntaxException
+	 */
+	public DavResource(Response response) throws URISyntaxException
 	{
-		return this.baseUrl;
+		this.href = new URI(response.getHref().get(0));
+		this.creation = SardineUtil.parseDate(getCreationDate(response));
+		this.modified = SardineUtil.parseDate(getModifiedDate(response));
+		this.contentType = getContentType(response);
+		this.contentLength = getContentLength(response);
+		this.etag = getEtag(response);
+		this.customProps = SardineUtil.extractCustomProps(response.getPropstat().get(0).getProp().getAny());
 	}
 
 	/**
-	 * A URLEncoded version of the name as returned by the server.
+	 * Retrieves modifieddate from props. If it is not available return null.
+	 *
+	 * @return Null if not found in props
 	 */
-	public String getName()
+	private String getModifiedDate(Response response)
 	{
-		return this.name;
+		final String modifieddate;
+		final Getlastmodified glm = response.getPropstat().get(0).getProp().getGetlastmodified();
+		if ((glm != null) && (glm.getContent().size() == 1))
+		{
+			modifieddate = glm.getContent().get(0);
+		}
+		else
+		{
+			modifieddate = null;
+		}
+		return modifieddate;
 	}
 
 	/**
-	 * A URLDecoded version of the name.
+	 * Retrieves creationdate from props. If it is not available return null.
+	 *
+	 * @return Null if not found in props
 	 */
-	public String getNameDecoded()
+	private String getCreationDate(Response response)
 	{
-		if (this.nameDecoded == null)
-			this.nameDecoded = SardineUtil.decode(this.name);
-		return this.nameDecoded;
+		final String creationdate;
+		final Creationdate gcd = response.getPropstat().get(0).getProp().getCreationdate();
+		if ((gcd != null) && (gcd.getContent().size() == 1))
+		{
+			creationdate = gcd.getContent().get(0);
+		}
+		else
+		{
+			creationdate = null;
+		}
+		return creationdate;
 	}
 
-	/** */
+	/**
+	 * Retrieves the content-type from prop or set it to {@link #DEFAULT_CONTENT_TYPE}. If
+	 * isDirectory always set the content-type to {@link #HTTPD_UNIX_DIRECTORY_CONTENT_TYPE}.
+	 *
+	 * @return the content type.
+	 */
+	private String getContentType(Response response)
+	{
+		// Make sure that directories have the correct content type.
+		if (response.getPropstat().get(0).getProp().getResourcetype().getCollection() != null)
+		{
+			// Need to correct the contentType to identify as a directory.
+			return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
+		}
+		else
+		{
+			final Getcontenttype gtt = response.getPropstat().get(0).getProp().getGetcontenttype();
+			if ((gtt != null) && (gtt.getContent().size() == 1))
+			{
+				return gtt.getContent().get(0);
+			}
+		}
+		return DEFAULT_CONTENT_TYPE;
+	}
+
+	/**
+	 * Retrieves content-length from props. If it is not available return
+	 * {@link #DEFAULT_CONTENT_LENGTH}.
+	 *
+	 * @return contentlength
+	 */
+	private long getContentLength(Response response)
+	{
+		final Getcontentlength gcl = response.getPropstat().get(0).getProp().getGetcontentlength();
+		if ((gcl != null) && (gcl.getContent().size() == 1))
+		{
+			try
+			{
+				return Long.parseLong(gcl.getContent().get(0));
+			}
+			catch (NumberFormatException e)
+			{
+				;
+			}
+		}
+		return DEFAULT_CONTENT_LENGTH;
+	}
+
+	/**
+	 * Retrieves content-length from props. If it is not available return
+	 * {@link #DEFAULT_CONTENT_LENGTH}.
+	 *
+	 * @return contentlength
+	 */
+	private String getEtag(Response response)
+	{
+		final Getetag etag = response.getPropstat().get(0).getProp().getGetetag();
+		if ((etag != null) && (etag.getContent().size() == 1))
+		{
+			return etag.getContent().get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
 	public Date getCreation()
 	{
-		return this.creation;
-	}
-
-	/** */
-	public Date getModified()
-	{
-		return this.modified;
-	}
-
-	/** */
-	public String getContentType()
-	{
-		return this.contentType;
-	}
-
-	/** */
-	public Long getContentLength()
-	{
-		return this.contentLength;
+		return creation;
 	}
 
 	/**
-	 * Absolute url to the resource.
+	 * @return
 	 */
-	public String getAbsoluteUrl()
+	public Date getModified()
 	{
-		if (this.url == null)
-		{
-			String result = null;
-			if (this.baseUrl.endsWith("/"))
-				result = this.baseUrl + this.name;
-			else
-				result = this.baseUrl + "/" + this.name;
+		return modified;
+	}
 
-			if (this.contentType != null && this.isDirectory() && this.name != null && this.name.length() > 0)
-				result = result + "/";
+	/**
+	 * @return
+	 */
+	public String getContentType()
+	{
+		return contentType;
+	}
 
-			this.url = result;
-		}
-		return this.url;
+	/**
+	 * @return
+	 */
+	public Long getContentLength()
+	{
+		return contentLength;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getEtag()
+	{
+		return etag;
 	}
 
 	/**
 	 * Does this resource have a contentType of httpd/unix-directory?
+	 *
+	 * @return
 	 */
 	public boolean isDirectory()
 	{
-		return (this.contentType != null && this.contentType.equals("httpd/unix-directory"));
+		return "httpd/unix-directory".equals(contentType);
 	}
 
 	/**
-	 * Is this the current directory for the path we requested?
-	 * ie: if we requested: http://foo.com/bar/dir/, is this the
-	 * DavResource for that directory?
+	 * @return
 	 */
-	public boolean isCurrentDirectory()
+	public Map<String, String> getCustomProps()
 	{
-		return this.currentDirectory;
+		return customProps;
 	}
 
-	/** */
-	public Map<String,String> getCustomProps()
-	{
-	    return this.customProps;
-	}
-
-	/** */
+	/**
+	 * @return
+	 * @see #getPath()
+	 */
 	@Override
 	public String toString()
 	{
-		return "DavResource [baseUrl=" + this.baseUrl + ", contentLength=" + this.contentLength + ", contentType="
-				+ this.contentType + ", creation=" + this.creation + ", modified=" + this.modified + ", name="
-				+ this.name + ", nameDecoded=" + this.getNameDecoded() + ", getAbsoluteUrl()="
-				+ this.getAbsoluteUrl() + ", isDirectory()=" + this.isDirectory() + "]";
+		return this.getPath();
+	}
+
+	/**
+	 * Last path component.
+	 *
+	 * @return The name of the resource URI decoded.
+	 */
+	public String getName()
+	{
+		final String path = href.getPath();
+		return path.substring(path.lastIndexOf('/') + 1);
+	}
+
+	/**
+	 * @return
+	 * @see #getName()
+	 * @deprecated
+	 */
+	@Deprecated
+	public String getNameDecoded()
+	{
+		return this.getName();
+	}
+
+	/**
+	 * @return URI of the resource.
+	 */
+	public URI getHref()
+	{
+		return href;
+	}
+
+	/**
+	 * @return Path component of the URI of the resource.
+	 */
+	public String getPath()
+	{
+		return href.getPath();
+	}
+
+	/**
+	 * @return
+	 * @see #getHref()
+	 * @deprecated
+	 */
+	@Deprecated
+	public String getAbsoluteUrl()
+	{
+		return href.toString();
+	}
+
+	/**
+	 * @return
+	 * @see #getHref()
+	 * @deprecated
+	 */
+	@Deprecated
+	public String getBaseUrl()
+	{
+		return null;
 	}
 }
