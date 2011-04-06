@@ -1,5 +1,6 @@
 package com.googlecode.sardine.util;
 
+import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.ObjectFactory;
 import org.apache.http.entity.StringEntity;
@@ -218,9 +219,7 @@ public class SardineUtil
 
 		for (Element element : elements)
 		{
-			String[] keys = element.getTagName().split(":", 2);
-			String key = (keys.length > 1) ? keys[1] : keys[0];
-
+			String key = element.getLocalName();
 			customPropsMap.put(key, element.getTextContent());
 		}
 
