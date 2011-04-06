@@ -23,6 +23,7 @@ import java.net.URI;
 
 /**
  * Simple class for making copy a bit easier to deal with. Assumes Overwrite = T.
+ *
  * @version $Id$
  */
 public class HttpCopy extends HttpEntityEnclosingRequestBase

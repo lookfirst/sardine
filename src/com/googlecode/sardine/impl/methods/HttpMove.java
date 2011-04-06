@@ -23,6 +23,7 @@ import java.net.URI;
 
 /**
  * Simple class for making move a bit easier to deal with.
+ *
  * @version $Id$
  */
 public class HttpMove extends HttpEntityEnclosingRequestBase
