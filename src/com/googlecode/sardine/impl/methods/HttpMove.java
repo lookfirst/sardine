@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.methods;
 
 import com.googlecode.sardine.util.SardineException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -23,7 +23,7 @@ import java.net.URI;
 
 /**
  * Simple class for making move a bit easier to deal with.
- * @version $Id:$
+ * @version $Id$
  */
 public class HttpMove extends HttpEntityEnclosingRequestBase
 {

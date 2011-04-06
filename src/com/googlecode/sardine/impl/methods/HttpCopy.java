@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.methods;
 
+import com.googlecode.sardine.util.SardineException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
 
 /**
- * Simple class for making mkcol a bit easier to deal with.
- * @version $Id:$
+ * Simple class for making copy a bit easier to deal with. Assumes Overwrite = T.
+ * @version $Id$
  */
-public class HttpMkCol extends HttpEntityEnclosingRequestBase {
-    public HttpMkCol(String url) {
-        this.setURI(URI.create(url));
-    }
+public class HttpCopy extends HttpEntityEnclosingRequestBase
+{
+	public HttpCopy(String sourceUrl, String destinationUrl) throws SardineException
+	{
+		this.setHeader("Destination", destinationUrl);
+		this.setHeader("Overwrite", "T");
+		this.setURI(URI.create(sourceUrl));
+	}
 
-    @Override
-    public String getMethod() {
-        return "MKCOL";
-    }
+	@Override
+	public String getMethod()
+	{
+		return "COPY";
+	}
 }

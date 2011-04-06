@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.methods;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
@@ -23,7 +23,7 @@ import java.net.URI;
 /**
  * Simple class for making propfind a bit easier to deal with.
  *
- * @version $Id:$
+ * @version $Id$
  */
 public class HttpPropFind extends HttpEntityEnclosingRequestBase
 {

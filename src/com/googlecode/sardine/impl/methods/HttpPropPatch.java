@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.methods;
 
-import com.googlecode.sardine.util.SardineException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
 
 /**
- * Simple class for making copy a bit easier to deal with. Assumes Overwrite = T.
- * @version $Id:$
+ * Simple class for making proppatch a bit easier to deal with.
+ * @version $Id$
  */
-public class HttpCopy extends HttpEntityEnclosingRequestBase
-{
-	public HttpCopy(String sourceUrl, String destinationUrl) throws SardineException
-	{
-		this.setHeader("Destination", destinationUrl);
-		this.setHeader("Overwrite", "T");
-		this.setURI(URI.create(sourceUrl));
-	}
+public class HttpPropPatch extends HttpEntityEnclosingRequestBase {
+    public HttpPropPatch(String url) {
+        this.setURI(URI.create(url));
+        this.setHeader("Content-Type", "text/xml");
+    }
 
-	@Override
-	public String getMethod()
-	{
-		return "COPY";
-	}
+    @Override
+    public String getMethod() {
+        return "PROPPATCH";
+    }
 }

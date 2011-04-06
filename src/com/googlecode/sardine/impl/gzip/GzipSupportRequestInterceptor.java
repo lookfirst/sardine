@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.gzip;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;

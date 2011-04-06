@@ -1,9 +1,12 @@
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.impl.*;
+import com.googlecode.sardine.impl.gzip.GzipSupportRequestInterceptor;
+import com.googlecode.sardine.impl.gzip.GzipSupportResponseInterceptor;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
 import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
 import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.WrappedInputStream;
+import com.googlecode.sardine.impl.methods.*;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineException;

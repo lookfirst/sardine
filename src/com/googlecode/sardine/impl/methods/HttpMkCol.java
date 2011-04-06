@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.impl;
+package com.googlecode.sardine.impl.methods;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
 
 /**
- * Simple class for making proppatch a bit easier to deal with.
+ * Simple class for making mkcol a bit easier to deal with.
+ * @version $Id$
  */
-public class HttpPropPatch extends HttpEntityEnclosingRequestBase {
-    public HttpPropPatch(String url) {
+public class HttpMkCol extends HttpEntityEnclosingRequestBase {
+    public HttpMkCol(String url) {
         this.setURI(URI.create(url));
-        this.setHeader("Content-Type", "text/xml");
     }
 
     @Override
     public String getMethod() {
-        return "PROPPATCH";
+        return "MKCOL";
     }
 }
