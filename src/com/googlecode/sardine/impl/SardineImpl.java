@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine;
+package com.googlecode.sardine.impl;
 
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
 import com.googlecode.sardine.impl.gzip.GzipSupportRequestInterceptor;
 import com.googlecode.sardine.impl.gzip.GzipSupportResponseInterceptor;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
@@ -25,7 +28,7 @@ import com.googlecode.sardine.impl.io.WrappedInputStream;
 import com.googlecode.sardine.impl.methods.*;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -91,7 +94,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * @param username
 	 * @param password
-	 * @throws SardineException
+	 * @throws com.googlecode.sardine.impl.SardineException
 	 */
 	public SardineImpl(String username, String password)
 	{

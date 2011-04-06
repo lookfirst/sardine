@@ -16,7 +16,7 @@
 
 package com.googlecode.sardine.impl.handler;
 
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -33,7 +33,7 @@ public abstract class ValidatingResponseHandler<T> implements ResponseHandler<T>
 {
 	/**
 	 * Checks the response for a statuscode between {@link HttpStatus#SC_OK} and {@link HttpStatus#SC_MULTIPLE_CHOICES}
-	 * and throws an {@link com.googlecode.sardine.util.SardineException} otherwise.
+	 * and throws an {@link com.googlecode.sardine.impl.SardineException} otherwise.
 	 *
 	 * @param response to check
 	 * @throws SardineException when the status code is not acceptable.

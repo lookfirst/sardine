@@ -3,12 +3,8 @@ package com.googlecode.sardine;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
-import com.googlecode.sardine.util.SardineException;
-
 /**
- * The perfect name for a class. Provides the
- * static methods for working with the Sardine
- * interface.
+ * The perfect name for a class. Provides the static methods for working with the Sardine interface.
  *
  * @author jonstevens
  */
@@ -18,7 +14,7 @@ public class SardineFactory
 	 * Default begin() for when you don't need anything but no authentication
 	 * and default settings for SSL.
 	 */
-	public static Sardine begin() throws SardineException
+	public static Sardine begin()
 	{
 		return Factory.instance().begin(null, null);
 	}
@@ -29,7 +25,7 @@ public class SardineFactory
 	 *
 	 * @see <a href="http://hc.apache.org/httpcomponents-client/httpclient/xref/org/apache/http/conn/ssl/SSLSocketFactory.html">SSLSocketFactory</a>
 	 */
-	public static Sardine begin(SSLSocketFactory sslSocketFactory) throws SardineException
+	public static Sardine begin(SSLSocketFactory sslSocketFactory)
 	{
 		return Factory.instance().begin(null, null, sslSocketFactory);
 	}
@@ -38,7 +34,7 @@ public class SardineFactory
 	 * Pass in a HTTP Auth username/password for being used with all
 	 * connections
 	 */
-	public static Sardine begin(String username, String password) throws SardineException
+	public static Sardine begin(String username, String password)
 	{
 		return Factory.instance().begin(username, password);
 	}
@@ -47,7 +43,7 @@ public class SardineFactory
 	 * Pass in a HTTP Auth username/password for being used with all
 	 * connections
 	 */
-	public static Sardine begin(String username, String password, Integer port) throws SardineException
+	public static Sardine begin(String username, String password, Integer port)
 	{
 		return Factory.instance().begin(username, password, port);
 	}
@@ -58,7 +54,7 @@ public class SardineFactory
 	 *
 	 * @see <a href="http://hc.apache.org/httpcomponents-client/httpclient/xref/org/apache/http/conn/ssl/SSLSocketFactory.html">SSLSocketFactory</a>
 	 */
-	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory) throws SardineException
+	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory)
 	{
 		return Factory.instance().begin(username, password, sslSocketFactory);
 	}
@@ -66,7 +62,7 @@ public class SardineFactory
 	/**
 	 * Useful for when you need to define a http proxy
 	 */
-	public static Sardine begin(HttpRoutePlanner routePlanner) throws SardineException
+	public static Sardine begin(HttpRoutePlanner routePlanner)
 	{
 		return Factory.instance().begin(null, null, null, routePlanner);
 	}
@@ -74,7 +70,7 @@ public class SardineFactory
 	/**
 	 * Useful for when you need to define a http proxy
 	 */
-	public static Sardine begin(HttpRoutePlanner routePlanner, SSLSocketFactory sslSocketFactory) throws SardineException
+	public static Sardine begin(HttpRoutePlanner routePlanner, SSLSocketFactory sslSocketFactory)
 	{
 		return Factory.instance().begin(null, null, sslSocketFactory, routePlanner);
 	}
@@ -82,7 +78,7 @@ public class SardineFactory
 	/**
 	 * Useful for when you need to define a http proxy
 	 */
-	public static Sardine begin(String username, String password, HttpRoutePlanner routePlanner) throws SardineException
+	public static Sardine begin(String username, String password, HttpRoutePlanner routePlanner)
 	{
 		return Factory.instance().begin(username, password, routePlanner);
 	}
@@ -90,7 +86,7 @@ public class SardineFactory
 	/**
 	 * Useful for when you need to define a http proxy
 	 */
-	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner) throws SardineException
+	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner)
 	{
 		return Factory.instance().begin(username, password, sslSocketFactory);
 	}
@@ -98,7 +94,7 @@ public class SardineFactory
 	/**
 	 * Useful for when you need to define a http proxy
 	 */
-	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner, Integer port) throws SardineException
+	public static Sardine begin(String username, String password, SSLSocketFactory sslSocketFactory, HttpRoutePlanner routePlanner, Integer port)
 	{
 		return Factory.instance().begin(username, password, sslSocketFactory, routePlanner, port);
 	}

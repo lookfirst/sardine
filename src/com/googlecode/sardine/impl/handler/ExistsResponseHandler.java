@@ -16,7 +16,7 @@
 
 package com.googlecode.sardine.impl.handler;
 
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;

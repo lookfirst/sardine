@@ -16,7 +16,7 @@
 
 package com.googlecode.sardine.impl.methods;
 
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;

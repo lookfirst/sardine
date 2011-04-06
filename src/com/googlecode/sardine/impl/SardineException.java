@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.googlecode.sardine.util;
+package com.googlecode.sardine.impl;
 
-import java.io.IOException;
+import org.apache.http.client.HttpResponseException;
 
 /**
  * Specialized type of exception for Sardine so
  * that it is easy to get the error information from it.
  *
  * @author jonstevens
+ * @version $Id$
  */
-public class SardineException extends IOException
+public class SardineException extends HttpResponseException
 {
-	private int statusCode;
+	private Throwable cause;
 	private String responsePhrase;
 
 	/**
@@ -72,19 +73,18 @@ public class SardineException extends IOException
 	 */
 	public SardineException(String msg, int statusCode, String responsePhrase, Throwable cause)
 	{
-		super(msg, cause);
-		this.statusCode = statusCode;
+		super(statusCode, msg);
 		this.responsePhrase = responsePhrase;
+		this.cause = cause;
 	}
 
 	/**
-	 * The http client status code.
-	 *
-	 * @return A status code of -1 if not known.
+	 * @return Null if no external cause.
 	 */
-	public int getStatusCode()
+	@Override
+	public Throwable getCause()
 	{
-		return this.statusCode;
+		return cause;
 	}
 
 	/**

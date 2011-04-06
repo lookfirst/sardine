@@ -17,7 +17,7 @@
 package com.googlecode.sardine.impl.handler;
 
 import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

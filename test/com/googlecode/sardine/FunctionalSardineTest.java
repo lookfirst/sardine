@@ -16,7 +16,8 @@
 
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.util.SardineException;
+import com.googlecode.sardine.impl.SardineException;
+import com.googlecode.sardine.impl.SardineImpl;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
