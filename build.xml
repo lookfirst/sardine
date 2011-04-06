@@ -64,6 +64,7 @@
             <sfile name="${httpcore.jar}" scope="compile" />
             <sfile name="${httpmime.jar}" scope="compile" />
             <sfile name="${log4j.jar}" scope="compile" />
+            <sfile name="${junit.jar}" scope="compile" />
         </sfilelist>
     </spath>
     <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
@@ -95,6 +96,7 @@
                     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                     <sweetenedEntries />
                     <classpathentry kind="src" path="src"/>
+                    <classpathentry kind="src" path="test"/>
                     <classpathentry kind="output" path="_eclipse"/>
                 </classpath>
             </data>
@@ -151,7 +153,7 @@
 
     <target name="test" depends="compile-tests">
         <mkdir dir="${build.test}"/>
-
+        <echo>${toString:test.classpath}</echo>
         <junit fork="on" forkmode="perBatch" printsummary="on">
             <formatter type="plain"/>
             <classpath refid="test.classpath"/>

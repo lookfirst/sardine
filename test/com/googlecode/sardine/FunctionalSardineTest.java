@@ -108,7 +108,7 @@ public class FunctionalSardineTest
 		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
 		try
 		{
-			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
+			sardine.getResources("http://sudo.ch/dav/basic/");
 			fail("Expected authorization failure");
 		}
 		catch (SardineException e)
