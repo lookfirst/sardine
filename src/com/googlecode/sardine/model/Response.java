@@ -55,22 +55,6 @@ import java.util.List;
 @XmlRootElement(name = "response")
 public class Response {
 
-    /**
-     * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
-     */
-    static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
-
-    /**
-     * The default content-lenght if {@link Getcontentlength} is not set in the {@link Multistatus} response.
-     */
-    static final long DEFAULT_CONTENT_LENGTH = -1;
-
-    /**
-     * content-type for {@link Collection}.
-     */
-    public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
-
-
     @XmlElement(required = true)
     protected List<String> href;
     protected String status;
