@@ -33,7 +33,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.*;
@@ -140,8 +140,13 @@ public class SardineImpl implements Sardine
 	{
 		if (username != null)
 		{
+			StringBuilder credentials = new StringBuilder(username);
+			if (password != null)
+			{
+				credentials.append(":").append(password);
+			}
 			client.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-					new UsernamePasswordCredentials(username, password));
+					new NTCredentials(credentials.toString()));
 		}
 	}
 

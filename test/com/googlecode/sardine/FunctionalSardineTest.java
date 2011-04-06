@@ -156,12 +156,18 @@ public class FunctionalSardineTest
 	}
 
 	@Test
-	public void testBasicDigest() throws Exception
+	public void testDigestAuth() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
 		final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
 		assertNotNull(resources);
 		assertTrue(resources.size() > 0);
+	}
+
+	@Test
+	public void testNtlmAuth() throws Exception
+	{
+		fail("Need a NTLM enabled WebDav server for testing");
 	}
 
 	@Test
