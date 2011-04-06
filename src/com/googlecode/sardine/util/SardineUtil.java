@@ -118,7 +118,7 @@ public class SardineUtil
 			}
 			catch (UnsupportedEncodingException e)
 			{
-				// Ignored
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -128,6 +128,8 @@ public class SardineUtil
 	/**
 	 * Build PROPPATCH entity.
 	 *
+	 * @param setProps
+	 * @param removeProps
 	 * @return
 	 */
 	public static StringEntity getResourcePatchEntity(Map<String, String> setProps, List<String> removeProps)
@@ -174,7 +176,7 @@ public class SardineUtil
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			// Ignored
+			throw new RuntimeException(e);
 		}
 
 		return patchEntity;
@@ -183,6 +185,7 @@ public class SardineUtil
 	/**
 	 * Helper method for getting the Multistatus response processor.
 	 *
+	 * @param stream
 	 * @return
 	 * @throws com.googlecode.sardine.impl.SardineException
 	 *
@@ -196,7 +199,7 @@ public class SardineUtil
 		}
 		catch (JAXBException ex)
 		{
-			throw new SardineException("Problem unmarshalling the data", ex);
+			throw new SardineException(ex.getMessage(), ex);
 		}
 	}
 
@@ -219,6 +222,7 @@ public class SardineUtil
 	}
 
 	/**
+	 * @param elements
 	 * @return
 	 */
 	public static Map<String, String> extractCustomProps(List<Element> elements)
