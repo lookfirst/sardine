@@ -111,10 +111,11 @@ public class SardineUtil
 		{
 			try
 			{
-				GET_RESOURCES = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
-						"<propfind xmlns=\"DAV:\">\n" +
-						"	<allprop/>\n" +
-						"</propfind>", "UTF-8");
+				GET_RESOURCES = new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
+						"<propfind xmlns=\"DAV:\">" +
+						"	<allprop/>" +
+						"</propfind>",
+						"text/xml", "UTF-8");
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -134,52 +135,46 @@ public class SardineUtil
 	 */
 	public static StringEntity getResourcePatchEntity(Map<String, String> setProps, List<String> removeProps)
 	{
-		StringEntity patchEntity = null;
-
+		StringEntity entity;
 		try
 		{
-			StringBuffer buf = new StringBuffer("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-			buf.append("<D:propertyupdate xmlns:D=\"DAV:\" xmlns:S=\"SAR:\">\n");
-
+			StringBuffer buf = new StringBuffer("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+			buf.append("<D:propertyupdate xmlns:D=\"DAV:\" xmlns:S=\"SAR:\">");
 			if (setProps != null)
 			{
-				buf.append("<D:set>\n");
-				buf.append("<D:prop>\n");
+				buf.append("<D:set>");
+				buf.append("<D:prop>");
 				for (Map.Entry<String, String> prop : setProps.entrySet())
 				{
 					buf.append("<S:");
 					buf.append(prop.getKey()).append(">");
 					buf.append(prop.getValue()).append("</S:");
-					buf.append(prop.getKey()).append(">\n");
+					buf.append(prop.getKey()).append(">");
 				}
-				buf.append("</D:prop>\n");
-				buf.append("</D:set>\n");
+				buf.append("</D:prop>");
+				buf.append("</D:set>");
 			}
-
 			if (removeProps != null)
 			{
-				buf.append("<D:remove>\n");
-				buf.append("<D:prop>\n");
+				buf.append("<D:remove>");
+				buf.append("<D:prop>");
 				for (String removeProp : removeProps)
 				{
 					buf.append("<S:");
 					buf.append(removeProp).append("/>");
 				}
-				buf.append("</D:prop>\n");
-				buf.append("</D:remove>\n");
+				buf.append("</D:prop>");
+				buf.append("</D:remove>");
 			}
-
-			buf.append("</D:propertyupdate>\n");
-
-			patchEntity = new StringEntity(buf.toString());
-
+			buf.append("</D:propertyupdate>");
+			entity = new StringEntity(buf.toString(), "text/xml", "UTF-8");
 		}
 		catch (UnsupportedEncodingException e)
 		{
 			throw new RuntimeException(e);
 		}
 
-		return patchEntity;
+		return entity;
 	}
 
 	/**
