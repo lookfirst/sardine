@@ -28,7 +28,6 @@ import com.googlecode.sardine.impl.io.WrappedInputStream;
 import com.googlecode.sardine.impl.methods.*;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -84,57 +83,31 @@ public class SardineImpl implements Sardine
 	private HttpContext context = new BasicHttpContext();
 
 	/**
-	 * @throws SardineException
+	 * Access resources with no authentication
 	 */
 	public SardineImpl()
 	{
-		this(null, null, null, null, null);
+		this(null, null);
 	}
 
 	/**
-	 * @param username
-	 * @param password
-	 * @throws com.googlecode.sardine.impl.SardineException
+	 * Supports standard authentication mechanisms
+	 *
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
 	 */
 	public SardineImpl(String username, String password)
 	{
-		this(username, password, null, null);
-	}
 
-	/**
-	 * @param username
-	 * @param password
-	 * @param factory
-	 * @param routePlanner
-	 * @throws IOException
-	 */
-	public SardineImpl(String username, String password, SSLSocketFactory factory,
-					   HttpRoutePlanner routePlanner)
-	{
-		this(username, password, factory, routePlanner, null);
-	}
-
-	/**
-	 * @param username
-	 * @param password
-	 * @param factory
-	 * @param routePlanner
-	 * @param port
-	 * @throws IOException
-	 */
-	public SardineImpl(String username, String password, SSLSocketFactory factory,
-					   HttpRoutePlanner routePlanner, Integer port)
-	{
-
-		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry(factory, port);
+		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
 		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
 		HttpParams params = createDefaultHttpParams();
 		client = new DefaultHttpClient(cm, params);
 		setCredentials(username, password);
-		// for proxy configurations
-		if (routePlanner != null)
+		final HttpRoutePlanner proxy = createDefaultRoutePlanner();
+		if (proxy != null)
 		{
-			client.setRoutePlanner(routePlanner);
+			client.setRoutePlanner(proxy);
 		}
 	}
 
@@ -157,6 +130,12 @@ public class SardineImpl implements Sardine
 		setCredentials(username, password);
 	}
 
+	/**
+	 * Add credentials to any scope.
+	 *
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 */
 	private void setCredentials(String username, String password)
 	{
 		if (username != null)
@@ -226,7 +205,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * (non-Javadoc)
 	 *
-	 * @see com.googlecode.sardine.Sardine#setCustomProps(java.lang.String, java.util.List<java.lang.String>)
+	 * @see com.googlecode.sardine.Sardine#setCustomProps(String, java.util.Map, java.util.List)
 	 */
 	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
 	{
@@ -318,6 +297,8 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * Private helper for doing the work of a put
+	 *
+	 * @throws java.io.IOException
 	 */
 	private void put(HttpPut put, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
@@ -333,8 +314,9 @@ public class SardineImpl implements Sardine
 		execute(put, new VoidResponseHandler());
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
 	 */
 	public void delete(String url) throws IOException
@@ -343,40 +325,44 @@ public class SardineImpl implements Sardine
 		execute(delete, new VoidResponseHandler());
 	}
 
-	/*
-		  * (non-Javadoc)
-		  * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
-		  */
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
+	 */
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
 		execute(move, new VoidResponseHandler());
 	}
 
-	/*
-		  * (non-Javadoc)
-		  * @see com.googlecode.sardine.Sardine#copy(java.lang.String, java.lang.String)
-		  */
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#copy(java.lang.String, java.lang.String)
+	 */
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
 		execute(copy, new VoidResponseHandler());
 	}
 
-	/*
-		  * (non-Javadoc)
-		  * @see com.googlecode.sardine.Sardine#createDirectory(java.lang.String)
-		  */
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#createDirectory(java.lang.String)
+	 */
 	public void createDirectory(String url) throws IOException
 	{
 		HttpMkCol mkcol = new HttpMkCol(url);
 		execute(mkcol, new VoidResponseHandler());
 	}
 
-	/*
-		  * (non-Javadoc)
-		  * @see com.googlecode.sardine.Sardine#exists(java.lang.String)
-		  */
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#exists(java.lang.String)
+	 */
 	public boolean exists(String url) throws IOException
 	{
 		final HttpHead head = new HttpHead(url);
@@ -387,6 +373,9 @@ public class SardineImpl implements Sardine
 	 * Wraps all checked exceptions to {@link IOException}. Validate the response using the
 	 * response handler.
 	 *
+	 * @param <T>             /**
+	 *                        Wraps all checked exceptions to {@link IOException}. Validate the response using the
+	 *                        response handler.
 	 * @param <T>             Return type
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
@@ -413,8 +402,7 @@ public class SardineImpl implements Sardine
 	 *
 	 * @param request Request to execute
 	 * @return Response
-	 * @throws com.googlecode.sardine.util.IOException
-	 *
+	 * @throws java.io.IOException
 	 */
 	private HttpResponse execute(final HttpRequestBase request)
 			throws IOException
@@ -449,23 +437,30 @@ public class SardineImpl implements Sardine
 	 * Creates a new {@link org.apache.http.conn.scheme.SchemeRegistry} for default ports
 	 * with socket factories.
 	 *
-	 * @param sslSocketFactory alternative {@link SSLSocketFactory}.
-	 * @param port			 alternate port.
 	 * @return a new {@link org.apache.http.conn.scheme.SchemeRegistry}.
 	 */
-	protected SchemeRegistry createDefaultSchemeRegistry(SSLSocketFactory sslSocketFactory, Integer port)
+	protected SchemeRegistry createDefaultSchemeRegistry()
 	{
 		final SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", port != null ? port : 80, PlainSocketFactory.getSocketFactory()));
-		if (sslSocketFactory != null)
-		{
-			registry.register(new Scheme("https", port != null ? port : 443, sslSocketFactory));
-		}
-		else
-		{
-			registry.register(new Scheme("https", port != null ? port : 443, SSLSocketFactory.getSocketFactory()));
-		}
+		registry.register(new Scheme("http", 80, createDefaultSocketFactory()));
+		registry.register(new Scheme("https", 443, createDefaultSecureSocketFactory()));
 		return registry;
+	}
+
+	/**
+	 * @return
+	 */
+	protected PlainSocketFactory createDefaultSocketFactory()
+	{
+		return PlainSocketFactory.getSocketFactory();
+	}
+
+	/**
+	 * @return
+	 */
+	protected SSLSocketFactory createDefaultSecureSocketFactory()
+	{
+		return SSLSocketFactory.getSocketFactory();
 	}
 
 	/**
@@ -477,5 +472,15 @@ public class SardineImpl implements Sardine
 	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
 	{
 		return new SingleClientConnManager(schemeRegistry);
+	}
+
+	/**
+	 * Override to provide proxy configuration
+	 *
+	 * @return Null if no proxy configuration
+	 */
+	protected HttpRoutePlanner createDefaultRoutePlanner()
+	{
+		return null;
 	}
 }
