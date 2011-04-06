@@ -1,18 +1,19 @@
 package com.googlecode.sardine;
 
+import com.googlecode.sardine.util.SardineException;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.googlecode.sardine.util.SardineException;
-
 /**
  * The main interface for Sardine operations.
- * 
+ *
  * @author jonstevens
  * @version $Id$
  */
-public interface Sardine {
+public interface Sardine
+{
 	/**
 	 * Gets a directory listing.
 	 */
@@ -21,11 +22,11 @@ public interface Sardine {
 	/**
 	 * Add or remove custom properties for a url.
 	 */
-	public void setCustomProps(String url, Map<String,String> addProps, List<String> removeProps) throws SardineException;
+	public void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws SardineException;
 
 	/**
-	 * @deprecated
 	 * @see #get(String)
+	 * @deprecated
 	 */
 	@Deprecated
 	public InputStream getInputStream(String url) throws SardineException;
@@ -54,7 +55,16 @@ public interface Sardine {
 	 * Uses webdav put to send data to a server with a specific content type header
 	 */
 	public void put(String url, InputStream dataStream, String contentType) throws SardineException;
-	
+
+	/**
+	 * @param url
+	 * @param dataStream
+	 * @param contentType
+	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
+	 * @throws SardineException
+	 */
+	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws SardineException;
+
 	/**
 	 * Delete a resource at the specified url
 	 */
@@ -94,7 +104,7 @@ public interface Sardine {
 
 	/**
 	 * Disables support for HTTP compression.
-	 * 
+	 *
 	 * @see Sardine#enableCompression()
 	 */
 	public void disableCompression();

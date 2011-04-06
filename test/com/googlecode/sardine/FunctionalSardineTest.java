@@ -102,9 +102,9 @@ public class FunctionalSardineTest
 				};
 			}
 		});
-		Sardine sardine = SardineFactory.begin();
-		// Send basic authentication header in initial request
-//        sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80, true);
+		SardineImpl sardine = new SardineImpl(client);
+		//Send basic authentication header in initial request
+        sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
 		try
 		{
 			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
@@ -143,7 +143,6 @@ public class FunctionalSardineTest
 			// Expect Authorization Required
 			assertEquals(401, e.getStatusCode());
 		}
-		sardine.delete(url);
 	}
 
 	@Test
