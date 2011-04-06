@@ -16,24 +16,19 @@
 
 package com.googlecode.sardine;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Date;
 
-/**
- * @author David Kocher <mailto:dkocher@sudo.ch>
- * @version $Id: $
- */
-public class DavResourceTest extends TestCase
-{
-	public DavResourceTest(String name)
-	{
-		super(name);
-	}
+import static org.junit.Assert.*;
 
+/**
+ * @version $Id$
+ */
+public class DavResourceTest
+{
+	@Test
 	public void testGetCreation() throws Exception
 	{
 		final Date creation = new Date();
@@ -42,6 +37,7 @@ public class DavResourceTest extends TestCase
 		assertEquals(creation, folder.getCreation());
 	}
 
+	@Test
 	public void testGetModified() throws Exception
 	{
 		final Date modified = new Date();
@@ -50,6 +46,7 @@ public class DavResourceTest extends TestCase
 		assertEquals(modified, folder.getModified());
 	}
 
+	@Test
 	public void testGetContentType() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", new Long(-1), null,
@@ -57,6 +54,7 @@ public class DavResourceTest extends TestCase
 		assertEquals("httpd/unix-directory", folder.getContentType());
 	}
 
+	@Test
 	public void testGetContentLength() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, 3423L, null,
@@ -64,6 +62,7 @@ public class DavResourceTest extends TestCase
 		assertEquals(new Long(3423), folder.getContentLength());
 	}
 
+	@Test
 	public void testIsDirectory() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", new Long(-1), null,
@@ -71,6 +70,7 @@ public class DavResourceTest extends TestCase
 		assertTrue(folder.isDirectory());
 	}
 
+	@Test
 	public void testGetCustomProps() throws Exception
 	{
 		DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
@@ -78,6 +78,7 @@ public class DavResourceTest extends TestCase
 		assertNotNull(file.getCustomProps());
 	}
 
+	@Test
 	public void testGetName() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
@@ -88,6 +89,7 @@ public class DavResourceTest extends TestCase
 		assertEquals("file.html", file.getName());
 	}
 
+	@Test
 	public void testGetPath() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
@@ -98,6 +100,7 @@ public class DavResourceTest extends TestCase
 		assertEquals("/test/path/file.html", file.getPath());
 	}
 
+	@Test
 	public void testFullyQualifiedHref() throws Exception
 	{
 		{
@@ -113,6 +116,7 @@ public class DavResourceTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testUriEncoding() throws Exception
 	{
 		{
@@ -128,10 +132,5 @@ public class DavResourceTest extends TestCase
 			assertEquals("/Meine Anlagen", resource.getPath());
 			assertEquals("/Meine%20Anlagen", resource.getHref().getRawPath());
 		}
-	}
-
-	public static Test suite()
-	{
-		return new TestSuite(DavResourceTest.class);
 	}
 }
