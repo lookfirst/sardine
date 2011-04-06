@@ -20,6 +20,7 @@ import java.util.*;
  * parsing dates.
  *
  * @author jonstevens
+ * @version $Id$
  */
 public class SardineUtil
 {
@@ -74,35 +75,35 @@ public class SardineUtil
 	/**
 	 * Loops over all the possible date formats and tries to find the right one.
 	 *
-	 * @param dateValue
+	 * @param value
+	 * @return
 	 */
-	public static Date parseDate(String dateValue)
+	public static Date parseDate(String value)
 	{
-		if (dateValue == null)
+		if (value == null)
 		{
 			return null;
 		}
-
 		Date date = null;
-		for (int i = 0; (date == null) && (i < formats.length); i++)
+		for (final SimpleDateFormat format : formats)
 		{
 			try
 			{
-				synchronized (formats[i])
-				{
-					date = formats[i].parse(dateValue);
-				}
+				date = format.parse(value);
+				break;
 			}
 			catch (ParseException e)
 			{
+				// We loop through this until we found a valid one.
 			}
 		}
-
 		return date;
 	}
 
 	/**
 	 * Stupid wrapper cause it needs to be in a try/catch
+	 *
+	 * @return
 	 */
 	public static StringEntity getResourcesEntity()
 	{
@@ -126,6 +127,8 @@ public class SardineUtil
 
 	/**
 	 * Build PROPPATCH entity.
+	 *
+	 * @return
 	 */
 	public static StringEntity getResourcePatchEntity(Map<String, String> setProps, List<String> removeProps)
 	{
@@ -179,6 +182,10 @@ public class SardineUtil
 
 	/**
 	 * Helper method for getting the Multistatus response processor.
+	 *
+	 * @return
+	 * @throws com.googlecode.sardine.impl.SardineException
+	 *
 	 */
 	public static Multistatus getMultistatus(InputStream stream)
 			throws SardineException
@@ -198,7 +205,6 @@ public class SardineUtil
 	 * Note: the unmarshaller is not thread safe, so it must be created for every request.
 	 *
 	 * @return a new Unmarshaller.
-	 * @throws JAXBException
 	 */
 	public static Unmarshaller createUnmarshaller()
 	{
@@ -212,7 +218,9 @@ public class SardineUtil
 		}
 	}
 
-	/** */
+	/**
+	 * @return
+	 */
 	public static Map<String, String> extractCustomProps(List<Element> elements)
 	{
 		Map<String, String> customPropsMap = new HashMap<String, String>(elements.size());

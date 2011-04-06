@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 David Kocher <mailto:dkocher@sudo.ch>
+ * Copyright 2009-2011 Jon Stevens et al.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.*;
 
 /**
- * @author David Kocher <mailto:dkocher@sudo.ch>
+ * @version $Id$
  */
 public class FunctionalSardineTest
 {
@@ -105,7 +105,7 @@ public class FunctionalSardineTest
 		});
 		SardineImpl sardine = new SardineImpl(client);
 		//Send basic authentication header in initial request
-        sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
 		try
 		{
 			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
