@@ -292,6 +292,10 @@ public class SardineImpl implements Sardine
 		put(url, dataStream, contentType, true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
+	 */
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
@@ -378,10 +382,8 @@ public class SardineImpl implements Sardine
 	 * Wraps all checked exceptions to {@link IOException}. Validate the response using the
 	 * response handler.
 	 *
-	 * @param <T>             /**
-	 *                        Wraps all checked exceptions to {@link IOException}. Validate the response using the
-	 *                        response handler.
-	 * @param <T>             Return type
+	 * @param <T>            Wraps all checked exceptions to {@link IOException}. Validate the response using the
+	 *                       response handler.
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
@@ -452,17 +454,13 @@ public class SardineImpl implements Sardine
 		return registry;
 	}
 
-	/**
-	 * @return
-	 */
+	/** */
 	protected PlainSocketFactory createDefaultSocketFactory()
 	{
 		return PlainSocketFactory.getSocketFactory();
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	protected SSLSocketFactory createDefaultSecureSocketFactory()
 	{
 		return SSLSocketFactory.getSocketFactory();
@@ -472,7 +470,6 @@ public class SardineImpl implements Sardine
 	 * Use fail fast connection manager when connections are not released properly.
 	 *
 	 * @param schemeRegistry
-	 * @return
 	 */
 	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
 	{

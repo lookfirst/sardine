@@ -76,7 +76,6 @@ public class SardineUtil
 	 * Loops over all the possible date formats and tries to find the right one.
 	 *
 	 * @param value
-	 * @return
 	 */
 	public static Date parseDate(String value)
 	{
@@ -102,8 +101,6 @@ public class SardineUtil
 
 	/**
 	 * Stupid wrapper cause it needs to be in a try/catch
-	 *
-	 * @return
 	 */
 	public static StringEntity getResourcesEntity()
 	{
@@ -131,7 +128,6 @@ public class SardineUtil
 	 *
 	 * @param setProps
 	 * @param removeProps
-	 * @return
 	 */
 	public static StringEntity getResourcePatchEntity(Map<String, String> setProps, List<String> removeProps)
 	{
@@ -181,9 +177,7 @@ public class SardineUtil
 	 * Helper method for getting the Multistatus response processor.
 	 *
 	 * @param stream
-	 * @return
 	 * @throws com.googlecode.sardine.impl.SardineException
-	 *
 	 */
 	public static Multistatus getMultistatus(InputStream stream)
 			throws SardineException
@@ -218,7 +212,6 @@ public class SardineUtil
 
 	/**
 	 * @param elements
-	 * @return
 	 */
 	public static Map<String, String> extractCustomProps(List<Element> elements)
 	{

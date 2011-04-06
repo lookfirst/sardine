@@ -85,7 +85,6 @@ public class DavResource
 	/**
 	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
 	 *
-	 * @return new {@link com.googlecode.sardine.DavResource} from {@link Response}.
 	 * @throws java.net.URISyntaxException
 	 */
 	public DavResource(Response response) throws URISyntaxException
@@ -203,41 +202,31 @@ public class DavResource
 		return null;
 	}
 
-	/**
-	 * @return
-	 */
+	/** */
 	public Date getCreation()
 	{
 		return creation;
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	public Date getModified()
 	{
 		return modified;
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	public String getContentType()
 	{
 		return contentType;
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	public Long getContentLength()
 	{
 		return contentLength;
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	public String getEtag()
 	{
 		return etag;
@@ -245,24 +234,19 @@ public class DavResource
 
 	/**
 	 * Does this resource have a contentType of httpd/unix-directory?
-	 *
-	 * @return
 	 */
 	public boolean isDirectory()
 	{
 		return "httpd/unix-directory".equals(contentType);
 	}
 
-	/**
-	 * @return
-	 */
+	/** */
 	public Map<String, String> getCustomProps()
 	{
 		return customProps;
 	}
 
 	/**
-	 * @return
 	 * @see #getPath()
 	 */
 	@Override
@@ -283,7 +267,6 @@ public class DavResource
 	}
 
 	/**
-	 * @return
 	 * @see #getName()
 	 * @deprecated
 	 */
@@ -310,7 +293,6 @@ public class DavResource
 	}
 
 	/**
-	 * @return
 	 * @see #getHref()
 	 * @deprecated
 	 */
@@ -321,7 +303,6 @@ public class DavResource
 	}
 
 	/**
-	 * @return
 	 * @see #getHref()
 	 * @deprecated
 	 */

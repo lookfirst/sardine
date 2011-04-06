@@ -10,8 +10,6 @@ public class SardineFactory
 	/**
 	 * Default begin() for when you don't need anything but no authentication
 	 * and default settings for SSL.
-	 *
-	 * @return
 	 */
 	public static Sardine begin()
 	{
@@ -24,7 +22,6 @@ public class SardineFactory
 	 *
 	 * @param username
 	 * @param password
-	 * @return
 	 */
 	public static Sardine begin(String username, String password)
 	{

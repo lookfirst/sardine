@@ -13,17 +13,13 @@ public class Factory
 	/** */
 	protected static final Factory instance = new Factory();
 
-	/**
-	 * @return
-	 */
+    /** */
 	protected static Factory instance()
 	{
 		return instance;
 	}
 
-	/**
-	 * @return
-	 */
+    /** */
 	public Sardine begin()
 	{
 		return this.begin(null, null);
@@ -32,7 +28,6 @@ public class Factory
 	/**
 	 * @param username
 	 * @param password
-	 * @return
 	 */
 	public Sardine begin(String username, String password)
 	{

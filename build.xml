@@ -14,6 +14,7 @@
     <property file="${user.home}/build.properties"/>
     <property file="build.properties"/>
     <property file="build.credentials.properties"/>
+    <property file="jar.properties"/>
 
     <property name="base.dir" location="."/>
 
@@ -36,15 +37,43 @@
     <property name="src.dir" location="src"/>
     <property name="test.dir" location="test"/>
 
-    <tstamp/>
     <tstamp>
         <format property="YEAR" pattern="yyyy"/>
     </tstamp>
 
+    <typedef resource="com/googlecode/svntask/svntask.xml" classpath="${lib.dir}/${svnkit.jar}:${lib.dir}/${svntask.jar}" />
+
+    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/${sweetened.jar}:${lib.dir}/${svnkit.jar}" />
+    <sweetenedVersion />
+
+	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask"
+			 classpath="${lib.dir}/${ant-googlecode.jar}" name="gcupload"/>
+
+	<property name="version" value="${sVersionRevision}"/>
+	<property name="build.version" value="${sVersionRevision}"/>
+
+	<property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
+	<property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
+
+    <spath id="sweetened.classpath">
+        <sfilelist dir="${lib.dir}">
+            <sfile name="${ant.jar}" scope="compile" />
+            <sfile name="${commons-codec.jar}" scope="compile" />
+            <sfile name="${commons-logging.jar}" scope="compile" />
+            <sfile name="${httpclient.jar}" scope="compile" />
+            <sfile name="${httpcore.jar}" scope="compile" />
+            <sfile name="${httpmime.jar}" scope="compile" />
+            <sfile name="${log4j.jar}" scope="compile" />
+        </sfilelist>
+    </spath>
+    <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
+    <spath id="unit.classpath" scope="all" parent="sweetened.classpath" />
+    <spath id="all.classpath" scope="all" parent="sweetened.classpath" />
+    <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
+
+
     <path id="master.classpath">
-        <fileset dir="${lib.dir}">
-            <include name="**/*.jar"/>
-        </fileset>
+        <path path="${toString:all.classpath}"/>
     </path>
 
     <path id="run.classpath">
@@ -58,60 +87,69 @@
         <path refid="master.classpath"/>
     </path>
 
-    <target name="init">
-        <typedef resource="com/googlecode/svntask/svntask.xml">
-            <classpath>
-                <fileset dir="${lib.dir}">
-                    <include name="**/svnkit.jar"/>
-                    <include name="**/svntask.jar"/>
-                </fileset>
-            </classpath>
-        </typedef>
-
-        <svn>
-            <info path="${basedir}" revisionProperty="revisionVersion"/>
-        </svn>
-
-        <taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask"
-                 classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
-
-        <!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
-        <property name="version" value="${revisionVersion}"/>
-        <property name="build.version" value="${revisionVersion}"/>
-
-        <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
-        <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
+    <target name=".eclipse">
+        <sweetenedClasspath file=".classpath">
+            <sweetenedBits refid="javac.classpath" />
+            <data>
+                <classpath>
+                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                    <sweetenedEntries />
+                    <classpathentry kind="src" path="src"/>
+                    <classpathentry kind="output" path="_eclipse"/>
+                </classpath>
+            </data>
+        </sweetenedClasspath>
+        <echoxml file=".project">
+            <projectDescription>
+                <name>${name}-${sVersionBranchName}</name>
+                <comment></comment>
+                <projects>
+                </projects>
+                <buildSpec>
+                    <buildCommand>
+                        <name>org.eclipse.jdt.core.javabuilder</name>
+                        <arguments>
+                        </arguments>
+                    </buildCommand>
+                </buildSpec>
+                <natures>
+                    <nature>org.eclipse.jdt.core.javanature</nature>
+                </natures>
+            </projectDescription>
+        </echoxml>
     </target>
 
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
 
-    <target name="classes" depends="init">
+    <target name="compile">
         <mkdir dir="${build.classes.dir}"/>
 
         <javac srcdir="${src.dir}"
                destdir="${build.classes.dir}"
                debug="${build.debug}"
-               deprecation="${build.deprecation}">
+               deprecation="${build.deprecation}"
+               includeantruntime="false">
             <classpath refid="master.classpath"/>
         </javac>
         <copy file="${base.dir}/src/com/googlecode/sardine/ant/sardinetask.xml"
               todir="${build.dir}/classes/com/googlecode/sardine/ant/"/>
     </target>
 
-    <target name="test-classes" depends="classes">
+    <target name="compile-tests" depends="compile">
         <mkdir dir="${build.classes.dir}"/>
 
         <javac srcdir="${test.dir}"
                destdir="${build.classes.dir}"
                debug="${build.debug}"
-               deprecation="${build.deprecation}">
+               deprecation="${build.deprecation}"
+               includeantruntime="false">
             <classpath refid="test.classpath"/>
         </javac>
     </target>
 
-    <target name="test" depends="test-classes">
+    <target name="test" depends="compile-tests">
         <mkdir dir="${build.test}"/>
 
         <junit fork="on" forkmode="perBatch" printsummary="on">
@@ -123,7 +161,7 @@
         </junit>
     </target>
 
-    <target name="jar" depends="classes">
+    <target name="jar" depends="compile">
         <jar destfile="${build.jar.file}" basedir="${build.classes.dir}">
             <manifest>
                 <attribute name="Specification-Version" value="${version}"/>
@@ -133,7 +171,7 @@
         </jar>
     </target>
 
-    <target name="javadoc" depends="classes">
+    <target name="javadoc" depends="compile">
         <javadoc
                 destdir="${build.javadoc.dir}"
                 packagenames="*"
@@ -196,7 +234,7 @@
         </zip>
     </target>
 
-    <target name="upload" depends="init">
+    <target name="upload">
         <gcupload projectname="sardine"
                   userName="${gc.username}"
                   password="${gc.password}"
