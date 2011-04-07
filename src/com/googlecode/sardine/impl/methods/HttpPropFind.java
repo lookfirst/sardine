@@ -16,6 +16,7 @@
 
 package com.googlecode.sardine.impl.methods;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
@@ -31,7 +32,7 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	{
 		this.setDepth(1);
 		this.setURI(URI.create(url));
-		this.setHeader("Content-Type", "text/xml");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml");
 	}
 
 	@Override
