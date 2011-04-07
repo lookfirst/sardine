@@ -13,6 +13,15 @@ import java.util.Map;
  */
 public interface Sardine
 {
+
+	/**
+	 * Add credentials to any scope.
+	 *
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 */
+	void setCredentials(String username, String password);
+
 	/**
 	 * Gets a directory listing.
 	 */
@@ -34,6 +43,14 @@ public interface Sardine
 	 * Uses HttpGet to get an input stream for a url
 	 */
 	InputStream get(String url) throws IOException;
+
+	/**
+	 * @param url
+	 * @param headers
+	 * @return
+	 * @throws IOException
+	 */
+	InputStream get(String url, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
@@ -63,6 +80,14 @@ public interface Sardine
 	 * @throws IOException
 	 */
 	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
+
+	/**
+	 * @param url
+	 * @param dataStream
+	 * @param headers
+	 * @throws IOException
+	 */
+	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Delete a resource at the specified url

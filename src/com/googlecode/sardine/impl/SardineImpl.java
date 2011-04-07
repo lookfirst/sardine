@@ -29,6 +29,7 @@ import com.googlecode.sardine.impl.methods.*;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -67,9 +68,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -168,7 +167,7 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	private void setCredentials(String username, String password)
+	public void setCredentials(String username, String password)
 	{
 		if (username != null)
 		{
@@ -275,7 +274,16 @@ public class SardineImpl implements Sardine
 	 */
 	public InputStream get(String url) throws IOException
 	{
+		return get(url, Collections.<String, String>emptyMap());
+	}
+
+	public InputStream get(String url, Map<String, String> headers) throws IOException
+	{
 		HttpGet get = new HttpGet(url);
+		for (String header : headers.keySet())
+		{
+			get.addHeader(header, headers.get(header));
+		}
 		// Must use #execute without handler, otherwise the entity is consumed
 		// already after the handler exits.
 		HttpResponse response = execute(get);
@@ -293,8 +301,9 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
 	 */
 	public void put(String url, byte[] data) throws IOException
@@ -302,28 +311,30 @@ public class SardineImpl implements Sardine
 		put(url, data, null);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
 	 */
 	public void put(String url, byte[] data, String contentType) throws IOException
 	{
-		HttpPut put = new HttpPut(url);
 		ByteArrayEntity entity = new ByteArrayEntity(data);
-		put(put, entity, null, true);
+		put(url, entity, contentType, true);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, InputStream)
 	 */
 	public void put(String url, InputStream dataStream) throws IOException
 	{
-		put(url, dataStream, null);
+		put(url, dataStream, (String) null);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
 	 */
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
@@ -331,36 +342,61 @@ public class SardineImpl implements Sardine
 		put(url, dataStream, contentType, true);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
+	 *
+	 * @see com.googlecode.sardine.Sardine#put(String, java.io.InputStream)
 	 */
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
-		HttpPut put = new HttpPut(url);
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
-		put(put, entity, contentType, expectContinue);
+		put(url, entity, contentType, expectContinue);
+	}
+
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#put(String, java.io.InputStream, java.util.Map)
+	 */
+	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	{
+		// A length of -1 means "go until end of stream"
+		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		put(url, entity, headers);
 	}
 
 	/**
 	 * Private helper for doing the work of a put
 	 *
-	 * @param put			Put configured with appropriate headers
+	 * @param url			Resource
 	 * @param entity		 The entity to read from
 	 * @param contentType	Content Type header
 	 * @param expectContinue Add Expect:continue header
 	 */
-	private void put(HttpPut put, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
+	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		put.setEntity(entity);
-		if (contentType != null)
-		{
-			put.setHeader("Content-Type", contentType);
-		}
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put(HttpHeaders.CONTENT_TYPE, contentType);
 		if (expectContinue)
 		{
-			put.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+		}
+		this.put(url, entity, headers);
+	}
+
+	/**
+	 * @param url	 Resource
+	 * @param entity  The entity to read from
+	 * @param headers Headers to add to request
+	 */
+	public void put(String url, AbstractHttpEntity entity, Map<String, String> headers) throws IOException
+	{
+		HttpPut put = new HttpPut(url);
+		put.setEntity(entity);
+		for (String header : headers.keySet())
+		{
+			put.addHeader(header, headers.get(header));
 		}
 		execute(put, new VoidResponseHandler());
 	}
@@ -525,7 +561,7 @@ public class SardineImpl implements Sardine
 	 * Override to provide proxy configuration
 	 *
 	 * @param schemeRegistry Protocol registry
-	 * @param proxy Proxy configuration
+	 * @param proxy		  Proxy configuration
 	 * @return Null if no proxy configuration
 	 */
 	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector proxy)
