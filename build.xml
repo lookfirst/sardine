@@ -130,6 +130,7 @@
 
         <javac srcdir="${src.dir}"
                destdir="${build.classes.dir}"
+               encoding="utf-8"
                debug="${build.debug}"
                deprecation="${build.deprecation}"
                includeantruntime="false">
@@ -144,6 +145,7 @@
 
         <javac srcdir="${test.dir}"
                destdir="${build.classes.dir}"
+               encoding="utf-8"
                debug="${build.debug}"
                deprecation="${build.deprecation}"
                includeantruntime="false">
