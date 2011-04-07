@@ -2,6 +2,8 @@ package com.googlecode.sardine;
 
 import com.googlecode.sardine.impl.SardineImpl;
 
+import java.net.ProxySelector;
+
 /**
  * The factory class is responsible for instantiating the default implementation of Sardine.
  *
@@ -19,18 +21,13 @@ public class Factory
 		return instance;
 	}
 
-    /** */
-	public Sardine begin()
-	{
-		return this.begin(null, null);
-	}
-
 	/**
-	 * @param username
-	 * @param password
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 * @param proxy Proxy configuration
 	 */
-	public Sardine begin(String username, String password)
+	public Sardine begin(String username, String password, ProxySelector proxy)
 	{
-		return new SardineImpl(username, password);
+		return new SardineImpl(username, password, proxy);
 	}
 }

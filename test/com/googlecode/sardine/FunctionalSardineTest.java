@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.net.ProxySelector;
 import java.security.Principal;
 import java.util.List;
 import java.util.Properties;
@@ -41,7 +42,7 @@ import static org.junit.Assert.*;
 public class FunctionalSardineTest
 {
 
-	protected String TEST_PROPERTIES_FILENAME = "test.properties";
+	private static final String TEST_PROPERTIES_FILENAME = "test.properties";
 	protected Properties properties;
 
 	@Before
@@ -150,24 +151,70 @@ public class FunctionalSardineTest
 	public void testBasicAuth() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
-		assertNotNull(resources);
-		assertTrue(resources.size() > 0);
+		try
+		{
+			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
+			assertNotNull(resources);
+			assertTrue(resources.size() > 0);
+		}
+		catch (SardineException e)
+		{
+			fail(e.getMessage());
+		}
 	}
 
 	@Test
 	public void testDigestAuth() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
-		assertNotNull(resources);
-		assertTrue(resources.size() > 0);
+		try
+		{
+			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
+			assertNotNull(resources);
+			assertTrue(resources.size() > 0);
+		}
+		catch (SardineException e)
+		{
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDigestAuthWithBasicPreemptiveAuthenticationEnabled() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
+		try
+		{
+			sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+			sardine.getResources("http://sudo.ch/dav/digest/");
+			fail("Expected authentication to fail becuase of preemptive credential cache");
+		}
+		catch (SardineException e)
+		{
+			// If preemptive basic authentication is enabled, we cannot login
+			// with digest authentication. This is currently expected.
+			assertEquals(401, e.getStatusCode());
+		}
 	}
 
 	@Test
 	public void testNtlmAuth() throws Exception
 	{
 		fail("Need a NTLM enabled WebDav server for testing");
+	}
+
+	@Test
+	public void testProxyConfiguration() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault());
+		try
+		{
+			sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+		}
+		catch (SardineException e)
+		{
+			fail(e.getMessage());
+		}
 	}
 
 	@Test
@@ -235,6 +282,7 @@ public class FunctionalSardineTest
 	{
 		Sardine sardine = SardineFactory.begin();
 		assertTrue(sardine.exists("http://sardine.googlecode.com/svn/trunk/"));
+		assertTrue(sardine.exists("http://sardine.googlecode.com/svn/trunk/README.html"));
 		assertFalse(sardine.exists("http://sardine.googlecode.com/svn/false/"));
 	}
 

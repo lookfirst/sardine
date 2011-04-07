@@ -34,9 +34,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.routing.HttpRoutePlanner;
@@ -51,6 +53,8 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.DefaultHttpRoutePlanner;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
@@ -61,6 +65,7 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ProxySelector;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +79,19 @@ import java.util.Map;
  */
 public class SardineImpl implements Sardine
 {
-	/** */
+	/**
+	 * HTTP Implementation
+	 */
 	private final AbstractHttpClient client;
 
 	/**
-	 * Local context with authentication cache
+	 * Proxy configuration if any
+	 */
+	private ProxySelector proxy;
+
+	/**
+	 * Local context with authentication cache. Make sure the same context is used to execute
+	 * logically related requests.
 	 */
 	private HttpContext context = new BasicHttpContext();
 
@@ -98,35 +111,54 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password)
 	{
+		this(username, password, null);
+	}
+
+	/**
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 * @param selector Proxy configuration
+	 */
+	public SardineImpl(String username, String password, ProxySelector selector)
+	{
 
 		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
 		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
 		HttpParams params = createDefaultHttpParams();
 		client = new DefaultHttpClient(cm, params);
+		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
+		proxy = selector;
 		setCredentials(username, password);
-		final HttpRoutePlanner proxy = createDefaultRoutePlanner();
-		if (proxy != null)
-		{
-			client.setRoutePlanner(proxy);
-		}
 	}
 
 	/**
-	 * @param client
+	 * @param http Custom client configuration
 	 */
-	public SardineImpl(final AbstractHttpClient client)
+	public SardineImpl(final AbstractHttpClient http)
 	{
-		this(client, null, null);
+		this(http, null, null);
 	}
 
 	/**
-	 * @param http
-	 * @param username
-	 * @param password
+	 * @param http	 Custom client configuration
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
 	 */
 	public SardineImpl(final AbstractHttpClient http, String username, String password)
 	{
+		this(http, username, password, null);
+	}
+
+	/**
+	 * @param http	 Custom client configuration
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 * @param selector Proxy configuration
+	 */
+	public SardineImpl(final AbstractHttpClient http, String username, String password, ProxySelector selector)
+	{
 		client = http;
+		proxy = selector;
 		setCredentials(username, password);
 	}
 
@@ -140,13 +172,20 @@ public class SardineImpl implements Sardine
 	{
 		if (username != null)
 		{
-			StringBuilder credentials = new StringBuilder(username);
+			StringBuilder ntlm = new StringBuilder(username);
 			if (password != null)
 			{
-				credentials.append(":").append(password);
+				ntlm.append(":").append(password);
 			}
-			client.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-					new NTCredentials(credentials.toString()));
+			client.getCredentialsProvider().setCredentials(
+					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
+					new NTCredentials(ntlm.toString()));
+			client.getCredentialsProvider().setCredentials(
+					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
+					new UsernamePasswordCredentials(username, password));
+			client.getCredentialsProvider().setCredentials(
+					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.DIGEST),
+					new UsernamePasswordCredentials(username, password));
 		}
 	}
 
@@ -307,7 +346,10 @@ public class SardineImpl implements Sardine
 	/**
 	 * Private helper for doing the work of a put
 	 *
-	 * @throws java.io.IOException
+	 * @param put			Put configured with appropriate headers
+	 * @param entity		 The entity to read from
+	 * @param contentType	Content Type header
+	 * @param expectContinue Add Expect:continue header
 	 */
 	private void put(HttpPut put, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
@@ -380,14 +422,12 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * Wraps all checked exceptions to {@link IOException}. Validate the response using the
-	 * response handler.
+	 * response handler. Aborts the request if there is an exception.
 	 *
-	 * @param <T>            Wraps all checked exceptions to {@link IOException}. Validate the response using the
-	 *                       response handler.
+	 * @param <T>             Return type
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
-	 * @throws IOException
 	 */
 	private <T> T execute(final HttpRequestBase request, final ResponseHandler<T> responseHandler)
 			throws IOException
@@ -406,10 +446,10 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * No validation of the response. Wraps all checked exceptions to {@link IOException}.
+	 * Aborts the request if there is an exception.
 	 *
 	 * @param request Request to execute
 	 * @return Response
-	 * @throws java.io.IOException
 	 */
 	private HttpResponse execute(final HttpRequestBase request)
 			throws IOException
@@ -454,13 +494,17 @@ public class SardineImpl implements Sardine
 		return registry;
 	}
 
-	/** */
+	/**
+	 * @return Default socket factory
+	 */
 	protected PlainSocketFactory createDefaultSocketFactory()
 	{
 		return PlainSocketFactory.getSocketFactory();
 	}
 
-    /** */
+	/**
+	 * @return Default SSL socket factory
+	 */
 	protected SSLSocketFactory createDefaultSecureSocketFactory()
 	{
 		return SSLSocketFactory.getSocketFactory();
@@ -469,7 +513,8 @@ public class SardineImpl implements Sardine
 	/**
 	 * Use fail fast connection manager when connections are not released properly.
 	 *
-	 * @param schemeRegistry
+	 * @param schemeRegistry Protocol registry
+	 * @return Default connection manager
 	 */
 	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
 	{
@@ -479,10 +524,16 @@ public class SardineImpl implements Sardine
 	/**
 	 * Override to provide proxy configuration
 	 *
+	 * @param schemeRegistry Protocol registry
+	 * @param proxy Proxy configuration
 	 * @return Null if no proxy configuration
 	 */
-	protected HttpRoutePlanner createDefaultRoutePlanner()
+	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector proxy)
 	{
-		return null;
+		if (null == proxy)
+		{
+			return new DefaultHttpRoutePlanner(schemeRegistry);
+		}
+		return new ProxySelectorRoutePlanner(schemeRegistry, proxy);
 	}
 }
