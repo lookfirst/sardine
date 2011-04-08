@@ -24,15 +24,29 @@ public interface Sardine
 
 	/**
 	 * Gets a directory listing.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<DavResource> getResources(String url) throws IOException;
 
 	/**
 	 * Add or remove custom properties for a url.
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param addProps
+	 * @param removeProps
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
 
 	/**
+	 * The stream must be closed after reading.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return
+	 * @throws IOException I/O error or HTTP response validation failure
 	 * @see #get(String)
 	 * @deprecated
 	 */
@@ -40,78 +54,117 @@ public interface Sardine
 	InputStream getInputStream(String url) throws IOException;
 
 	/**
-	 * Uses HttpGet to get an input stream for a url
+	 * The stream must be closed after reading.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return Data stream to read from
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	InputStream get(String url) throws IOException;
 
 	/**
-	 * @param url
-	 * @param headers
-	 * @return
-	 * @throws IOException
+	 * @param url	 Path to the resource including protocol and hostname
+	 * @param headers Additional HTTP headers to add to the request
+	 * @return Data stream to read from
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	InputStream get(String url, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
+	 *
+	 * @param url  Path to the resource including protocol and hostname
+	 * @param data Input source
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, byte[] data) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server
+	 *
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param dataStream Input source
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server with a specific content type header
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param data		Input source
+	 * @param contentType MIME type to add to the HTTP request header
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, byte[] data, String contentType) throws IOException;
 
 	/**
 	 * Uses webdav put to send data to a server with a specific content type header
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param dataStream  Input source
+	 * @param contentType MIME type to add to the HTTP request header
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, String contentType) throws IOException;
 
 	/**
-	 * @param url
-	 * @param dataStream
-	 * @param contentType
+	 * @param url			Path to the resource including protocol and hostname
+	 * @param dataStream	 Input source
+	 * @param contentType	MIME type to add to the HTTP request header
 	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
-	 * @throws IOException
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
 
 	/**
-	 * @param url
-	 * @param dataStream
-	 * @param headers
-	 * @throws IOException
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param dataStream Input source
+	 * @param headers	Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Delete a resource at the specified url
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void delete(String url) throws IOException;
 
 	/**
 	 * Uses webdav to create a directory at the specified url
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void createDirectory(String url) throws IOException;
 
 	/**
 	 * Move a url to from source to destination. Assumes overwrite.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void move(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
 	 * Copy a url from source to destination. Assumes overwrite.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void copy(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
-	 * Performs a HEAD request to see if a resource exists or not. Anything outside
-	 * of the 200-299 response code range returns false.
+	 * Performs a HEAD request to see if a resource exists or not.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return Anything outside of the 200-299 response code range returns false.
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	boolean exists(String url) throws IOException;
 
@@ -134,6 +187,8 @@ public interface Sardine
 	void disableCompression();
 
 	/**
+	 * Send a basic authentication header with each request even before 401 is returned.
+	 *
 	 * @param scheme
 	 * @param hostname
 	 * @param port
@@ -141,6 +196,8 @@ public interface Sardine
 	void enablePreemptiveAuthentication(String scheme, String hostname, int port);
 
 	/**
+	 * Disable preemptive basic authentication.
+	 *
 	 * @param scheme
 	 * @param hostname
 	 * @param port
