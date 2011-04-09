@@ -36,15 +36,15 @@ public class WrappedInputStream extends InputStream
 	private final HttpResponse response;
 
 	/**
-	 * @param response
-	 * @throws IOException
-	 * @throws IllegalStateException
+	 * @param response The HTTP response to read from
+	 * @throws IOException		  If there is a problem reading from the response
+	 * @throws NullPointerException If the response has no message entity
 	 */
 	public WrappedInputStream(final HttpResponse response) throws IOException
 	{
 		this.response = response;
 		final HttpEntity entity = response.getEntity();
-		if (entity == null)
+		if (null == entity)
 		{
 			throw new NullPointerException();
 		}
