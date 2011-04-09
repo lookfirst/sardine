@@ -19,8 +19,6 @@ package com.googlecode.sardine.impl;
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.gzip.GzipSupportRequestInterceptor;
-import com.googlecode.sardine.impl.gzip.GzipSupportResponseInterceptor;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
 import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
 import com.googlecode.sardine.impl.handler.VoidResponseHandler;
@@ -41,6 +39,8 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.protocol.RequestAcceptEncoding;
+import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -193,8 +193,8 @@ public class SardineImpl implements Sardine
 	 */
 	public void enableCompression()
 	{
-		this.client.addRequestInterceptor(new GzipSupportRequestInterceptor());
-		this.client.addResponseInterceptor(new GzipSupportResponseInterceptor());
+		this.client.addRequestInterceptor(new RequestAcceptEncoding());
+		this.client.addResponseInterceptor(new ResponseContentEncoding());
 	}
 
 	/**
@@ -202,8 +202,8 @@ public class SardineImpl implements Sardine
 	 */
 	public void disableCompression()
 	{
-		this.client.removeRequestInterceptorByClass(GzipSupportRequestInterceptor.class);
-		this.client.removeResponseInterceptorByClass(GzipSupportResponseInterceptor.class);
+		this.client.removeRequestInterceptorByClass(RequestAcceptEncoding.class);
+		this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
 	}
 
 	public void enablePreemptiveAuthentication(String scheme, String hostname, int port)
