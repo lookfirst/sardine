@@ -16,17 +16,16 @@
 
 package com.googlecode.sardine.impl;
 
-import com.googlecode.sardine.DavResource;
-import com.googlecode.sardine.Sardine;
-import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
-import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
-import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.WrappedInputStream;
-import com.googlecode.sardine.impl.methods.*;
-import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -36,7 +35,11 @@ import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -54,7 +57,6 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.DefaultHttpRoutePlanner;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -64,11 +66,21 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.*;
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
+import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
+import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.WrappedInputStream;
+import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpMkCol;
+import com.googlecode.sardine.impl.methods.HttpMove;
+import com.googlecode.sardine.impl.methods.HttpPropFind;
+import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.util.SardineUtil;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -81,12 +93,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * HTTP Implementation
 	 */
-	private final AbstractHttpClient client;
-
-	/**
-	 * Proxy configuration if any
-	 */
-	private ProxySelector proxy;
+	private AbstractHttpClient client;
 
 	/**
 	 * Local context with authentication cache. Make sure the same context is used to execute
@@ -99,7 +106,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl()
 	{
-		this(null, null);
+        this(null, null);
 	}
 
 	/**
@@ -120,20 +127,18 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-
 		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
 		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
 		HttpParams params = createDefaultHttpParams();
-		client = new DefaultHttpClient(cm, params);
-		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
-		proxy = selector;
+		this.client = new DefaultHttpClient(cm, params);
+		this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
 		setCredentials(username, password);
 	}
 
 	/**
 	 * @param http Custom client configuration
 	 */
-	public SardineImpl(final AbstractHttpClient http)
+	public SardineImpl(AbstractHttpClient http)
 	{
 		this(http, null, null);
 	}
@@ -143,7 +148,7 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(final AbstractHttpClient http, String username, String password)
+	public SardineImpl(AbstractHttpClient http, String username, String password)
 	{
 		this(http, username, password, null);
 	}
@@ -154,10 +159,11 @@ public class SardineImpl implements Sardine
 	 * @param password Use in authentication header credentials
 	 * @param selector Proxy configuration
 	 */
-	public SardineImpl(final AbstractHttpClient http, String username, String password, ProxySelector selector)
+	public SardineImpl(AbstractHttpClient http, String username, String password, ProxySelector selector)
 	{
-		client = http;
-		proxy = selector;
+		this.client = http;
+        SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
+        this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
 		setCredentials(username, password);
 	}
 
@@ -176,13 +182,13 @@ public class SardineImpl implements Sardine
 			{
 				ntlm.append(":").append(password);
 			}
-			client.getCredentialsProvider().setCredentials(
+			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
 					new NTCredentials(ntlm.toString()));
-			client.getCredentialsProvider().setCredentials(
+			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
 					new UsernamePasswordCredentials(username, password));
-			client.getCredentialsProvider().setCredentials(
+			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.DIGEST),
 					new UsernamePasswordCredentials(username, password));
 		}
@@ -206,6 +212,10 @@ public class SardineImpl implements Sardine
 		this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
+	 */
 	public void enablePreemptiveAuthentication(String scheme, String hostname, int port)
 	{
 		AuthCache authCache = new BasicAuthCache();
@@ -216,14 +226,22 @@ public class SardineImpl implements Sardine
 		authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
 		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
 		// Add AuthCache to the execution context
-		context.setAttribute(ClientContext.AUTH_CACHE, authCache);
+		this.context.setAttribute(ClientContext.AUTH_CACHE, authCache);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#disablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
+	 */
 	public void disablePreemptiveAuthentication(String scheme, String hostname, int port)
 	{
-		context.removeAttribute(ClientContext.AUTH_CACHE);
+		this.context.removeAttribute(ClientContext.AUTH_CACHE);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
+	 */
 	public List<DavResource> getResources(final String url) throws IOException
 	{
 		HttpPropFind propFind = new HttpPropFind(url);
@@ -277,6 +295,10 @@ public class SardineImpl implements Sardine
 		return get(url, Collections.<String, String>emptyMap());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#get(java.lang.String, java.util.Map)
+	 */
 	public InputStream get(String url, Map<String, String> headers) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
@@ -470,7 +492,7 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
-			return client.execute(request, responseHandler, context);
+			return this.client.execute(request, responseHandler, this.context);
 		}
 		catch (IOException e)
 		{
@@ -485,14 +507,13 @@ public class SardineImpl implements Sardine
 	 * Aborts the request if there is an exception.
 	 *
 	 * @param request Request to execute
-	 * @return Response
 	 */
 	private HttpResponse execute(final HttpRequestBase request)
 			throws IOException
 	{
 		try
 		{
-			return client.execute(request, context);
+			return this.client.execute(request, this.context);
 		}
 		catch (IOException e)
 		{
@@ -503,8 +524,6 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * Creates default params setting the user agent.
-	 *
-	 * @return httpParams
 	 */
 	protected HttpParams createDefaultHttpParams()
 	{
@@ -561,15 +580,11 @@ public class SardineImpl implements Sardine
 	 * Override to provide proxy configuration
 	 *
 	 * @param schemeRegistry Protocol registry
-	 * @param proxy		  Proxy configuration
-	 * @return Null if no proxy configuration
+	 * @param selector		  Proxy configuration
+	 * @return ProxySelectorRoutePlanner configured with schemeRegistry and selector
 	 */
-	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector proxy)
+	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector selector)
 	{
-		if (null == proxy)
-		{
-			return new DefaultHttpRoutePlanner(schemeRegistry);
-		}
-		return new ProxySelectorRoutePlanner(schemeRegistry, proxy);
+		return new ProxySelectorRoutePlanner(schemeRegistry, selector);
 	}
 }

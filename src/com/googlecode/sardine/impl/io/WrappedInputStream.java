@@ -44,7 +44,7 @@ public class WrappedInputStream extends InputStream
 	{
 		this.response = response;
 		final HttpEntity entity = response.getEntity();
-		if (null == entity)
+		if (entity == null)
 		{
 			throw new NullPointerException();
 		}
