@@ -399,7 +399,12 @@ public class SardineImpl implements Sardine
 	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+		if(null == contentType) {
+			headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
+		}
+		else {
+			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+		}
 		if (expectContinue)
 		{
 			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -496,7 +501,6 @@ public class SardineImpl implements Sardine
 		}
 		catch (IOException e)
 		{
-			// Catch first as we don't want to wrap again and throw again.
 			request.abort();
 			throw e;
 		}
