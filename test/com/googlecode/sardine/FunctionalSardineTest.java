@@ -18,23 +18,24 @@ package com.googlecode.sardine;
 
 import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.impl.SardineImpl;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
 import java.net.ProxySelector;
 import java.security.Principal;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @version $Id$
@@ -53,11 +54,35 @@ public class FunctionalSardineTest
 	}
 
 	@Test
-	public void testGetSingleFile() throws Exception
+	public void testRead() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final InputStream in = sardine.get("http://sudo.ch/dav/anon/sardine/single/file");
+		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		final InputStream in = sardine.get(url);
 		assertNotNull(in);
+		in.close();
+	}
+
+	@Test
+	public void testGetSingleFileGzip() throws Exception
+	{
+		final DefaultHttpClient client = new DefaultHttpClient();
+		client.addResponseInterceptor(new HttpResponseInterceptor() {
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+				assertEquals(200, r.getStatusLine().getStatusCode());
+				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_ENCODING));
+				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_ENCODING).length);
+				assertEquals("gzip", r.getHeaders(HttpHeaders.CONTENT_ENCODING)[0].getValue());
+				client.removeResponseInterceptorByClass(this.getClass());
+			}
+		});
+		Sardine sardine = new SardineImpl(client);
+		sardine.enableCompression();
+//		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		final String url = "http://sudo.ch/dav/anon/sardine/single/file";
+		final InputStream in = sardine.get(url);
+		assertNotNull(in);
+		assertNotNull(in.read());
 		in.close();
 	}
 
@@ -68,7 +93,7 @@ public class FunctionalSardineTest
 		InputStream in = null;
 		try
 		{
-			in = sardine.get("http://sudo.ch/dav/anon/sardine/single/notfound");
+			in = sardine.get("http://sardine.googlecode.com/svn/trunk/NOTFOUND");
 			fail("Expected 404");
 		}
 		catch (SardineException e)
@@ -76,6 +101,29 @@ public class FunctionalSardineTest
 			assertEquals(404, e.getStatusCode());
 		}
 		assertNull(in);
+	}
+
+	@Test
+	public void testGetTimestamps() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		// Google Code SVN does not support Range header
+		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		final List<DavResource> resources = sardine.getResources(url);
+		assertEquals(1, resources.size());
+		assertNotNull(resources.iterator().next().getModified());
+		assertNotNull(resources.iterator().next().getCreation());
+	}
+
+	@Test
+	public void testGetLength() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		// Google Code SVN does not support Range header
+		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		final List<DavResource> resources = sardine.getResources(url);
+		assertEquals(1, resources.size());
+		assertNotNull(resources.iterator().next().getContentLength());
 	}
 
 	@Test
@@ -122,6 +170,64 @@ public class FunctionalSardineTest
 	}
 
 	@Test
+	public void testPutRange() throws Exception
+	{
+		final DefaultHttpClient client = new DefaultHttpClient();
+		Sardine sardine = new SardineImpl(client);
+		// mod_dav supports Range headers for PUT
+		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		client.addResponseInterceptor(new HttpResponseInterceptor() {
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+				assertEquals(201, r.getStatusLine().getStatusCode());
+				client.removeResponseInterceptorByClass(this.getClass());
+			}
+		});
+		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
+
+		// Append to existing file
+		final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
+				"bytes " + 2 + "-" + 3 + "/" + 4);
+
+		client.addRequestInterceptor(new HttpRequestInterceptor() {
+			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException {
+				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
+				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
+				client.removeRequestInterceptorByClass(this.getClass());
+			}
+		});
+		client.addResponseInterceptor(new HttpResponseInterceptor() {
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+				assertEquals(204, r.getStatusLine().getStatusCode());
+				client.removeResponseInterceptorByClass(this.getClass());
+			}
+		});
+		sardine.put(url, new ByteArrayInputStream("st".getBytes("UTF-8")), header);
+
+		assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), "UTF-8")).readLine());
+	}
+
+	@Test
+	public void testGetRange() throws Exception
+	{
+		final DefaultHttpClient client = new DefaultHttpClient();
+		client.addResponseInterceptor(new HttpResponseInterceptor() {
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+				assertEquals(206, r.getStatusLine().getStatusCode());
+				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
+				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
+				client.removeResponseInterceptorByClass(this.getClass());
+			}
+		});
+		Sardine sardine = new SardineImpl(client);
+		// mod_dav supports Range headers for GET
+		final String url = "http://sudo.ch/dav/anon/sardine/README.html";
+		// Resume
+		final Map<String, String> header = Collections.singletonMap(HttpHeaders.RANGE, "bytes=" + 0 + "-");
+		final InputStream in = sardine.get(url, header);
+		assertNotNull(in);
+	}
+
+	@Test
 	public void testPutExpectContinue() throws Exception
 	{
 		// Anonymous PUT to restricted resource
@@ -155,7 +261,7 @@ public class FunctionalSardineTest
 		{
 			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/basic/");
 			assertNotNull(resources);
-			assertTrue(resources.size() > 0);
+			assertFalse(resources.isEmpty());
 		}
 		catch (SardineException e)
 		{
@@ -171,7 +277,7 @@ public class FunctionalSardineTest
 		{
 			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
 			assertNotNull(resources);
-			assertTrue(resources.size() > 0);
+			assertFalse(resources.isEmpty());
 		}
 		catch (SardineException e)
 		{
@@ -200,7 +306,7 @@ public class FunctionalSardineTest
 	@Test
 	public void testNtlmAuth() throws Exception
 	{
-		fail("Need a NTLM enabled WebDav server for testing");
+		fail("Need a NTLM enabled WebDAV server for testing");
 	}
 
 	@Test
@@ -209,7 +315,9 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault());
 		try
 		{
-			sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+			final List<DavResource> resources = sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+			assertNotNull(resources);
+			assertFalse(resources.isEmpty());
 		}
 		catch (SardineException e)
 		{
@@ -218,20 +326,19 @@ public class FunctionalSardineTest
 	}
 
 	@Test
-	public void testGetDirectoryListing() throws Exception
+	public void testPath() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/anon/sardine/single/");
-		assertEquals(2, resources.size());
-		DavResource file = resources.get(1);
-		assertEquals("file", file.getName());
-		assertEquals(new Long(0), file.getContentLength());
-		assertEquals("text/plain", file.getContentType());
-		assertFalse(file.isDirectory());
+		List<DavResource> resources = sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+		assertFalse(resources.isEmpty());
+		DavResource folder = resources.get(0);
+		assertEquals("", folder.getName());
+		assertEquals("/svn/trunk/", folder.getPath());
+		assertEquals(new Long(-1), folder.getContentLength());
 	}
 
 	@Test
-	public void testPutFile() throws Exception
+	public void testPut() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
@@ -273,6 +380,7 @@ public class FunctionalSardineTest
 		sardine.createDirectory(url);
 		assertTrue(sardine.exists(url));
 		final List<DavResource> resources = sardine.getResources(url);
+		assertNotNull(resources);
 		assertEquals(1, resources.size());
 		sardine.delete(url);
 	}
@@ -292,6 +400,8 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sardine.googlecode.com/svn/trunk/";
 		final List<DavResource> resources = sardine.getResources(url);
+		assertNotNull(resources);
+		assertFalse(resources.isEmpty());
 		DavResource file = resources.get(0);
 		assertEquals(DavResource.HTTPD_UNIX_DIRECTORY_CONTENT_TYPE, file.getContentType());
 	}
@@ -302,6 +412,7 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
 		final List<DavResource> resources = sardine.getResources(url);
+		assertFalse(resources.isEmpty());
 		assertEquals(1, resources.size());
 		DavResource file = resources.get(0);
 		assertEquals("text/html", file.getContentType());
