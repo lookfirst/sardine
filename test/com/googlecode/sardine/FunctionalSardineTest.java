@@ -170,6 +170,25 @@ public class FunctionalSardineTest
 	}
 
 	@Test
+	public void testBasicPreemptiveAuthHeader() throws Exception
+	{
+		final DefaultHttpClient client = new DefaultHttpClient();
+		client.addRequestInterceptor(new HttpRequestInterceptor() {
+			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException {
+				assertNotNull(r.getHeaders(HttpHeaders.AUTHORIZATION));
+				assertEquals(1, r.getHeaders(HttpHeaders.AUTHORIZATION).length);
+				client.removeRequestInterceptorByClass(this.getClass());
+			}
+		});
+		Sardine sardine = new SardineImpl(client);
+		sardine.setCredentials("anonymous", null);
+		sardine.enablePreemptiveAuthentication("http", "sardine.googlecode.com", 80);
+		// mod_dav supports Range headers for PUT
+		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		assertTrue(sardine.exists(url));
+	}
+
+	@Test
 	public void testPutRange() throws Exception
 	{
 		final DefaultHttpClient client = new DefaultHttpClient();
