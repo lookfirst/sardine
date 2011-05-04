@@ -399,12 +399,14 @@ public class SardineImpl implements Sardine
 	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
-		if(null == contentType) {
-			headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
-		}
-		else {
-			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
-		}
+        if (contentType == null)
+        {
+            headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
+        }
+        else
+        {
+            headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+        }
 		if (expectContinue)
 		{
 			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -547,7 +549,7 @@ public class SardineImpl implements Sardine
 	 */
 	protected SchemeRegistry createDefaultSchemeRegistry()
 	{
-		final SchemeRegistry registry = new SchemeRegistry();
+		SchemeRegistry registry = new SchemeRegistry();
 		registry.register(new Scheme("http", 80, createDefaultSocketFactory()));
 		registry.register(new Scheme("https", 443, createDefaultSecureSocketFactory()));
 		return registry;
