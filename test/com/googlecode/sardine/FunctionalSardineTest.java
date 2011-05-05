@@ -305,6 +305,23 @@ public class FunctionalSardineTest
 	}
 
 	@Test
+	public void testDigestAuthWithBasicPreemptive() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
+		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+		try
+		{
+			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
+			fail("Expected authentication to fail");
+		}
+		catch (SardineException e)
+		{
+			// Preemptive basic authentication is expected to fail when no basic
+			// method is returned in Authentication response header
+		}
+	}
+
+	@Test
 	public void testDigestAuthWithBasicPreemptiveAuthenticationEnabled() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
