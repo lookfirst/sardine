@@ -168,7 +168,7 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * Add credentials to any scope.
+	 * Add credentials to any scope. Supports Basic, Digest and NTLM authentication methods.
 	 *
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
@@ -177,14 +177,9 @@ public class SardineImpl implements Sardine
 	{
 		if (username != null)
 		{
-			StringBuilder ntlm = new StringBuilder(username);
-			if (password != null)
-			{
-				ntlm.append(":").append(password);
-			}
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
-					new NTCredentials(ntlm.toString()));
+					new NTCredentials(username, password, null, null));
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
 					new UsernamePasswordCredentials(username, password));
