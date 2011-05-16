@@ -67,8 +67,10 @@ public class FunctionalSardineTest
 	public void testGetSingleFileGzip() throws Exception
 	{
 		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addResponseInterceptor(new HttpResponseInterceptor() {
-			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+		client.addResponseInterceptor(new HttpResponseInterceptor()
+		{
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
+			{
 				assertEquals(200, r.getStatusLine().getStatusCode());
 				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_ENCODING));
 				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_ENCODING).length);
@@ -173,8 +175,10 @@ public class FunctionalSardineTest
 	public void testBasicPreemptiveAuthHeader() throws Exception
 	{
 		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addRequestInterceptor(new HttpRequestInterceptor() {
-			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException {
+		client.addRequestInterceptor(new HttpRequestInterceptor()
+		{
+			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
+			{
 				assertNotNull(r.getHeaders(HttpHeaders.AUTHORIZATION));
 				assertEquals(1, r.getHeaders(HttpHeaders.AUTHORIZATION).length);
 				client.removeRequestInterceptorByClass(this.getClass());
@@ -195,8 +199,10 @@ public class FunctionalSardineTest
 		Sardine sardine = new SardineImpl(client);
 		// mod_dav supports Range headers for PUT
 		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		client.addResponseInterceptor(new HttpResponseInterceptor() {
-			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+		client.addResponseInterceptor(new HttpResponseInterceptor()
+		{
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
+			{
 				assertEquals(201, r.getStatusLine().getStatusCode());
 				client.removeResponseInterceptorByClass(this.getClass());
 			}
@@ -207,15 +213,19 @@ public class FunctionalSardineTest
 		final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
 				"bytes " + 2 + "-" + 3 + "/" + 4);
 
-		client.addRequestInterceptor(new HttpRequestInterceptor() {
-			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException {
+		client.addRequestInterceptor(new HttpRequestInterceptor()
+		{
+			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
+			{
 				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
 				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
 				client.removeRequestInterceptorByClass(this.getClass());
 			}
 		});
-		client.addResponseInterceptor(new HttpResponseInterceptor() {
-			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+		client.addResponseInterceptor(new HttpResponseInterceptor()
+		{
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
+			{
 				assertEquals(204, r.getStatusLine().getStatusCode());
 				client.removeResponseInterceptorByClass(this.getClass());
 			}
@@ -229,8 +239,10 @@ public class FunctionalSardineTest
 	public void testGetRange() throws Exception
 	{
 		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addResponseInterceptor(new HttpResponseInterceptor() {
-			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException {
+		client.addResponseInterceptor(new HttpResponseInterceptor()
+		{
+			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
+			{
 				assertEquals(206, r.getStatusLine().getStatusCode());
 				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
 				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
@@ -452,5 +464,21 @@ public class FunctionalSardineTest
 		assertEquals(1, resources.size());
 		DavResource file = resources.get(0);
 		assertEquals("text/html", file.getContentType());
+	}
+
+	@Test
+	public void testRedirectPermanently() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		final String url = "http://sudo.ch/dav/anon/sardine";
+		try
+		{
+			final List<DavResource> resources = sardine.getResources(url);
+			assertNotNull(resources);
+		}
+		catch (SardineException e)
+		{
+			fail("Redirect handling failed");
+		}
 	}
 }

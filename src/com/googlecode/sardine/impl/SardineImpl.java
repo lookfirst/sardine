@@ -19,6 +19,7 @@ package com.googlecode.sardine.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,20 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -57,6 +51,7 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -106,7 +101,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl()
 	{
-        this(null, null);
+		this(null, null);
 	}
 
 	/**
@@ -130,9 +125,9 @@ public class SardineImpl implements Sardine
 		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
 		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
 		HttpParams params = createDefaultHttpParams();
-		this.client = new DefaultHttpClient(cm, params);
-		this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
-		setCredentials(username, password);
+		DefaultHttpClient client = new DefaultHttpClient(cm, params);
+		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
+		this.init(client, username, password, selector);
 	}
 
 	/**
@@ -161,10 +156,59 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(AbstractHttpClient http, String username, String password, ProxySelector selector)
 	{
+		this.init(http, username, password, selector);
+	}
+
+	private void init(AbstractHttpClient http, String username, String password, ProxySelector selector)
+	{
 		this.client = http;
-        SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
-        this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
-		setCredentials(username, password);
+		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
+		this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
+		this.client.setRedirectStrategy(new DefaultRedirectStrategy()
+		{
+			@Override
+			public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException
+			{
+				int statusCode = response.getStatusLine().getStatusCode();
+				String method = request.getRequestLine().getMethod();
+				Header locationHeader = response.getFirstHeader("location");
+				switch (statusCode)
+				{
+					case HttpStatus.SC_MOVED_TEMPORARILY:
+						return (method.equalsIgnoreCase(HttpGet.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && locationHeader != null;
+					case HttpStatus.SC_MOVED_PERMANENTLY:
+					case HttpStatus.SC_TEMPORARY_REDIRECT:
+						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME);
+					case HttpStatus.SC_SEE_OTHER:
+						return true;
+					default:
+						return false;
+				} //end of switch
+			}
+
+			public HttpUriRequest getRedirect(
+					final HttpRequest request,
+					final HttpResponse response,
+					final HttpContext context) throws ProtocolException
+			{
+				URI uri = getLocationURI(request, response, context);
+				String method = request.getRequestLine().getMethod();
+				if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
+				{
+					return new HttpHead(uri);
+				}
+				if (method.equalsIgnoreCase(HttpPropFind.METHOD_NAME))
+				{
+					return new HttpPropFind(uri);
+				}
+				return new HttpGet(uri);
+			}
+		});
+		this.setCredentials(username, password);
 	}
 
 	/**
@@ -390,18 +434,19 @@ public class SardineImpl implements Sardine
 	 * @param entity		 The entity to read from
 	 * @param contentType	Content Type header
 	 * @param expectContinue Add Expect:continue header
+	 * @throws java.io.IOException
 	 */
 	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
-        if (contentType == null)
-        {
-            headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
-        }
-        else
-        {
-            headers.put(HttpHeaders.CONTENT_TYPE, contentType);
-        }
+		if (null == contentType)
+		{
+			headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
+		}
+		else
+		{
+			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+		}
 		if (expectContinue)
 		{
 			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -413,6 +458,7 @@ public class SardineImpl implements Sardine
 	 * @param url	 Resource
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
+	 * @throws java.io.IOException
 	 */
 	public void put(String url, AbstractHttpEntity entity, Map<String, String> headers) throws IOException
 	{
@@ -488,6 +534,7 @@ public class SardineImpl implements Sardine
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
+	 * @throws java.io.IOException
 	 */
 	private <T> T execute(final HttpRequestBase request, final ResponseHandler<T> responseHandler)
 			throws IOException
@@ -508,6 +555,8 @@ public class SardineImpl implements Sardine
 	 * Aborts the request if there is an exception.
 	 *
 	 * @param request Request to execute
+	 * @return
+	 * @throws java.io.IOException
 	 */
 	private HttpResponse execute(final HttpRequestBase request)
 			throws IOException
@@ -525,6 +574,8 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * Creates default params setting the user agent.
+	 *
+	 * @return
 	 */
 	protected HttpParams createDefaultHttpParams()
 	{
@@ -581,7 +632,7 @@ public class SardineImpl implements Sardine
 	 * Override to provide proxy configuration
 	 *
 	 * @param schemeRegistry Protocol registry
-	 * @param selector		  Proxy configuration
+	 * @param selector	   Proxy configuration
 	 * @return ProxySelectorRoutePlanner configured with schemeRegistry and selector
 	 */
 	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector selector)
