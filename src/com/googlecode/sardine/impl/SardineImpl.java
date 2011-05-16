@@ -190,11 +190,8 @@ public class SardineImpl implements Sardine
 				} //end of switch
 			}
 
-			public HttpUriRequest getRedirect(
-					final HttpRequest request,
-					final HttpResponse response,
-					final HttpContext context) throws ProtocolException
-			{
+			public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
+					throws ProtocolException			{
 				URI uri = getLocationURI(request, response, context);
 				String method = request.getRequestLine().getMethod();
 				if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
@@ -281,14 +278,14 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
 	 */
-	public List<DavResource> getResources(final String url) throws IOException
+	public List<DavResource> getResources(String url) throws IOException
 	{
 		HttpPropFind propFind = new HttpPropFind(url);
 		propFind.setEntity(SardineUtil.getResourcesEntity());
 		Multistatus multistatus = execute(propFind, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
-		for (final Response resp : responses)
+		for (Response resp : responses)
 		{
 			try
 			{
@@ -439,7 +436,7 @@ public class SardineImpl implements Sardine
 	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
-		if (null == contentType)
+		if (contentType == null)
 		{
 			headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
 		}
@@ -478,7 +475,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void delete(String url) throws IOException
 	{
-		final HttpDelete delete = new HttpDelete(url);
+		HttpDelete delete = new HttpDelete(url);
 		execute(delete, new VoidResponseHandler());
 	}
 
@@ -522,7 +519,7 @@ public class SardineImpl implements Sardine
 	 */
 	public boolean exists(String url) throws IOException
 	{
-		final HttpHead head = new HttpHead(url);
+		HttpHead head = new HttpHead(url);
 		return execute(head, new ExistsResponseHandler());
 	}
 
@@ -536,7 +533,7 @@ public class SardineImpl implements Sardine
 	 * @return parsed response
 	 * @throws java.io.IOException
 	 */
-	private <T> T execute(final HttpRequestBase request, final ResponseHandler<T> responseHandler)
+	private <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
 	{
 		try
@@ -558,7 +555,7 @@ public class SardineImpl implements Sardine
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	private HttpResponse execute(final HttpRequestBase request)
+	private HttpResponse execute(HttpRequestBase request)
 			throws IOException
 	{
 		try

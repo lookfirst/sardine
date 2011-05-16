@@ -16,9 +16,33 @@
 
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.impl.SardineException;
-import com.googlecode.sardine.impl.SardineImpl;
-import org.apache.http.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ProxySelector;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+
+import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
@@ -28,14 +52,8 @@ import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
-import java.net.ProxySelector;
-import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import com.googlecode.sardine.impl.SardineException;
+import com.googlecode.sardine.impl.SardineImpl;
 
 /**
  * @version $Id$
@@ -323,7 +341,7 @@ public class FunctionalSardineTest
 		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
 		try
 		{
-			final List<DavResource> resources = sardine.getResources("http://sudo.ch/dav/digest/");
+			sardine.getResources("http://sudo.ch/dav/digest/");
 			fail("Expected authentication to fail");
 		}
 		catch (SardineException e)
