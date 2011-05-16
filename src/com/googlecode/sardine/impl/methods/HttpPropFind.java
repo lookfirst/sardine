@@ -29,17 +29,24 @@ import java.net.URI;
  */
 public class HttpPropFind extends HttpEntityEnclosingRequestBase
 {
-	public HttpPropFind(String url)
+	public static final String METHOD_NAME = "PROPFIND";
+
+	public HttpPropFind(final String uri)
+	{
+		this(URI.create(uri));
+	}
+
+	public HttpPropFind(final URI uri)
 	{
 		this.setDepth(1);
-		this.setURI(URI.create(url));
+		this.setURI(uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
 	}
 
 	@Override
 	public String getMethod()
 	{
-		return "PROPFIND";
+		return METHOD_NAME;
 	}
 
 	public void setDepth(int val)

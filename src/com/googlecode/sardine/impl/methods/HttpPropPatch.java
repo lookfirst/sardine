@@ -28,15 +28,22 @@ import java.net.URI;
  */
 public class HttpPropPatch extends HttpEntityEnclosingRequestBase
 {
+	public static final String METHOD_NAME = "PROPPATCH";
+
 	public HttpPropPatch(String url)
 	{
-		this.setURI(URI.create(url));
+		this(URI.create(url));
+	}
+
+	public HttpPropPatch(URI url)
+	{
+		this.setURI(url);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml");
 	}
 
 	@Override
 	public String getMethod()
 	{
-		return "PROPPATCH";
+		return METHOD_NAME;
 	}
 }

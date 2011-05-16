@@ -27,14 +27,21 @@ import java.net.URI;
  */
 public class HttpMkCol extends HttpEntityEnclosingRequestBase
 {
+	public static final String METHOD_NAME = "MKCOL";
+
 	public HttpMkCol(String url)
 	{
-		this.setURI(URI.create(url));
+		this(URI.create(url));
+	}
+
+	public HttpMkCol(URI url)
+	{
+		this.setURI(url);
 	}
 
 	@Override
 	public String getMethod()
 	{
-		return "MKCOL";
+		return METHOD_NAME;
 	}
 }

@@ -28,16 +28,23 @@ import java.net.URI;
  */
 public class HttpCopy extends HttpEntityEnclosingRequestBase
 {
+	public static final String METHOD_NAME = "COPY";
+
+	public HttpCopy(URI sourceUrl, URI destinationUrl) throws SardineException
+	{
+		this.setHeader("Destination", destinationUrl.toString());
+		this.setHeader("Overwrite", "T");
+		this.setURI(sourceUrl);
+	}
+
 	public HttpCopy(String sourceUrl, String destinationUrl) throws SardineException
 	{
-		this.setHeader("Destination", destinationUrl);
-		this.setHeader("Overwrite", "T");
-		this.setURI(URI.create(sourceUrl));
+		this(URI.create(sourceUrl), URI.create(destinationUrl));
 	}
 
 	@Override
 	public String getMethod()
 	{
-		return "COPY";
+		return METHOD_NAME;
 	}
 }
