@@ -127,7 +127,7 @@ public class SardineImpl implements Sardine
 		HttpParams params = createDefaultHttpParams();
 		DefaultHttpClient client = new DefaultHttpClient(cm, params);
 		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
-		this.init(client, username, password, selector);
+		this.init(client, username, password);
 	}
 
 	/**
@@ -145,25 +145,12 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(AbstractHttpClient http, String username, String password)
 	{
-		this(http, username, password, null);
+		this.init(http, username, password);
 	}
 
-	/**
-	 * @param http	 Custom client configuration
-	 * @param username Use in authentication header credentials
-	 * @param password Use in authentication header credentials
-	 * @param selector Proxy configuration
-	 */
-	public SardineImpl(AbstractHttpClient http, String username, String password, ProxySelector selector)
-	{
-		this.init(http, username, password, selector);
-	}
-
-	private void init(AbstractHttpClient http, String username, String password, ProxySelector selector)
+	private void init(AbstractHttpClient http, String username, String password)
 	{
 		this.client = http;
-		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
-		this.client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
 		this.client.setRedirectStrategy(new DefaultRedirectStrategy()
 		{
 			@Override
