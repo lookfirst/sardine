@@ -215,30 +215,37 @@ public class FunctionalSardineTest
 		});
 		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
 
-		// Append to existing file
-		final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
-				"bytes " + 2 + "-" + 3 + "/" + 4);
-
-		client.addRequestInterceptor(new HttpRequestInterceptor()
+		try
 		{
-			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
-			{
-				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
-				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
-				client.removeRequestInterceptorByClass(this.getClass());
-			}
-		});
-		client.addResponseInterceptor(new HttpResponseInterceptor()
-		{
-			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
-			{
-				assertEquals(204, r.getStatusLine().getStatusCode());
-				client.removeResponseInterceptorByClass(this.getClass());
-			}
-		});
-		sardine.put(url, new ByteArrayInputStream("st".getBytes("UTF-8")), header);
+			// Append to existing file
+			final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
+					"bytes " + 2 + "-" + 3 + "/" + 4);
 
-		assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), "UTF-8")).readLine());
+			client.addRequestInterceptor(new HttpRequestInterceptor()
+			{
+				public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
+				{
+					assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
+					assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
+					client.removeRequestInterceptorByClass(this.getClass());
+				}
+			});
+			client.addResponseInterceptor(new HttpResponseInterceptor()
+			{
+				public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
+				{
+					assertEquals(204, r.getStatusLine().getStatusCode());
+					client.removeResponseInterceptorByClass(this.getClass());
+				}
+			});
+			sardine.put(url, new ByteArrayInputStream("st".getBytes("UTF-8")), header);
+
+			assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), "UTF-8")).readLine());
+		}
+		finally
+		{
+			sardine.delete(url);
+		}
 	}
 
 	@Test
@@ -397,8 +404,15 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
-		assertTrue(sardine.exists(url));
-		assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), "UTF-8")).readLine());
+		try
+		{
+			assertTrue(sardine.exists(url));
+			assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), "UTF-8")).readLine());
+		}
+		finally
+		{
+			sardine.delete(url);
+		}
 	}
 
 	@Test
