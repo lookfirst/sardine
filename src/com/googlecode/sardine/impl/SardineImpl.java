@@ -208,7 +208,7 @@ public class SardineImpl implements Sardine
 		{
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
-					new NTCredentials(username, password, null, ""));
+					new NTCredentials(username, password, "", ""));
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
 					new UsernamePasswordCredentials(username, password));
