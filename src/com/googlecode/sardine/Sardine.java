@@ -23,6 +23,14 @@ public interface Sardine
 	void setCredentials(String username, String password);
 
 	/**
+	 * @param username	Use in authentication header credentials
+	 * @param password	Use in authentication header credentials
+	 * @param domain	  NTLM authentication
+	 * @param workstation NTLM authentication
+	 */
+	void setCredentials(String username, String password, String domain, String workstation);
+
+	/**
 	 * Gets a directory listing.
 	 *
 	 * @param url Path to the resource including protocol and hostname

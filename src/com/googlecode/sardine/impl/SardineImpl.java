@@ -179,7 +179,8 @@ public class SardineImpl implements Sardine
 			}
 
 			public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
-					throws ProtocolException			{
+					throws ProtocolException
+			{
 				URI uri = getLocationURI(request, response, context);
 				String method = request.getRequestLine().getMethod();
 				if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
@@ -204,11 +205,22 @@ public class SardineImpl implements Sardine
 	 */
 	public void setCredentials(String username, String password)
 	{
+		this.setCredentials(username, password, "", "");
+	}
+
+	/**
+	 * @param username	Use in authentication header credentials
+	 * @param password	Use in authentication header credentials
+	 * @param domain	  NTLM authentication
+	 * @param workstation NTLM authentication
+	 */
+	public void setCredentials(String username, String password, String domain, String workstation)
+	{
 		if (username != null)
 		{
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
-					new NTCredentials(username, password, "", ""));
+					new NTCredentials(username, password, workstation, domain));
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
 					new UsernamePasswordCredentials(username, password));
