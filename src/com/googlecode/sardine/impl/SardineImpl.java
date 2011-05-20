@@ -55,6 +55,7 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -67,7 +68,7 @@ import com.googlecode.sardine.Version;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
 import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
 import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.WrappedInputStream;
+import com.googlecode.sardine.impl.io.ConsumingInputStream;
 import com.googlecode.sardine.impl.methods.HttpCopy;
 import com.googlecode.sardine.impl.methods.HttpMkCol;
 import com.googlecode.sardine.impl.methods.HttpMove;
@@ -337,7 +338,7 @@ public class SardineImpl implements Sardine
 		{
 			handler.handleResponse(response);
 			// Will consume the entity when the stream is closed.
-			return new WrappedInputStream(response);
+			return new ConsumingInputStream(response);
 		}
 		catch (IOException ex)
 		{
@@ -568,6 +569,11 @@ public class SardineImpl implements Sardine
 		HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
 		// Only selectively enable this for PUT but not all entity enclosing methods
 		HttpProtocolParams.setUseExpectContinue(params, false);
+		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
+
+		HttpConnectionParams.setTcpNoDelay(params, true);
+		HttpConnectionParams.setSocketBufferSize(params, 8192);
 		return params;
 	}
 

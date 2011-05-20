@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Wrapper for the input stream, will consume the rest of the response on {@link WrappedInputStream#close()}.
+ * Wrapper for the input stream, will consume the rest of the response on {@link ConsumingInputStream#close()}.
  *
  * @author mirko
  * @version $Id$
  */
-public class WrappedInputStream extends InputStream
+public class ConsumingInputStream extends InputStream
 {
 
 	private final InputStream delegate;
@@ -40,18 +40,11 @@ public class WrappedInputStream extends InputStream
 	 * @throws IOException		  If there is a problem reading from the response
 	 * @throws NullPointerException If the response has no message entity
 	 */
-	public WrappedInputStream(final HttpResponse response) throws IOException
+	public ConsumingInputStream(final HttpResponse response) throws IOException
 	{
 		this.response = response;
 		final HttpEntity entity = response.getEntity();
-		if (entity == null)
-		{
-			throw new NullPointerException();
-		}
-		else
-		{
-			this.delegate = entity.getContent();
-		}
+		this.delegate = entity.getContent();
 	}
 
 	@Override
