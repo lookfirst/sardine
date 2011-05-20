@@ -419,7 +419,6 @@ public class SardineImpl implements Sardine
 	 * @param entity		 The entity to read from
 	 * @param contentType	Content Type header
 	 * @param expectContinue Add Expect:continue header
-	 * @throws java.io.IOException
 	 */
 	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
@@ -443,7 +442,6 @@ public class SardineImpl implements Sardine
 	 * @param url	 Resource
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
-	 * @throws java.io.IOException
 	 */
 	public void put(String url, AbstractHttpEntity entity, Map<String, String> headers) throws IOException
 	{
@@ -519,7 +517,6 @@ public class SardineImpl implements Sardine
 	 * @param request		 Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
-	 * @throws java.io.IOException
 	 */
 	private <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
@@ -540,8 +537,7 @@ public class SardineImpl implements Sardine
 	 * Aborts the request if there is an exception.
 	 *
 	 * @param request Request to execute
-	 * @return
-	 * @throws java.io.IOException
+	 * @return The response to check the reply status code
 	 */
 	private HttpResponse execute(HttpRequestBase request)
 			throws IOException
@@ -560,7 +556,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * Creates default params setting the user agent.
 	 *
-	 * @return
+	 * @return Basic HTTP parameters with a custom user agent
 	 */
 	protected HttpParams createDefaultHttpParams()
 	{
