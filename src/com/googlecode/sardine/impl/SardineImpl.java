@@ -16,24 +16,41 @@
 
 package com.googlecode.sardine.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.http.*;
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
+import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
+import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.ConsumingInputStream;
+import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpMkCol;
+import com.googlecode.sardine.impl.methods.HttpMove;
+import com.googlecode.sardine.impl.methods.HttpPropFind;
+import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.util.SardineUtil;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -44,7 +61,6 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.auth.BasicScheme;
@@ -62,21 +78,16 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
-import com.googlecode.sardine.DavResource;
-import com.googlecode.sardine.Sardine;
-import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
-import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
-import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.ConsumingInputStream;
-import com.googlecode.sardine.impl.methods.HttpCopy;
-import com.googlecode.sardine.impl.methods.HttpMkCol;
-import com.googlecode.sardine.impl.methods.HttpMove;
-import com.googlecode.sardine.impl.methods.HttpPropFind;
-import com.googlecode.sardine.impl.methods.HttpPropPatch;
-import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -432,7 +443,7 @@ public class SardineImpl implements Sardine
 	 * @param contentType	Content Type header
 	 * @param expectContinue Add Expect:continue header
 	 */
-	public void put(String url, AbstractHttpEntity entity, String contentType, boolean expectContinue) throws IOException
+	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
 		if (contentType == null)
@@ -455,7 +466,7 @@ public class SardineImpl implements Sardine
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
 	 */
-	public void put(String url, AbstractHttpEntity entity, Map<String, String> headers) throws IOException
+	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
