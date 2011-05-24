@@ -63,6 +63,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -292,7 +293,7 @@ public class SardineImpl implements Sardine
 	public List<DavResource> getResources(String url) throws IOException
 	{
 		HttpPropFind propFind = new HttpPropFind(url);
-		propFind.setEntity(SardineUtil.getResourcesEntity());
+		propFind.setEntity(new StringEntity(SardineUtil.getPropfindEntity(), "UTF-8"));
 		Multistatus multistatus = execute(propFind, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
@@ -318,7 +319,7 @@ public class SardineImpl implements Sardine
 	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
 	{
 		HttpPropPatch propPatch = new HttpPropPatch(url);
-		propPatch.setEntity(SardineUtil.getResourcePatchEntity(setProps, removeProps));
+		propPatch.setEntity(new StringEntity(SardineUtil.getPropPatchEntity(setProps, removeProps), "UTF-8"));
 		this.execute(propPatch, new VoidResponseHandler());
 	}
 
