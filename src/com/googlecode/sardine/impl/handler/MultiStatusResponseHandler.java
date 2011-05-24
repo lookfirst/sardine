@@ -16,14 +16,16 @@
 
 package com.googlecode.sardine.impl.handler;
 
-import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.impl.SardineException;
+import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of a propfind request.
@@ -45,6 +47,29 @@ public final class MultiStatusResponseHandler extends ValidatingResponseHandler<
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),
 					statusLine.getReasonPhrase());
 		}
-		return SardineUtil.getMultistatus(entity.getContent());
+		return this.getMultistatus(entity.getContent());
+	}
+
+	/**
+	 * Helper method for getting the Multistatus response processor.
+	 *
+	 * @param stream The input to read the status
+	 * @return Multistatus element parsed from the stream
+	 * @throws IOException When there is a JAXB error
+	 */
+	protected Multistatus getMultistatus(InputStream stream)
+			throws IOException
+	{
+		try
+		{
+			return (Multistatus) SardineUtil.createUnmarshaller().unmarshal(stream);
+		}
+		catch (JAXBException e)
+		{
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
+		}
 	}
 }
