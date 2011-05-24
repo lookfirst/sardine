@@ -58,6 +58,11 @@ public class DavResource
 	 */
 	public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
 
+	/**
+	 * Path component seperator
+	 */
+	private static final String SEPARATOR = "/";
+
 
 	private final URI href;
 	private final Date creation;
@@ -308,8 +313,19 @@ public class DavResource
 	 */
 	public String getName()
 	{
-		final String path = href.getPath();
-		return path.substring(path.lastIndexOf('/') + 1);
+		String path = href.getPath();
+		try
+		{
+			if (path.endsWith(SEPARATOR))
+			{
+				path = path.substring(0, path.length() - 1);
+			}
+			return path.substring(path.lastIndexOf('/') + 1);
+		}
+		catch (StringIndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 
 	/**

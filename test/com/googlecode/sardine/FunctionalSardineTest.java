@@ -394,7 +394,7 @@ public class FunctionalSardineTest
 		List<DavResource> resources = sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
 		assertFalse(resources.isEmpty());
 		DavResource folder = resources.get(0);
-		assertEquals("", folder.getName());
+		assertEquals("trunk", folder.getName());
 		assertEquals("/svn/trunk/", folder.getPath());
 		assertEquals(new Long(-1), folder.getContentLength());
 	}

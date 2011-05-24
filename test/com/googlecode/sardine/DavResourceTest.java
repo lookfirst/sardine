@@ -83,7 +83,7 @@ public class DavResourceTest
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
 				Collections.<String, String>emptyMap());
-		assertEquals("", folder.getName());
+		assertEquals("path", folder.getName());
 		DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
 				Collections.<String, String>emptyMap());
 		assertEquals("file.html", file.getName());
