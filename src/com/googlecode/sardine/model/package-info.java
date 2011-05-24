@@ -5,5 +5,8 @@
 // Generated on: 2009.12.23 at 06:27:19 PM PST 
 //
 
+/**
+ * Generated classes from the WebDAV XML schema.
+ */
 @javax.xml.bind.annotation.XmlSchema(namespace = "DAV:", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package com.googlecode.sardine.model;
