@@ -13,7 +13,6 @@ import java.util.Map;
  */
 public interface Sardine
 {
-
 	/**
 	 * Add credentials to any scope.
 	 *
@@ -183,20 +182,14 @@ public interface Sardine
 	void disableCompression();
 
 	/**
-	 * Send a basic authentication header with each request even before 401 is returned.
+	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
 	 *
-	 * @param scheme
-	 * @param hostname
-	 * @param port
+	 * @param hostname The hostname to enable preemptive authentication for.
 	 */
-	void enablePreemptiveAuthentication(String scheme, String hostname, int port);
+	void enablePreemptiveAuthentication(String hostname);
 
 	/**
-	 * Disable preemptive basic authentication.
-	 *
-	 * @param scheme
-	 * @param hostname
-	 * @param port
+	 * Disable preemptive authentication.
 	 */
-	void disablePreemptiveAuthentication(String scheme, String hostname, int port);
+	void disablePreemptiveAuthentication();
 }

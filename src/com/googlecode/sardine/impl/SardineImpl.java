@@ -70,7 +70,6 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -260,15 +259,20 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
 	 */
-	public void enablePreemptiveAuthentication(String scheme, String hostname, int port)
+	public void enablePreemptiveAuthentication(String hostname)
 	{
 		AuthCache authCache = new BasicAuthCache();
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
+		SchemeRegistry registry = this.client.getConnectionManager().getSchemeRegistry();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		authCache.put(new HttpHost(hostname), basicAuth);
-		authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
-		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
+		for (String scheme : registry.getSchemeNames())
+		{
+			int port = registry.getScheme(scheme).getDefaultPort();
+			authCache.put(new HttpHost(hostname), basicAuth);
+			authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
+			authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
+		}
 		// Add AuthCache to the execution context
 		this.context.setAttribute(ClientContext.AUTH_CACHE, authCache);
 	}
@@ -277,7 +281,7 @@ public class SardineImpl implements Sardine
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#disablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
 	 */
-	public void disablePreemptiveAuthentication(String scheme, String hostname, int port)
+	public void disablePreemptiveAuthentication()
 	{
 		this.context.removeAttribute(ClientContext.AUTH_CACHE);
 	}

@@ -162,7 +162,7 @@ public class FunctionalSardineTest
 		});
 		SardineImpl sardine = new SardineImpl(client);
 		//Send basic authentication header in initial request
-		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+		sardine.enablePreemptiveAuthentication("sudo.ch");
 		try
 		{
 			sardine.getResources("http://sudo.ch/dav/basic/");
@@ -192,7 +192,7 @@ public class FunctionalSardineTest
 		});
 		Sardine sardine = new SardineImpl(client);
 		sardine.setCredentials("anonymous", null);
-		sardine.enablePreemptiveAuthentication("http", "sardine.googlecode.com", 80);
+		sardine.enablePreemptiveAuthentication("sardine.googlecode.com");
 		// mod_dav supports Range headers for PUT
 		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
 		assertTrue(sardine.exists(url));
@@ -334,7 +334,7 @@ public class FunctionalSardineTest
 	public void testDigestAuthWithBasicPreemptive() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+		sardine.enablePreemptiveAuthentication("sudo.ch");
 		try
 		{
 			sardine.getResources("http://sudo.ch/dav/digest/");
@@ -353,7 +353,7 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
 		try
 		{
-			sardine.enablePreemptiveAuthentication("http", "sudo.ch", 80);
+			sardine.enablePreemptiveAuthentication("sudo.ch");
 			sardine.getResources("http://sudo.ch/dav/digest/");
 			fail("Expected authentication to fail becuase of preemptive credential cache");
 		}
