@@ -1,12 +1,14 @@
 package com.googlecode.sardine;
 
+import com.googlecode.sardine.impl.SardineImpl;
+
 import java.net.ProxySelector;
 
 /**
  * The perfect name for a class. Provides the static methods for working with the Sardine interface.
  *
  * @author jonstevens
- * @version $Id:$
+ * @version $Id$
  */
 public class SardineFactory
 {
@@ -38,6 +40,6 @@ public class SardineFactory
 	 */
 	public static Sardine begin(String username, String password, ProxySelector proxy)
 	{
-		return Factory.instance().begin(username, password, proxy);
+		return new SardineImpl(username, password, proxy);
 	}
 }
