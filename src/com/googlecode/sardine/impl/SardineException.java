@@ -27,68 +27,21 @@ import org.apache.http.client.HttpResponseException;
  */
 public class SardineException extends HttpResponseException
 {
-	private Throwable cause;
 	private String responsePhrase;
 
 	/**
-	 * @param cause
-	 */
-	public SardineException(Throwable cause)
-	{
-		this(cause.getMessage(), cause);
-	}
-
-	/**
-	 * @param msg
-	 */
-	public SardineException(String msg)
-	{
-		this(msg, -1, null, null);
-	}
-
-	/**
-	 * @param msg
-	 * @param cause
-	 */
-	public SardineException(String msg, Throwable cause)
-	{
-		this(msg, -1, null, cause);
-	}
-
-	/**
-	 * @param msg
-	 * @param statusCode
-	 * @param responsePhrase
+	 * @param msg			Custom description of failure
+	 * @param statusCode	 Error code returned by server
+	 * @param responsePhrase Response phrase following the error code
 	 */
 	public SardineException(String msg, int statusCode, String responsePhrase)
 	{
-		this(msg, statusCode, responsePhrase, null);
-	}
-
-	/**
-	 * @param msg
-	 * @param statusCode
-	 * @param responsePhrase
-	 * @param cause
-	 */
-	public SardineException(String msg, int statusCode, String responsePhrase, Throwable cause)
-	{
 		super(statusCode, msg);
 		this.responsePhrase = responsePhrase;
-		this.cause = cause;
 	}
 
 	/**
-	 * @return Null if no external cause.
-	 */
-	@Override
-	public Throwable getCause()
-	{
-		return cause;
-	}
-
-	/**
-	 * The http client response phrase.
+	 * The response phrase returned by the server.
 	 *
 	 * @return Null if not known.
 	 */

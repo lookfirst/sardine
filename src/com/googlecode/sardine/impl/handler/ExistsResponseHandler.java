@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 public final class ExistsResponseHandler extends ValidatingResponseHandler<Boolean>
 {
-	public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException
+	public Boolean handleResponse(HttpResponse response) throws SardineException
 	{
 		final StatusLine statusLine = response.getStatusLine();
 		final int statusCode = statusLine.getStatusCode();
@@ -44,6 +44,6 @@ public final class ExistsResponseHandler extends ValidatingResponseHandler<Boole
 		{
 			return false;
 		}
-		throw new SardineException(statusLine.getReasonPhrase(), statusCode, statusLine.getReasonPhrase());
+		throw new SardineException("Unexpected response", statusCode, statusLine.getReasonPhrase());
 	}
 }

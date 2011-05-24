@@ -1,6 +1,5 @@
 package com.googlecode.sardine.util;
 
-import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.ObjectFactory;
 import org.apache.http.entity.StringEntity;
@@ -9,11 +8,17 @@ import org.w3c.dom.Element;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Basic utility code. I borrowed some code from the webdavlib for
@@ -175,20 +180,19 @@ public class SardineUtil
 
 	/**
 	 * Helper method for getting the Multistatus response processor.
-	 *
-	 * @param stream
-	 * @throws com.googlecode.sardine.impl.SardineException
 	 */
 	public static Multistatus getMultistatus(InputStream stream)
-			throws SardineException
+			throws IOException
 	{
 		try
 		{
 			return (Multistatus) createUnmarshaller().unmarshal(stream);
 		}
-		catch (JAXBException ex)
+		catch (JAXBException e)
 		{
-			throw new SardineException(ex.getMessage(), ex);
+			IOException failure = new IOException(e.getMessage());
+			failure.initCause(e);
+			throw failure;
 		}
 	}
 
@@ -211,7 +215,11 @@ public class SardineUtil
 	}
 
 	/**
-	 * @param elements
+	 * Creates a simple Map from the given custom properties of a response. This implementation does not take
+	 * namespaces into account.
+	 *
+	 * @param elements custom properties.
+	 * @return a map from the custom properties.
 	 */
 	public static Map<String, String> extractCustomProps(List<Element> elements)
 	{

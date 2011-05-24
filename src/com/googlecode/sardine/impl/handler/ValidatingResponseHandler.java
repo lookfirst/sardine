@@ -46,6 +46,6 @@ public abstract class ValidatingResponseHandler<T> implements ResponseHandler<T>
 		{
 			return;
 		}
-		throw new SardineException(statusLine.getReasonPhrase(), statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		throw new SardineException("Unexpected response", statusLine.getStatusCode(), statusLine.getReasonPhrase());
 	}
 }

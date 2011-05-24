@@ -33,8 +33,7 @@ import java.io.IOException;
  */
 public final class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
 {
-
-	public Multistatus handleResponse(HttpResponse response) throws IOException
+	public Multistatus handleResponse(HttpResponse response) throws SardineException, IOException
 	{
 		super.validateResponse(response);
 
