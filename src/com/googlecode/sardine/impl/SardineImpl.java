@@ -71,6 +71,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -631,7 +632,7 @@ public class SardineImpl implements Sardine
 	 */
 	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
 	{
-		return new SingleClientConnManager(schemeRegistry);
+		return new ThreadSafeClientConnManager(schemeRegistry);
 	}
 
 	/**
