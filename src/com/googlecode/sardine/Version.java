@@ -4,6 +4,7 @@ package com.googlecode.sardine;
  * Provides version information from the manifest.
  * 
  * @author Jeff Schnitzer
+ * @version $Id:$
  */
 public class Version
 {
