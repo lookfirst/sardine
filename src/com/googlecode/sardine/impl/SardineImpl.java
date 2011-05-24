@@ -18,6 +18,7 @@ package com.googlecode.sardine.impl;
 
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
 import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
 import com.googlecode.sardine.impl.handler.VoidResponseHandler;
@@ -37,6 +38,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
@@ -53,13 +55,26 @@ import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.protocol.ResponseContentEncoding;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
+import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -120,7 +135,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-		this.init(HttpClientUtils.createDefaultClient(selector), username, password);
+		this.init(this.createDefaultClient(selector), username, password);
 	}
 
 	/**
@@ -545,5 +560,89 @@ public class SardineImpl implements Sardine
 			request.abort();
 			throw e;
 		}
+	}
+
+	protected AbstractHttpClient createDefaultClient(ProxySelector selector)
+	{
+		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
+		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
+		HttpParams params = createDefaultHttpParams();
+		AbstractHttpClient client = new DefaultHttpClient(cm, params);
+		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
+		return client;
+	}
+
+
+	/**
+	 * Creates default params setting the user agent.
+	 *
+	 * @return Basic HTTP parameters with a custom user agent
+	 */
+	protected HttpParams createDefaultHttpParams()
+	{
+		HttpParams params = new BasicHttpParams();
+		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
+		// Only selectively enable this for PUT but not all entity enclosing methods
+		HttpProtocolParams.setUseExpectContinue(params, false);
+		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
+
+		HttpConnectionParams.setTcpNoDelay(params, true);
+		HttpConnectionParams.setSocketBufferSize(params, 8192);
+		return params;
+	}
+
+	/**
+	 * Creates a new {@link org.apache.http.conn.scheme.SchemeRegistry} for default ports
+	 * with socket factories.
+	 *
+	 * @return a new {@link org.apache.http.conn.scheme.SchemeRegistry}.
+	 */
+	protected SchemeRegistry createDefaultSchemeRegistry()
+	{
+		SchemeRegistry registry = new SchemeRegistry();
+		registry.register(new Scheme("http", 80, createDefaultSocketFactory()));
+		registry.register(new Scheme("https", 443, createDefaultSecureSocketFactory()));
+		return registry;
+	}
+
+	/**
+	 * @return Default socket factory
+	 */
+	protected PlainSocketFactory createDefaultSocketFactory()
+	{
+		return PlainSocketFactory.getSocketFactory();
+	}
+
+	/**
+	 * @return Default SSL socket factory
+	 */
+	protected SSLSocketFactory createDefaultSecureSocketFactory()
+	{
+		return SSLSocketFactory.getSocketFactory();
+	}
+
+	/**
+	 * Use fail fast connection manager when connections are not released properly.
+	 *
+	 * @param schemeRegistry Protocol registry
+	 * @return Default connection manager
+	 */
+	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
+	{
+		return new SingleClientConnManager(schemeRegistry);
+	}
+
+	/**
+	 * Override to provide proxy configuration
+	 *
+	 * @param schemeRegistry Protocol registry
+	 * @param selector	   Proxy configuration
+	 * @return ProxySelectorRoutePlanner configured with schemeRegistry and selector
+	 */
+	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector selector)
+	{
+		return new ProxySelectorRoutePlanner(schemeRegistry, selector);
 	}
 }
