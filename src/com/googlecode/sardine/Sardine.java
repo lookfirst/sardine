@@ -43,23 +43,11 @@ public interface Sardine
 	 * Add or remove custom properties for a url.
 	 *
 	 * @param url		 Path to the resource including protocol and hostname
-	 * @param addProps
-	 * @param removeProps
+	 * @param addProps	Properties to add to resource
+	 * @param removeProps Properties to remove from resource
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
-
-	/**
-	 * The stream must be closed after reading.
-	 *
-	 * @param url Path to the resource including protocol and hostname
-	 * @return
-	 * @throws IOException I/O error or HTTP response validation failure
-	 * @see #get(String)
-	 * @deprecated
-	 */
-	@Deprecated
-	InputStream getInputStream(String url) throws IOException;
 
 	/**
 	 * The stream must be closed after reading.
