@@ -257,26 +257,6 @@ public class SardineUtil
 		return writer.toString();
 	}
 
-	/**
-	 * Creates a simple Map from the given custom properties of a response. This implementation does not take
-	 * namespaces into account.
-	 *
-	 * @param elements custom properties.
-	 * @return a map from the custom properties.
-	 */
-	public static Map<String, String> extractCustomProps(List<Element> elements)
-	{
-		Map<String, String> customPropsMap = new HashMap<String, String>(elements.size());
-
-		for (Element element : elements)
-		{
-			String key = element.getLocalName();
-			customPropsMap.put(key, element.getTextContent());
-		}
-
-		return customPropsMap;
-	}
-
 	private static Map<QName, String> toQName(Map<String, String> setProps)
 	{
 		if (setProps == null)

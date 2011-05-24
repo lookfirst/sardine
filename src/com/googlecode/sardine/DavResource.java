@@ -16,12 +16,22 @@
 
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.model.*;
+import com.googlecode.sardine.model.Collection;
+import com.googlecode.sardine.model.Creationdate;
+import com.googlecode.sardine.model.Getcontentlength;
+import com.googlecode.sardine.model.Getcontenttype;
+import com.googlecode.sardine.model.Getetag;
+import com.googlecode.sardine.model.Getlastmodified;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
+import org.w3c.dom.Element;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,12 +46,12 @@ public class DavResource
 	/**
 	 * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
 	 */
-	static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
+	public static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
 
 	/**
 	 * The default content-lenght if {@link Getcontentlength} is not set in the {@link Multistatus} response.
 	 */
-	static final long DEFAULT_CONTENT_LENGTH = -1;
+	public static final long DEFAULT_CONTENT_LENGTH = -1;
 
 	/**
 	 * content-type for {@link Collection}.
@@ -60,17 +70,11 @@ public class DavResource
 	/**
 	 * Represents a webdav response block.
 	 *
-	 * @param href		  URI to the resource as returned from the server
-	 * @param creation
-	 * @param modified
-	 * @param contentType
-	 * @param contentLength
-	 * @param etag
-	 * @param customProps
-	 * @throws java.net.URISyntaxException
+	 * @param href URI to the resource as returned from the server
+	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
-	public DavResource(String href, Date creation, Date modified, String contentType,
-					   Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
+	protected DavResource(String href, Date creation, Date modified, String contentType,
+						  Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -85,22 +89,25 @@ public class DavResource
 	/**
 	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
 	 *
-	 * @throws java.net.URISyntaxException
+	 * @param response The response complex type of the multistatus
+	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
 	public DavResource(Response response) throws URISyntaxException
 	{
 		this.href = new URI(response.getHref().get(0));
 		this.creation = SardineUtil.parseDate(getCreationDate(response));
 		this.modified = SardineUtil.parseDate(getModifiedDate(response));
-		this.contentType = getContentType(response);
-		this.contentLength = getContentLength(response);
-		this.etag = getEtag(response);
-		this.customProps = SardineUtil.extractCustomProps(response.getPropstat().get(0).getProp().getAny());
+		this.contentType = this.getContentType(response);
+		this.contentLength = this.getContentLength(response);
+		this.etag = this.getEtag(response);
+		this.customProps = this.getCustomProps(response);
+		;
 	}
 
 	/**
 	 * Retrieves modifieddate from props. If it is not available return null.
 	 *
+	 * @param response The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getModifiedDate(Response response)
@@ -121,6 +128,7 @@ public class DavResource
 	/**
 	 * Retrieves creationdate from props. If it is not available return null.
 	 *
+	 * @param response The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getCreationDate(Response response)
@@ -142,6 +150,7 @@ public class DavResource
 	 * Retrieves the content-type from prop or set it to {@link #DEFAULT_CONTENT_TYPE}. If
 	 * isDirectory always set the content-type to {@link #HTTPD_UNIX_DIRECTORY_CONTENT_TYPE}.
 	 *
+	 * @param response The response complex type of the multistatus
 	 * @return the content type.
 	 */
 	private String getContentType(Response response)
@@ -167,6 +176,7 @@ public class DavResource
 	 * Retrieves content-length from props. If it is not available return
 	 * {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
+	 * @param response The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private long getContentLength(Response response)
@@ -190,6 +200,7 @@ public class DavResource
 	 * Retrieves content-length from props. If it is not available return
 	 * {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
+	 * @param response The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private String getEtag(Response response)
@@ -202,78 +213,83 @@ public class DavResource
 		return null;
 	}
 
-	/** */
+
+	/**
+	 * Creates a simple Map from the given custom properties of a response. This implementation does not take
+	 * namespaces into account.
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return Custom properties
+	 */
+	private Map<String, String> getCustomProps(Response response)
+	{
+		final List<Element> props = response.getPropstat().get(0).getProp().getAny();
+		Map<String, String> customPropsMap = new HashMap<String, String>(props.size());
+		for (Element element : props)
+		{
+			customPropsMap.put(element.getLocalName(), element.getTextContent());
+		}
+
+		return customPropsMap;
+	}
+
+	/**
+	 * @return Timestamp
+	 */
 	public Date getCreation()
 	{
 		return creation;
 	}
 
-    /** */
+	/**
+	 * @return Timestamp
+	 */
 	public Date getModified()
 	{
 		return modified;
 	}
 
-    /** */
+	/**
+	 * @return MIME Type
+	 */
 	public String getContentType()
 	{
 		return contentType;
 	}
 
-    /** */
+	/**
+	 * @return Size
+	 */
 	public Long getContentLength()
 	{
 		return contentLength;
 	}
 
-    /** */
+	/**
+	 * @return Fingerprint
+	 */
 	public String getEtag()
 	{
 		return etag;
 	}
 
 	/**
-	 * Does this resource have a contentType of httpd/unix-directory?
+	 * Implementation assumes that every resource with a content type
+	 * of <code>httpd/unix-directory</code> is a directory.
+	 *
+	 * @return True if this resource denotes a directory
 	 */
 	public boolean isDirectory()
 	{
-		return "httpd/unix-directory".equals(contentType);
+		return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE.equals(contentType);
 	}
 
-	/** */
+	/**
+	 * @return Additional metadata
+	 */
 	public Map<String, String> getCustomProps()
 	{
 		return customProps;
-	}
-
-	/**
-	 * @see #getPath()
-	 */
-	@Override
-	public String toString()
-	{
-		return this.getPath();
-	}
-
-	/**
-	 * Last path component.
-	 *
-	 * @return The name of the resource URI decoded.
-	 */
-	public String getName()
-	{
-		final String path = href.getPath();
-		return path.substring(path.lastIndexOf('/') + 1);
-	}
-
-	/**
-	 * @see #getName()
-	 * @deprecated
-	 */
-	@Deprecated
-	public String getNameDecoded()
-	{
-		return this.getName();
 	}
 
 	/**
@@ -285,7 +301,20 @@ public class DavResource
 	}
 
 	/**
+	 * Last path component.
+	 *
+	 * @return The name of the resource URI decoded. An empty string if this resource denotes a directory.
+	 * @see #getHref()
+	 */
+	public String getName()
+	{
+		final String path = href.getPath();
+		return path.substring(path.lastIndexOf('/') + 1);
+	}
+
+	/**
 	 * @return Path component of the URI of the resource.
+	 * @see #getHref()
 	 */
 	public String getPath()
 	{
@@ -293,22 +322,11 @@ public class DavResource
 	}
 
 	/**
-	 * @see #getHref()
-	 * @deprecated
+	 * @see #getPath()
 	 */
-	@Deprecated
-	public String getAbsoluteUrl()
+	@Override
+	public String toString()
 	{
-		return href.toString();
-	}
-
-	/**
-	 * @see #getHref()
-	 * @deprecated
-	 */
-	@Deprecated
-	public String getBaseUrl()
-	{
-		return null;
+		return this.getPath();
 	}
 }
