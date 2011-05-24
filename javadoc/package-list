@@ -1,5 +1,9 @@
 com.googlecode.sardine
 com.googlecode.sardine.ant
 com.googlecode.sardine.ant.command
+com.googlecode.sardine.impl
+com.googlecode.sardine.impl.handler
+com.googlecode.sardine.impl.io
+com.googlecode.sardine.impl.methods
 com.googlecode.sardine.model
 com.googlecode.sardine.util
