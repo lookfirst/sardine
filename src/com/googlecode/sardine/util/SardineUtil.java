@@ -1,12 +1,6 @@
 package com.googlecode.sardine.util;
 
-import com.googlecode.sardine.model.Allprop;
 import com.googlecode.sardine.model.ObjectFactory;
-import com.googlecode.sardine.model.Prop;
-import com.googlecode.sardine.model.Propertyupdate;
-import com.googlecode.sardine.model.Propfind;
-import com.googlecode.sardine.model.Remove;
-import com.googlecode.sardine.model.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,25 +34,26 @@ import java.util.TimeZone;
  */
 public class SardineUtil
 {
-
 	/**
-	 *
+	 * Default namespace prefix
 	 */
 	public static final String DEFAULT_NAMESPACE_PREFIX = "S";
 
 	/**
-	 *
+	 * Default namespace URI
 	 */
 	public static final String DEFAULT_NAMESPACE_URI = "SAR:";
 
-	/** */
-	private static final JAXBContext context;
+	/**
+	 * Reusable context for marshalling and unmarshalling
+	 */
+	private static final JAXBContext JAXB_CONTEXT;
 
 	static
 	{
 		try
 		{
-			context = JAXBContext.newInstance(ObjectFactory.class);
+			JAXB_CONTEXT = JAXBContext.newInstance(ObjectFactory.class);
 		}
 		catch (JAXBException e)
 		{
@@ -69,7 +64,7 @@ public class SardineUtil
 	/**
 	 * Date formats using for Date parsing.
 	 */
-	static final SimpleDateFormat formats[] =
+	private static final SimpleDateFormat DATETIME_FORMATS[] =
 			{
 					new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US),
 					new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
@@ -83,13 +78,13 @@ public class SardineUtil
 	/**
 	 * GMT timezone.
 	 */
-	final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
+	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
 	static
 	{
-		for (SimpleDateFormat format : formats)
+		for (SimpleDateFormat format : DATETIME_FORMATS)
 		{
-			format.setTimeZone(gmtZone);
+			format.setTimeZone(UTC);
 		}
 	}
 
@@ -106,7 +101,7 @@ public class SardineUtil
 			return null;
 		}
 		Date date = null;
-		for (final SimpleDateFormat format : formats)
+		for (final SimpleDateFormat format : DATETIME_FORMATS)
 		{
 			try
 			{
@@ -122,70 +117,7 @@ public class SardineUtil
 	}
 
 	/**
-	 * Build WebDAV <code>PROPFIND</code> entity.
-	 *
-	 * @return The XML body
-	 * @throws IOException When there is a JAXB error
-	 */
-	public static String getPropfindEntity() throws IOException
-	{
-		final Propfind propfind = new Propfind();
-		propfind.setAllprop(new Allprop());
-		return toXml(propfind);
-	}
-
-	/**
-	 * Build WebDAV <code>PROPPATCH</code> entity.
-	 * <p/>
-	 * Creates a {@link Propertyupdate} element containing all properties to set from setProps and all properties to
-	 * remove from removeProps. Note this method will use a {@link #DEFAULT_NAMESPACE_URI} as
-	 * namespace and {@link #DEFAULT_NAMESPACE_PREFIX} as prefix.
-	 *
-	 * @param addProperties	Properties to add
-	 * @param removeProperties Properties to remove
-	 * @return The XML body
-	 * @throws IOException When there is a JAXB error
-	 */
-	public static String getPropPatchEntity(Map<String, String> addProperties, List<String> removeProperties) throws IOException
-	{
-		final Document document = createDocument();
-
-		// Element
-		final Propertyupdate proppatch = new Propertyupdate();
-
-		// Add properties
-		{
-			final Set set = new Set();
-			proppatch.getRemoveOrSet().add(set);
-			final Prop prop = new Prop();
-			final List<Element> any = prop.getAny();
-			for (Map.Entry<QName, String> entry : toQName(addProperties).entrySet())
-			{
-				final Element element = createElement(document, entry.getKey());
-				element.setTextContent(entry.getValue());
-				any.add(element);
-			}
-			set.setProp(prop);
-		}
-
-		// Remove properties
-		{
-			final Remove remove = new Remove();
-			proppatch.getRemoveOrSet().add(remove);
-			final Prop prop = new Prop();
-			final List<Element> any = prop.getAny();
-			for (QName entry : toQName(removeProperties))
-			{
-				final Element element = createElement(document, entry);
-				any.add(element);
-			}
-			remove.setProp(prop);
-		}
-		return toXml(proppatch);
-	}
-
-	/**
-	 * Creates an {@link Unmarshaller} from the {@link SardineUtil#context}.
+	 * Creates an {@link Unmarshaller} from the {@link SardineUtil#JAXB_CONTEXT}.
 	 * Note: the unmarshaller is not thread safe, so it must be created for every request.
 	 *
 	 * @return A new unmarshaller
@@ -195,7 +127,7 @@ public class SardineUtil
 	{
 		try
 		{
-			return context.createUnmarshaller();
+			return JAXB_CONTEXT.createUnmarshaller();
 		}
 		catch (JAXBException e)
 		{
@@ -211,7 +143,7 @@ public class SardineUtil
 	{
 		try
 		{
-			return context.createMarshaller();
+			return JAXB_CONTEXT.createMarshaller();
 		}
 		catch (JAXBException e)
 		{
@@ -219,7 +151,7 @@ public class SardineUtil
 		}
 	}
 
-	private static Document createDocument() throws IOException
+	public static Document createDocument() throws IOException
 	{
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder builder;
@@ -257,7 +189,7 @@ public class SardineUtil
 		return writer.toString();
 	}
 
-	private static Map<QName, String> toQName(Map<String, String> setProps)
+	public static Map<QName, String> toQName(Map<String, String> setProps)
 	{
 		if (setProps == null)
 		{
@@ -266,12 +198,12 @@ public class SardineUtil
 		final HashMap<QName, String> result = new HashMap<QName, String>(setProps.size());
 		for (final Map.Entry<String, String> entry : setProps.entrySet())
 		{
-			result.put(newQNameWithDefaultNamespace(entry.getKey()), entry.getValue());
+			result.put(createQNameWithDefaultNamespace(entry.getKey()), entry.getValue());
 		}
 		return result;
 	}
 
-	private static List<QName> toQName(List<String> removeProps)
+	public static List<QName> toQName(List<String> removeProps)
 	{
 		if (removeProps == null)
 		{
@@ -280,17 +212,17 @@ public class SardineUtil
 		final ArrayList<QName> result = new ArrayList<QName>(removeProps.size());
 		for (final String entry : removeProps)
 		{
-			result.add(newQNameWithDefaultNamespace(entry));
+			result.add(createQNameWithDefaultNamespace(entry));
 		}
 		return result;
 	}
 
-	private static QName newQNameWithDefaultNamespace(String key)
+	private static QName createQNameWithDefaultNamespace(String key)
 	{
 		return new QName(DEFAULT_NAMESPACE_URI, key, DEFAULT_NAMESPACE_PREFIX);
 	}
 
-	private static Element createElement(Document document, QName key)
+	public static Element createElement(Document document, QName key)
 	{
 		return document.createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());
 	}

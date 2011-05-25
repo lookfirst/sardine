@@ -28,8 +28,14 @@ import com.googlecode.sardine.impl.methods.HttpMkCol;
 import com.googlecode.sardine.impl.methods.HttpMove;
 import com.googlecode.sardine.impl.methods.HttpPropFind;
 import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.model.Allprop;
 import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Prop;
+import com.googlecode.sardine.model.Propertyupdate;
+import com.googlecode.sardine.model.Propfind;
+import com.googlecode.sardine.model.Remove;
 import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.model.Set;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -78,7 +84,10 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
@@ -292,9 +301,11 @@ public class SardineImpl implements Sardine
 	 */
 	public List<DavResource> getResources(String url) throws IOException
 	{
-		HttpPropFind propFind = new HttpPropFind(url);
-		propFind.setEntity(new StringEntity(SardineUtil.getPropfindEntity(), "UTF-8"));
-		Multistatus multistatus = execute(propFind, new MultiStatusResponseHandler());
+		HttpPropFind entity = new HttpPropFind(url);
+		Propfind body = new Propfind();
+		body.setAllprop(new Allprop());
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		Multistatus multistatus = execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 		for (Response resp : responses)
@@ -312,15 +323,49 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * (non-Javadoc)
+	 * Creates a {@link Propertyupdate} element containing all properties to set from setProps and all properties to
+	 * remove from removeProps. Note this method will use a {@link SardineUtil#DEFAULT_NAMESPACE_URI} as
+	 * namespace and {@link SardineUtil#DEFAULT_NAMESPACE_PREFIX} as prefix.
 	 *
 	 * @see com.googlecode.sardine.Sardine#setCustomProps(String, java.util.Map, java.util.List)
 	 */
 	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
 	{
-		HttpPropPatch propPatch = new HttpPropPatch(url);
-		propPatch.setEntity(new StringEntity(SardineUtil.getPropPatchEntity(setProps, removeProps), "UTF-8"));
-		this.execute(propPatch, new VoidResponseHandler());
+		HttpPropPatch entity = new HttpPropPatch(url);
+		final Document document = SardineUtil.createDocument();
+		// Build WebDAV <code>PROPPATCH</code> entity.
+		final Propertyupdate body = new Propertyupdate();
+		// Add properties
+		{
+			final Set set = new Set();
+			body.getRemoveOrSet().add(set);
+			final Prop prop = new Prop();
+			// Returns a reference to the live list
+			final List<Element> any = prop.getAny();
+			for (Map.Entry<QName, String> entry : SardineUtil.toQName(setProps).entrySet())
+			{
+				final Element element = SardineUtil.createElement(document, entry.getKey());
+				element.setTextContent(entry.getValue());
+				any.add(element);
+			}
+			set.setProp(prop);
+		}
+		// Remove properties
+		{
+			final Remove remove = new Remove();
+			body.getRemoveOrSet().add(remove);
+			final Prop prop = new Prop();
+			// Returns a reference to the live list
+			final List<Element> any = prop.getAny();
+			for (QName entry : SardineUtil.toQName(removeProps))
+			{
+				final Element element = SardineUtil.createElement(document, entry);
+				any.add(element);
+			}
+			remove.setProp(prop);
+		}
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		this.execute(entity, new VoidResponseHandler());
 	}
 
 	/**
