@@ -101,7 +101,7 @@ public class SardineUtil
 			return null;
 		}
 		Date date = null;
-		for (final SimpleDateFormat format : DATETIME_FORMATS)
+		for (SimpleDateFormat format : DATETIME_FORMATS)
 		{
 			try
 			{
@@ -151,10 +151,11 @@ public class SardineUtil
 		}
 	}
 
+	/** */
 	public static Document createDocument() throws IOException
 	{
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		final DocumentBuilder builder;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
 		try
 		{
 			builder = factory.newDocumentBuilder();
@@ -174,12 +175,12 @@ public class SardineUtil
 	 * @return The XML string for the WebDAV request
 	 * @throws IOException When there is a JAXB error
 	 */
-	public static String toXml(final Object jaxbElement) throws IOException
+	public static String toXml(Object jaxbElement) throws IOException
 	{
-		final StringWriter writer = new StringWriter();
+		StringWriter writer = new StringWriter();
 		try
 		{
-			final Marshaller marshaller = createMarshaller();
+			Marshaller marshaller = createMarshaller();
 			marshaller.marshal(jaxbElement, writer);
 		}
 		catch (JAXBException e)
@@ -189,39 +190,43 @@ public class SardineUtil
 		return writer.toString();
 	}
 
+	/** */
 	public static Map<QName, String> toQName(Map<String, String> setProps)
 	{
 		if (setProps == null)
 		{
 			return Collections.emptyMap();
 		}
-		final HashMap<QName, String> result = new HashMap<QName, String>(setProps.size());
-		for (final Map.Entry<String, String> entry : setProps.entrySet())
+		Map<QName, String> result = new HashMap<QName, String>(setProps.size());
+		for (Map.Entry<String, String> entry : setProps.entrySet())
 		{
 			result.put(createQNameWithDefaultNamespace(entry.getKey()), entry.getValue());
 		}
 		return result;
 	}
 
+	/** */
 	public static List<QName> toQName(List<String> removeProps)
 	{
 		if (removeProps == null)
 		{
 			return Collections.emptyList();
 		}
-		final ArrayList<QName> result = new ArrayList<QName>(removeProps.size());
-		for (final String entry : removeProps)
+		List<QName> result = new ArrayList<QName>(removeProps.size());
+		for (String entry : removeProps)
 		{
 			result.add(createQNameWithDefaultNamespace(entry));
 		}
 		return result;
 	}
 
+	/** */
 	private static QName createQNameWithDefaultNamespace(String key)
 	{
 		return new QName(DEFAULT_NAMESPACE_URI, key, DEFAULT_NAMESPACE_PREFIX);
 	}
 
+	/** */
 	public static Element createElement(Document document, QName key)
 	{
 		return document.createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());

@@ -16,13 +16,11 @@
 
 package com.googlecode.sardine.impl.handler;
 
-import com.googlecode.sardine.impl.SardineException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 
-import java.io.IOException;
+import com.googlecode.sardine.impl.SardineException;
 
 /**
  * {@link org.apache.http.client.ResponseHandler} which checks wether a given resource exists.
@@ -34,8 +32,8 @@ public final class ExistsResponseHandler extends ValidatingResponseHandler<Boole
 {
 	public Boolean handleResponse(HttpResponse response) throws SardineException
 	{
-		final StatusLine statusLine = response.getStatusLine();
-		final int statusCode = statusLine.getStatusCode();
+		StatusLine statusLine = response.getStatusLine();
+		int statusCode = statusLine.getStatusCode();
 		if (statusCode < HttpStatus.SC_MULTIPLE_CHOICES)
 		{
 			return true;

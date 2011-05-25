@@ -32,8 +32,8 @@ import java.io.InputStream;
 public class ConsumingInputStream extends InputStream
 {
 
-	private final InputStream delegate;
-	private final HttpResponse response;
+	private InputStream delegate;
+	private HttpResponse response;
 
 	/**
 	 * @param response The HTTP response to read from
@@ -43,7 +43,7 @@ public class ConsumingInputStream extends InputStream
 	public ConsumingInputStream(final HttpResponse response) throws IOException
 	{
 		this.response = response;
-		final HttpEntity entity = response.getEntity();
+		HttpEntity entity = response.getEntity();
 		this.delegate = entity.getContent();
 	}
 

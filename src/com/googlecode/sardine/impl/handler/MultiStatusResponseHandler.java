@@ -41,8 +41,8 @@ public final class MultiStatusResponseHandler extends ValidatingResponseHandler<
 		super.validateResponse(response);
 
 		// Process the response from the server.
-		final HttpEntity entity = response.getEntity();
-		final StatusLine statusLine = response.getStatusLine();
+		HttpEntity entity = response.getEntity();
+		StatusLine statusLine = response.getStatusLine();
 		if (entity == null)
 		{
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),

@@ -23,7 +23,7 @@ import com.googlecode.sardine.ant.command.Put;
 public class SardineTask extends Task
 {
 	/** */
-	private final List<Command> commands = new ArrayList<Command>();
+	private List<Command> commands = new ArrayList<Command>();
 
 	/** */
 	private boolean failonerror = false;
