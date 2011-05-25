@@ -36,9 +36,15 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 		this(URI.create(uri));
 	}
 
+	/**
+	 * Sets the <code>Depth</code> request header to <code>1</code>, meaning the
+	 * request applies to the resource and its children.
+	 *
+	 * @param uri
+	 */
 	public HttpPropFind(final URI uri)
 	{
-		this.setDepth(1);
+		this.setDepth(String.valueOf("1"));
 		this.setURI(uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
 	}
@@ -49,8 +55,14 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 		return METHOD_NAME;
 	}
 
-	public void setDepth(int val)
+	/**
+	 * A client may submit a Depth header with a value of "0", "1", or "infinity" with
+	 * a {@link com.googlecode.sardine.model.Propfind} on a collection resource with internal member URIs.
+	 *
+	 * @param depth <code>"0"</code>, <code>"1"</code> or <code>"infinity"</code>.
+	 */
+	public void setDepth(String depth)
 	{
-		this.setHeader("Depth", String.valueOf(val));
+		this.setHeader("Depth", depth);
 	}
 }
