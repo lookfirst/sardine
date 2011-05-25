@@ -28,7 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of a propfind request.
+ * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of
+ * a {@link com.googlecode.sardine.impl.methods.HttpPropFind} request.
  *
  * @author mirko
  * @version $Id$
