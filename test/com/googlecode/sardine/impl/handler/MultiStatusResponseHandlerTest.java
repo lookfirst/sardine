@@ -83,7 +83,7 @@ public class MultiStatusResponseHandlerTest
 				"</D:multistatus>";
 		try
 		{
-			final Multistatus status = handler.getMultistatus(new ByteArrayInputStream(response.getBytes()));
+			handler.getMultistatus(new ByteArrayInputStream(response.getBytes()));
 			fail("Expected XML parsing failure");
 		}
 		catch (Exception e)
