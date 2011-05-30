@@ -23,6 +23,7 @@ import com.googlecode.sardine.model.Getcontenttype;
 import com.googlecode.sardine.model.Getetag;
 import com.googlecode.sardine.model.Getlastmodified;
 import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Resourcetype;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
 import org.w3c.dom.Element;
@@ -161,7 +162,8 @@ public class DavResource
 	private String getContentType(Response response)
 	{
 		// Make sure that directories have the correct content type.
-		if (response.getPropstat().get(0).getProp().getResourcetype().getCollection() != null)
+		final Resourcetype resourcetype = response.getPropstat().get(0).getProp().getResourcetype();
+		if (resourcetype != null && resourcetype.getCollection() != null)
 		{
 			// Need to correct the contentType to identify as a directory.
 			return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
