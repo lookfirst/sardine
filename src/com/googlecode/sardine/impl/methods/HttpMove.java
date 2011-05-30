@@ -16,7 +16,6 @@
 
 package com.googlecode.sardine.impl.methods;
 
-import com.googlecode.sardine.impl.SardineException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
@@ -30,14 +29,14 @@ public class HttpMove extends HttpEntityEnclosingRequestBase
 {
 	public static final String METHOD_NAME = "MOVE";
 
-	public HttpMove(URI sourceUrl, URI destinationUrl) throws SardineException
+	public HttpMove(URI sourceUrl, URI destinationUrl)
 	{
 		this.setHeader("Destination", destinationUrl.toString());
 		this.setHeader("Overwrite", "T");
 		this.setURI(sourceUrl);
 	}
 
-	public HttpMove(String sourceUrl, String destinationUrl) throws SardineException
+	public HttpMove(String sourceUrl, String destinationUrl)
 	{
 		this(URI.create(sourceUrl), URI.create(destinationUrl));
 	}
