@@ -20,15 +20,22 @@ import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.Version;
 import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.LockResponseHandler;
 import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
 import com.googlecode.sardine.impl.handler.VoidResponseHandler;
 import com.googlecode.sardine.impl.io.ConsumingInputStream;
 import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpLock;
 import com.googlecode.sardine.impl.methods.HttpMkCol;
 import com.googlecode.sardine.impl.methods.HttpMove;
 import com.googlecode.sardine.impl.methods.HttpPropFind;
 import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.impl.methods.HttpUnlock;
 import com.googlecode.sardine.model.Allprop;
+import com.googlecode.sardine.model.Exclusive;
+import com.googlecode.sardine.model.Lockinfo;
+import com.googlecode.sardine.model.Lockscope;
+import com.googlecode.sardine.model.Locktype;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Prop;
 import com.googlecode.sardine.model.Propertyupdate;
@@ -36,6 +43,7 @@ import com.googlecode.sardine.model.Propfind;
 import com.googlecode.sardine.model.Remove;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.model.Set;
+import com.googlecode.sardine.model.Write;
 import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -207,6 +215,10 @@ public class SardineImpl implements Sardine
 				{
 					return new HttpPropFind(uri);
 				}
+				if (method.equalsIgnoreCase(HttpLock.METHOD_NAME))
+				{
+					return new HttpLock(uri);
+				}
 				return new HttpGet(uri);
 			}
 		});
@@ -365,6 +377,34 @@ public class SardineImpl implements Sardine
 			remove.setProp(prop);
 		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		this.execute(entity, new VoidResponseHandler());
+	}
+
+	public String lock(String url) throws IOException
+	{
+		HttpLock entity = new HttpLock(url);
+		Lockinfo body = new Lockinfo();
+		Lockscope scopeType = new Lockscope();
+		scopeType.setExclusive(new Exclusive());
+		body.setLockscope(scopeType);
+		final Locktype lockType = new Locktype();
+		lockType.setWrite(new Write());
+		body.setLocktype(lockType);
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		// Return the lock token
+		return this.execute(entity, new LockResponseHandler());
+	}
+
+	public void unlock(String url, String token) throws IOException
+	{
+		HttpUnlock entity = new HttpUnlock(url, token);
+		Lockinfo body = new Lockinfo();
+		Lockscope scopeType = new Lockscope();
+		scopeType.setExclusive(new Exclusive());
+		body.setLockscope(scopeType);
+		final Locktype lockType = new Locktype();
+		lockType.setWrite(new Write());
+		body.setLocktype(lockType);
 		this.execute(entity, new VoidResponseHandler());
 	}
 
