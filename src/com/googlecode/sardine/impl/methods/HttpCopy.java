@@ -16,7 +16,7 @@
 
 package com.googlecode.sardine.impl.methods;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpRequestBase;
 
 import java.net.URI;
 
@@ -25,7 +25,7 @@ import java.net.URI;
  *
  * @version $Id$
  */
-public class HttpCopy extends HttpEntityEnclosingRequestBase
+public class HttpCopy extends HttpRequestBase
 {
 	public static final String METHOD_NAME = "COPY";
 
