@@ -346,19 +346,19 @@ public class SardineImpl implements Sardine
 	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
 	{
 		HttpPropPatch entity = new HttpPropPatch(url);
-		final Document document = SardineUtil.createDocument();
+		Document document = SardineUtil.createDocument();
 		// Build WebDAV <code>PROPPATCH</code> entity.
-		final Propertyupdate body = new Propertyupdate();
+		Propertyupdate body = new Propertyupdate();
 		// Add properties
 		{
-			final Set set = new Set();
+			Set set = new Set();
 			body.getRemoveOrSet().add(set);
-			final Prop prop = new Prop();
+			Prop prop = new Prop();
 			// Returns a reference to the live list
-			final List<Element> any = prop.getAny();
+			List<Element> any = prop.getAny();
 			for (Map.Entry<QName, String> entry : SardineUtil.toQName(setProps).entrySet())
 			{
-				final Element element = SardineUtil.createElement(document, entry.getKey());
+				Element element = SardineUtil.createElement(document, entry.getKey());
 				element.setTextContent(entry.getValue());
 				any.add(element);
 			}
@@ -366,14 +366,14 @@ public class SardineImpl implements Sardine
 		}
 		// Remove properties
 		{
-			final Remove remove = new Remove();
+			Remove remove = new Remove();
 			body.getRemoveOrSet().add(remove);
-			final Prop prop = new Prop();
+			Prop prop = new Prop();
 			// Returns a reference to the live list
-			final List<Element> any = prop.getAny();
+			List<Element> any = prop.getAny();
 			for (QName entry : SardineUtil.toQName(removeProps))
 			{
-				final Element element = SardineUtil.createElement(document, entry);
+				Element element = SardineUtil.createElement(document, entry);
 				any.add(element);
 			}
 			remove.setProp(prop);
@@ -393,7 +393,7 @@ public class SardineImpl implements Sardine
 		Lockscope scopeType = new Lockscope();
 		scopeType.setExclusive(new Exclusive());
 		body.setLockscope(scopeType);
-		final Locktype lockType = new Locktype();
+		Locktype lockType = new Locktype();
 		lockType.setWrite(new Write());
 		body.setLocktype(lockType);
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
@@ -412,7 +412,7 @@ public class SardineImpl implements Sardine
 		Lockscope scopeType = new Lockscope();
 		scopeType.setExclusive(new Exclusive());
 		body.setLockscope(scopeType);
-		final Locktype lockType = new Locktype();
+		Locktype lockType = new Locktype();
 		lockType.setWrite(new Write());
 		body.setLocktype(lockType);
 		this.execute(entity, new VoidResponseHandler());
