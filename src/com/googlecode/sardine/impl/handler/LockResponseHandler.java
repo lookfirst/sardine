@@ -30,7 +30,7 @@ import java.io.InputStream;
 /**
  * @version $Id$
  */
-public final class LockResponseHandler extends ValidatingResponseHandler<String>
+public class LockResponseHandler extends ValidatingResponseHandler<String>
 {
 	public String handleResponse(HttpResponse response) throws IOException
 	{
@@ -59,7 +59,7 @@ public final class LockResponseHandler extends ValidatingResponseHandler<String>
 	{
 		try
 		{
-			final Prop prop = (Prop) SardineUtil.createUnmarshaller().unmarshal(stream);
+			Prop prop = (Prop) SardineUtil.createUnmarshaller().unmarshal(stream);
 			return prop.getLockdiscovery().getActivelock().iterator().next().getLocktoken().getHref().iterator().next();
 		}
 		catch (JAXBException e)

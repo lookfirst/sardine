@@ -115,6 +115,8 @@ import java.util.Map;
  */
 public class SardineImpl implements Sardine
 {
+	private static final String UTF_8 = "UTF-8";
+
 	/**
 	 * HTTP Implementation
 	 */
@@ -316,7 +318,7 @@ public class SardineImpl implements Sardine
 		HttpPropFind entity = new HttpPropFind(url);
 		Propfind body = new Propfind();
 		body.setAllprop(new Allprop());
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		Multistatus multistatus = execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
@@ -376,10 +378,14 @@ public class SardineImpl implements Sardine
 			}
 			remove.setProp(prop);
 		}
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		this.execute(entity, new VoidResponseHandler());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
+	 */
 	public String lock(String url) throws IOException
 	{
 		HttpLock entity = new HttpLock(url);
@@ -390,11 +396,15 @@ public class SardineImpl implements Sardine
 		final Locktype lockType = new Locktype();
 		lockType.setWrite(new Write());
 		body.setLocktype(lockType);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), "UTF-8"));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		// Return the lock token
 		return this.execute(entity, new LockResponseHandler());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#unlock(java.lang.String, java.lang.String)
+	 */
 	public void unlock(String url, String token) throws IOException
 	{
 		HttpUnlock entity = new HttpUnlock(url, token);
@@ -408,9 +418,8 @@ public class SardineImpl implements Sardine
 		this.execute(entity, new VoidResponseHandler());
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String)
 	 */
 	public InputStream get(String url) throws IOException
@@ -446,9 +455,8 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
 	 */
 	public void put(String url, byte[] data) throws IOException
@@ -456,9 +464,8 @@ public class SardineImpl implements Sardine
 		put(url, data, null);
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
 	 */
 	public void put(String url, byte[] data, String contentType) throws IOException
@@ -467,19 +474,17 @@ public class SardineImpl implements Sardine
 		put(url, entity, contentType, true);
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, InputStream)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream)
 	 */
 	public void put(String url, InputStream dataStream) throws IOException
 	{
 		put(url, dataStream, (String) null);
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
 	 */
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
@@ -487,10 +492,9 @@ public class SardineImpl implements Sardine
 		put(url, dataStream, contentType, true);
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(String, java.io.InputStream)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
 	 */
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
@@ -499,10 +503,9 @@ public class SardineImpl implements Sardine
 		put(url, entity, contentType, expectContinue);
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(String, java.io.InputStream, java.util.Map)
+	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.util.Map)
 	 */
 	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
 	{
@@ -652,6 +655,9 @@ public class SardineImpl implements Sardine
 		}
 	}
 
+	/**
+	 * Creates an AbstractHttpClient with all of the defaults.
+	 */
 	protected AbstractHttpClient createDefaultClient(ProxySelector selector)
 	{
 		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
@@ -661,7 +667,6 @@ public class SardineImpl implements Sardine
 		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
 		return client;
 	}
-
 
 	/**
 	 * Creates default params setting the user agent.

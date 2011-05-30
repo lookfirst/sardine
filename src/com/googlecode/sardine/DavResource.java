@@ -107,7 +107,6 @@ public class DavResource
 		this.contentLength = this.getContentLength(response);
 		this.etag = this.getEtag(response);
 		this.customProps = this.getCustomProps(response);
-		;
 	}
 
 	/**
@@ -118,8 +117,8 @@ public class DavResource
 	 */
 	private String getModifiedDate(Response response)
 	{
-		final String modifieddate;
-		final Getlastmodified glm = response.getPropstat().get(0).getProp().getGetlastmodified();
+		String modifieddate;
+		Getlastmodified glm = response.getPropstat().get(0).getProp().getGetlastmodified();
 		if ((glm != null) && (glm.getContent().size() == 1))
 		{
 			modifieddate = glm.getContent().get(0);
@@ -139,8 +138,8 @@ public class DavResource
 	 */
 	private String getCreationDate(Response response)
 	{
-		final String creationdate;
-		final Creationdate gcd = response.getPropstat().get(0).getProp().getCreationdate();
+		String creationdate;
+		Creationdate gcd = response.getPropstat().get(0).getProp().getCreationdate();
 		if ((gcd != null) && (gcd.getContent().size() == 1))
 		{
 			creationdate = gcd.getContent().get(0);
@@ -162,7 +161,7 @@ public class DavResource
 	private String getContentType(Response response)
 	{
 		// Make sure that directories have the correct content type.
-		final Resourcetype resourcetype = response.getPropstat().get(0).getProp().getResourcetype();
+		Resourcetype resourcetype = response.getPropstat().get(0).getProp().getResourcetype();
 		if (resourcetype != null && resourcetype.getCollection() != null)
 		{
 			// Need to correct the contentType to identify as a directory.
@@ -170,7 +169,7 @@ public class DavResource
 		}
 		else
 		{
-			final Getcontenttype gtt = response.getPropstat().get(0).getProp().getGetcontenttype();
+			Getcontenttype gtt = response.getPropstat().get(0).getProp().getGetcontenttype();
 			if ((gtt != null) && (gtt.getContent().size() == 1))
 			{
 				return gtt.getContent().get(0);
@@ -188,7 +187,7 @@ public class DavResource
 	 */
 	private long getContentLength(Response response)
 	{
-		final Getcontentlength gcl = response.getPropstat().get(0).getProp().getGetcontentlength();
+		Getcontentlength gcl = response.getPropstat().get(0).getProp().getGetcontentlength();
 		if ((gcl != null) && (gcl.getContent().size() == 1))
 		{
 			try
@@ -197,7 +196,7 @@ public class DavResource
 			}
 			catch (NumberFormatException e)
 			{
-				;
+				// ignored
 			}
 		}
 		return DEFAULT_CONTENT_LENGTH;
@@ -212,7 +211,7 @@ public class DavResource
 	 */
 	private String getEtag(Response response)
 	{
-		final Getetag etag = response.getPropstat().get(0).getProp().getGetetag();
+		Getetag etag = response.getPropstat().get(0).getProp().getGetetag();
 		if ((etag != null) && (etag.getContent().size() == 1))
 		{
 			return etag.getContent().get(0);
@@ -230,7 +229,7 @@ public class DavResource
 	 */
 	private Map<String, String> getCustomProps(Response response)
 	{
-		final List<Element> props = response.getPropstat().get(0).getProp().getAny();
+		List<Element> props = response.getPropstat().get(0).getProp().getAny();
 		Map<String, String> customPropsMap = new HashMap<String, String>(props.size());
 		for (Element element : props)
 		{

@@ -34,7 +34,7 @@ import java.io.InputStream;
  * @author mirko
  * @version $Id$
  */
-public final class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
+public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
 {
 	public Multistatus handleResponse(HttpResponse response) throws SardineException, IOException
 	{

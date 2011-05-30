@@ -28,21 +28,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * @version $Id:$
+ * @version $Id$
  */
 public class LockTest
 {
 	@Test
 	public void testLockUnlock() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
+		DefaultHttpClient client = new DefaultHttpClient();
 		Sardine sardine = new SardineImpl(client);
 		// mod_dav supports Range headers for PUT
-		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
 		try
 		{
-			final String token = sardine.lock(url);
+			String token = sardine.lock(url);
 			try {
 				sardine.delete(url);
 				fail("Expected delete to fail on locked resource");
@@ -61,12 +61,12 @@ public class LockTest
 	@Test
 	public void testLockFailureNotImplemented() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
+		DefaultHttpClient client = new DefaultHttpClient();
 		Sardine sardine = new SardineImpl(client);
-		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		String url = "http://sardine.googlecode.com/svn/trunk/README.html";
 		try
 		{
-			final String token = sardine.lock(url);
+			sardine.lock(url);
 			fail("Expected lock to fail");
 		}
 		catch (SardineException e)

@@ -28,7 +28,7 @@ import com.googlecode.sardine.impl.SardineException;
  * @author mirko
  * @version $Id$
  */
-public final class ExistsResponseHandler extends ValidatingResponseHandler<Boolean>
+public class ExistsResponseHandler extends ValidatingResponseHandler<Boolean>
 {
 	public Boolean handleResponse(HttpResponse response) throws SardineException
 	{
