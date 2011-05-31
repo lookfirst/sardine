@@ -17,11 +17,8 @@
 package com.googlecode.sardine;
 
 import com.googlecode.sardine.impl.SardineException;
-import com.googlecode.sardine.impl.SardineImpl;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -35,19 +32,20 @@ public class LockTest
 	@Test
 	public void testLockUnlock() throws Exception
 	{
-		DefaultHttpClient client = new DefaultHttpClient();
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = SardineFactory.begin();
 		// mod_dav supports Range headers for PUT
 		String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
+		sardine.put(url, new byte[]{});
 		try
 		{
 			String token = sardine.lock(url);
-			try {
+			try
+			{
 				sardine.delete(url);
 				fail("Expected delete to fail on locked resource");
 			}
-			catch(SardineException e) {
+			catch (SardineException e)
+			{
 				assertEquals(423, e.getStatusCode());
 			}
 			sardine.unlock(url, token);
@@ -61,8 +59,7 @@ public class LockTest
 	@Test
 	public void testLockFailureNotImplemented() throws Exception
 	{
-		DefaultHttpClient client = new DefaultHttpClient();
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = SardineFactory.begin();
 		String url = "http://sardine.googlecode.com/svn/trunk/README.html";
 		try
 		{
