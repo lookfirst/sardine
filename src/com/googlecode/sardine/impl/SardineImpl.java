@@ -620,7 +620,7 @@ public class SardineImpl implements Sardine
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
 	 */
-	private <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
+	protected <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
 	{
 		try
@@ -641,7 +641,7 @@ public class SardineImpl implements Sardine
 	 * @param request Request to execute
 	 * @return The response to check the reply status code
 	 */
-	private HttpResponse execute(HttpRequestBase request)
+	protected HttpResponse execute(HttpRequestBase request)
 			throws IOException
 	{
 		try
