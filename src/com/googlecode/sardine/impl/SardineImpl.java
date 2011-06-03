@@ -315,6 +315,15 @@ public class SardineImpl implements Sardine
 	 */
 	public List<DavResource> getResources(String url) throws IOException
 	{
+		return this.list(url);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
+	 */
+	public List<DavResource> list(String url) throws IOException
+	{
 		HttpPropFind entity = new HttpPropFind(url);
 		Propfind body = new Propfind();
 		body.setAllprop(new Allprop());

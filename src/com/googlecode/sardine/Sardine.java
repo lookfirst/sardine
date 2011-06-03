@@ -29,14 +29,17 @@ public interface Sardine
 	 */
 	void setCredentials(String username, String password, String domain, String workstation);
 
-	/**
-	 * Gets a directory listing.
-	 *
-	 * @param url Path to the resource including protocol and hostname
-	 * @return List of resources for this URI including the parent resource itself
-	 * @throws IOException I/O error or HTTP response validation failure
-	 */
-	List<DavResource> getResources(String url) throws IOException;
+    @Deprecated
+    List<DavResource> getResources(String url) throws IOException;
+
+    /**
+     * Gets a directory listing.
+     *
+     * @param url Path to the resource including protocol and hostname
+     * @return List of resources for this URI including the parent resource itself
+     * @throws IOException I/O error or HTTP response validation failure
+     */
+    List<DavResource> list(String url) throws IOException;
 
 	/**
 	 * Add or remove custom properties for a url.
