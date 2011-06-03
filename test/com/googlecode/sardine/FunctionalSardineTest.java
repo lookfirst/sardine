@@ -125,7 +125,7 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin();
 		// Google Code SVN does not support Range header
 		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
-		final List<DavResource> resources = sardine.getResources(url);
+		final List<DavResource> resources = sardine.list(url);
 		assertEquals(1, resources.size());
 		assertNotNull(resources.iterator().next().getModified());
 		assertNotNull(resources.iterator().next().getCreation());
@@ -137,7 +137,7 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin();
 		// Google Code SVN does not support Range header
 		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
-		final List<DavResource> resources = sardine.getResources(url);
+		final List<DavResource> resources = sardine.list(url);
 		assertEquals(1, resources.size());
 		assertNotNull(resources.iterator().next().getContentLength());
 	}
@@ -249,7 +249,7 @@ public class FunctionalSardineTest
 		Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault());
 		try
 		{
-			final List<DavResource> resources = sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+			final List<DavResource> resources = sardine.list("http://sardine.googlecode.com/svn/trunk/");
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
 		}
@@ -263,7 +263,7 @@ public class FunctionalSardineTest
 	public void testPath() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		List<DavResource> resources = sardine.getResources("http://sardine.googlecode.com/svn/trunk/");
+		List<DavResource> resources = sardine.list("http://sardine.googlecode.com/svn/trunk/");
 		assertFalse(resources.isEmpty());
 		DavResource folder = resources.get(0);
 		assertEquals("trunk", folder.getName());
@@ -320,7 +320,7 @@ public class FunctionalSardineTest
 		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString() + "/";
 		sardine.createDirectory(url);
 		assertTrue(sardine.exists(url));
-		final List<DavResource> resources = sardine.getResources(url);
+		final List<DavResource> resources = sardine.list(url);
 		assertNotNull(resources);
 		assertEquals(1, resources.size());
 		sardine.delete(url);
@@ -340,7 +340,7 @@ public class FunctionalSardineTest
 	{
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sardine.googlecode.com/svn/trunk/";
-		final List<DavResource> resources = sardine.getResources(url);
+		final List<DavResource> resources = sardine.list(url);
 		assertNotNull(resources);
 		assertFalse(resources.isEmpty());
 		DavResource file = resources.get(0);
@@ -352,7 +352,7 @@ public class FunctionalSardineTest
 	{
 		Sardine sardine = SardineFactory.begin();
 		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
-		final List<DavResource> resources = sardine.getResources(url);
+		final List<DavResource> resources = sardine.list(url);
 		assertFalse(resources.isEmpty());
 		assertEquals(1, resources.size());
 		DavResource file = resources.get(0);
@@ -367,7 +367,7 @@ public class FunctionalSardineTest
 		try
 		{
 			// Test extended redirect handler for PROPFIND
-			final List<DavResource> resources = sardine.getResources(url);
+			final List<DavResource> resources = sardine.list(url);
 			assertNotNull(resources);
 		}
 		catch (SardineException e)

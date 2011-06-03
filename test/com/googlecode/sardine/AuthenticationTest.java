@@ -62,7 +62,7 @@ public class AuthenticationTest
 		try
 		{
 			URI url = URI.create("http://sudo.ch/dav/basic/");
-			final List<DavResource> resources = sardine.getResources(url.toString());
+			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
 		}
@@ -79,7 +79,7 @@ public class AuthenticationTest
 		try
 		{
 			URI url = URI.create("http://sudo.ch/dav/digest/");
-			final List<DavResource> resources = sardine.getResources(url.toString());
+			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
 		}
@@ -97,7 +97,7 @@ public class AuthenticationTest
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		try
 		{
-			sardine.getResources(url.toString());
+			sardine.list(url.toString());
 			fail("Expected authentication to fail");
 		}
 		catch (SardineException e)
@@ -115,7 +115,7 @@ public class AuthenticationTest
 		{
 			URI url = URI.create("http://sudo.ch/dav/digest/");
 			sardine.enablePreemptiveAuthentication(url.getHost());
-			sardine.getResources(url.toString());
+			sardine.list(url.toString());
 			fail("Expected authentication to fail becuase of preemptive credential cache");
 		}
 		catch (SardineException e)
@@ -164,7 +164,7 @@ public class AuthenticationTest
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		try
 		{
-			sardine.getResources(url.toString());
+			sardine.list(url.toString());
 			fail("Expected authorization failure");
 		}
 		catch (SardineException e)
