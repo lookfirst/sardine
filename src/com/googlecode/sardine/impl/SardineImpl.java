@@ -92,7 +92,6 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -345,17 +344,24 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
+	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
+	{
+		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
+	}
+
+	public List<DavResource> patch(String url, Map<QName, String> setProps) throws IOException
+	{
+		return this.patch(url, setProps, Collections.<QName>emptyList());
+	}
+
 	/**
-	 * Creates a {@link Propertyupdate} element containing all properties to set from setProps and all properties to
-	 * remove from removeProps. Note this method will use a {@link SardineUtil#DEFAULT_NAMESPACE_URI} as
-	 * namespace and {@link SardineUtil#DEFAULT_NAMESPACE_PREFIX} as prefix.
-	 *
-	 * @see com.googlecode.sardine.Sardine#setCustomProps(String, java.util.Map, java.util.List)
+	 * Creates a {@link com.googlecode.sardine.model.Propertyupdate} element containing all properties to set from setProps and all properties to
+	 * remove from removeProps. Note this method will use a {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_URI} as
+	 * namespace and {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_PREFIX} as prefix.
 	 */
-	public void setCustomProps(String url, Map<String, String> setProps, List<String> removeProps) throws IOException
+	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
 		HttpPropPatch entity = new HttpPropPatch(url);
-		Document document = SardineUtil.createDocument();
 		// Build WebDAV <code>PROPPATCH</code> entity.
 		Propertyupdate body = new Propertyupdate();
 		// Add properties
@@ -365,9 +371,9 @@ public class SardineImpl implements Sardine
 			Prop prop = new Prop();
 			// Returns a reference to the live list
 			List<Element> any = prop.getAny();
-			for (Map.Entry<QName, String> entry : SardineUtil.toQName(setProps).entrySet())
+			for (Map.Entry<QName, String> entry : setProps.entrySet())
 			{
-				Element element = SardineUtil.createElement(document, entry.getKey());
+				Element element = SardineUtil.createElement(entry.getKey());
 				element.setTextContent(entry.getValue());
 				any.add(element);
 			}
@@ -380,15 +386,29 @@ public class SardineImpl implements Sardine
 			Prop prop = new Prop();
 			// Returns a reference to the live list
 			List<Element> any = prop.getAny();
-			for (QName entry : SardineUtil.toQName(removeProps))
+			for (QName entry : removeProps)
 			{
-				Element element = SardineUtil.createElement(document, entry);
+				Element element = SardineUtil.createElement(entry);
 				any.add(element);
 			}
 			remove.setProp(prop);
 		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		this.execute(entity, new VoidResponseHandler());
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		for (Response resp : responses)
+		{
+			try
+			{
+				resources.add(new DavResource(resp));
+			}
+			catch (URISyntaxException e)
+			{
+				// Ignore resource with invalid URI
+			}
+		}
+		return resources;
 	}
 
 	/*

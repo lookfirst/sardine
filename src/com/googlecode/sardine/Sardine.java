@@ -1,5 +1,6 @@
 package com.googlecode.sardine;
 
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -29,27 +30,41 @@ public interface Sardine
 	 */
 	void setCredentials(String username, String password, String domain, String workstation);
 
-    @Deprecated
-    List<DavResource> getResources(String url) throws IOException;
+	@Deprecated
+	List<DavResource> getResources(String url) throws IOException;
 
-    /**
-     * Gets a directory listing.
-     *
-     * @param url Path to the resource including protocol and hostname
-     * @return List of resources for this URI including the parent resource itself
-     * @throws IOException I/O error or HTTP response validation failure
-     */
-    List<DavResource> list(String url) throws IOException;
+	/**
+	 * Gets a directory listing.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> list(String url) throws IOException;
+
+	@Deprecated
+	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
+
+	/**
+	 * Add custom properties for a url.
+	 *
+	 * @param url	  Path to the resource including protocol and hostname
+	 * @param addProps Properties to add to resource. If a property already exists then its value is replaced.
+	 * @return The patched resources from the response
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> patch(String url, Map<QName, String> addProps) throws IOException;
 
 	/**
 	 * Add or remove custom properties for a url.
 	 *
 	 * @param url		 Path to the resource including protocol and hostname
-	 * @param addProps	Properties to add to resource
-	 * @param removeProps Properties to remove from resource
+	 * @param addProps	Properties to add to resource. If a property already exists then its value is replaced.
+	 * @param removeProps Properties to remove from resource. Specifying the removal of a property that does not exist is not an error.
+	 * @return The patched resources from the response
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
+	List<DavResource> patch(String url, Map<QName, String> addProps, List<QName> removeProps) throws IOException;
 
 	/**
 	 * The stream must be closed after reading.
@@ -190,12 +205,14 @@ public interface Sardine
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support
 	 * locking it may choose to support any combination of exclusive and shared locks for any access types.
 	 *
-	 * @param url Path to the resource including protocol and hostname
+	 * @param url   Path to the resource including protocol and hostname
+	 * @param token The lock token to unlock this resource.
 	 * @return The lock token to unlock this resource. A lock token is a type of state token, represented
 	 *         as a URI, which identifies a particular lock. A lock token is returned by every successful
 	 *         <code>LOCK</code> operation in the lockdiscovery property in the response body, and can also be found through
 	 *         lock discovery on a resource.
 	 * @throws IOException
+	 * @see #lock(String)
 	 */
 	public void unlock(String url, String token) throws IOException;
 

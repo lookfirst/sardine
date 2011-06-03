@@ -161,8 +161,10 @@ public class SardineUtil
 		}
 	}
 
-	/** */
-	public static Document createDocument() throws IOException
+	/**
+	 * @return New XML document from the default document builder factory.
+	 */
+	private static Document createDocument()
 	{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
@@ -172,10 +174,7 @@ public class SardineUtil
 		}
 		catch (ParserConfigurationException e)
 		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+			throw new RuntimeException(e.getMessage(), e);
 		}
 		return builder.newDocument();
 	}
@@ -230,21 +229,27 @@ public class SardineUtil
 		return result;
 	}
 
-	/** */
+	/**
+	 * @param key Local element name.
+	 */
 	public static QName createQNameWithCustomNamespace(String key)
 	{
 		return new QName(CUSTOM_NAMESPACE_URI, key, CUSTOM_NAMESPACE_PREFIX);
 	}
 
-	/** */
+	/**
+	 * @param key Local element name.
+	 */
 	public static QName createQNameWithDefaultNamespace(String key)
 	{
 		return new QName(DEFAULT_NAMESPACE_URI, key, DEFAULT_NAMESPACE_PREFIX);
 	}
 
-	/** */
-	public static Element createElement(Document document, QName key)
+	/**
+	 * @param key Fully qualified element name.
+	 */
+	public static Element createElement(QName key)
 	{
-		return document.createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());
+		return createDocument().createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());
 	}
 }
