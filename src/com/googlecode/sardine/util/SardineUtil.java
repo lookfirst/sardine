@@ -37,12 +37,22 @@ public class SardineUtil
 	/**
 	 * Default namespace prefix
 	 */
-	public static final String DEFAULT_NAMESPACE_PREFIX = "S";
+	public static final String CUSTOM_NAMESPACE_PREFIX = "s";
 
 	/**
 	 * Default namespace URI
 	 */
-	public static final String DEFAULT_NAMESPACE_URI = "SAR:";
+	public static final String CUSTOM_NAMESPACE_URI = "SAR:";
+
+	/**
+	 * Default namespace prefix
+	 */
+	public static final String DEFAULT_NAMESPACE_PREFIX = "d";
+
+	/**
+	 * Default namespace URI
+	 */
+	public static final String DEFAULT_NAMESPACE_URI = "DAV:";
 
 	/**
 	 * Reusable context for marshalling and unmarshalling
@@ -200,7 +210,7 @@ public class SardineUtil
 		Map<QName, String> result = new HashMap<QName, String>(setProps.size());
 		for (Map.Entry<String, String> entry : setProps.entrySet())
 		{
-			result.put(createQNameWithDefaultNamespace(entry.getKey()), entry.getValue());
+			result.put(createQNameWithCustomNamespace(entry.getKey()), entry.getValue());
 		}
 		return result;
 	}
@@ -215,13 +225,19 @@ public class SardineUtil
 		List<QName> result = new ArrayList<QName>(removeProps.size());
 		for (String entry : removeProps)
 		{
-			result.add(createQNameWithDefaultNamespace(entry));
+			result.add(createQNameWithCustomNamespace(entry));
 		}
 		return result;
 	}
 
 	/** */
-	private static QName createQNameWithDefaultNamespace(String key)
+	public static QName createQNameWithCustomNamespace(String key)
+	{
+		return new QName(CUSTOM_NAMESPACE_URI, key, CUSTOM_NAMESPACE_PREFIX);
+	}
+
+	/** */
+	public static QName createQNameWithDefaultNamespace(String key)
 	{
 		return new QName(DEFAULT_NAMESPACE_URI, key, DEFAULT_NAMESPACE_PREFIX);
 	}
