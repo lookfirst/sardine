@@ -24,11 +24,9 @@
     <logger name="org.apache.http.headers">
         <level value="debug"/>
     </logger>
-<!--
     <logger name="org.apache.http.wire">
-        <level value="debug"/>
+        <level value="error"/>
     </logger>
--->
     <root>
         <level value="info"/>
         <appender-ref ref="console"/>
