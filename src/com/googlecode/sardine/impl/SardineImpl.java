@@ -58,6 +58,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -582,7 +583,22 @@ public class SardineImpl implements Sardine
 		{
 			put.addHeader(header, headers.get(header));
 		}
-		execute(put, new VoidResponseHandler());
+		try {
+			execute(put, new VoidResponseHandler());
+		}
+		catch(HttpResponseException e)
+		{
+			if(e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
+			{
+				// Retry with the Expect header removed
+				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
+				execute(put, new VoidResponseHandler());
+			}
+			else
+			{
+				throw e;
+			}
+		}
 	}
 
 	/**
