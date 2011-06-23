@@ -93,6 +93,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -722,7 +723,11 @@ public class SardineImpl implements Sardine
 	{
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-		HttpProtocolParams.setUserAgent(params, "Sardine/" + Version.getSpecification());
+		String version = Version.getSpecification();
+		if(null == version) {
+			version = VersionInfo.UNAVAILABLE;
+		}
+		HttpProtocolParams.setUserAgent(params, "Sardine/" + version);
 		// Only selectively enable this for PUT but not all entity enclosing methods
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
