@@ -593,12 +593,13 @@ public class SardineImpl implements Sardine
 			{
 				// Retry with the Expect header removed
 				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
-				execute(put, new VoidResponseHandler());
+				if(entity.isRepeatable())
+				{
+					execute(put, new VoidResponseHandler());
+					return;
+				}
 			}
-			else
-			{
-				throw e;
-			}
+			throw e;
 		}
 	}
 
