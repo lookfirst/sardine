@@ -589,11 +589,11 @@ public class SardineImpl implements Sardine
 		}
 		catch(HttpResponseException e)
 		{
-			if(e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
+			if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
 			{
 				// Retry with the Expect header removed
 				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
-				if(entity.isRepeatable())
+				if (entity.isRepeatable())
 				{
 					execute(put, new VoidResponseHandler());
 					return;
@@ -725,7 +725,7 @@ public class SardineImpl implements Sardine
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 		String version = Version.getSpecification();
-		if(null == version) {
+		if (version == null) {
 			version = VersionInfo.UNAVAILABLE;
 		}
 		HttpProtocolParams.setUserAgent(params, "Sardine/" + version);
