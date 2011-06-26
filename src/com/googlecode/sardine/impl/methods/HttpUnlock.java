@@ -18,6 +18,7 @@ package com.googlecode.sardine.impl.methods;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.protocol.HTTP;
 
 import java.net.URI;
 
@@ -29,7 +30,7 @@ public class HttpUnlock extends HttpRequestBase
 	public static final String METHOD_NAME = "UNLOCK";
 
 	/**
-	 * @param url
+	 * @param url   The resource
 	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed.
 	 *              The lock token in the Lock-Token request header must identify a lock that contains the resource
 	 *              identified by Request-URI as a member.
@@ -40,7 +41,7 @@ public class HttpUnlock extends HttpRequestBase
 	}
 
 	/**
-	 * @param url
+	 * @param url   The resource
 	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed.
 	 *              The lock token in the Lock-Token request header must identify a lock that contains the resource
 	 *              identified by Request-URI as a member.
@@ -48,7 +49,7 @@ public class HttpUnlock extends HttpRequestBase
 	public HttpUnlock(URI url, String token)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
 		this.setHeader("Lock-Token", "<" + token + ">");
 	}
 

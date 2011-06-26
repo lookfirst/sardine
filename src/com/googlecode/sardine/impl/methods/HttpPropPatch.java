@@ -18,6 +18,7 @@ package com.googlecode.sardine.impl.methods;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.protocol.HTTP;
 
 import java.net.URI;
 
@@ -38,7 +39,7 @@ public class HttpPropPatch extends HttpEntityEnclosingRequestBase
 	public HttpPropPatch(URI url)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
 	}
 
 	@Override

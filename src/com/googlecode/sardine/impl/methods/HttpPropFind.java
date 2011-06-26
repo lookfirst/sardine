@@ -40,7 +40,7 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	 * Sets the <code>Depth</code> request header to <code>1</code>, meaning the
 	 * request applies to the resource and its children.
 	 *
-	 * @param uri
+	 * @param uri The resource
 	 */
 	public HttpPropFind(final URI uri)
 	{
@@ -63,6 +63,6 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	 */
 	public void setDepth(String depth)
 	{
-		this.setHeader("Depth", depth);
+		this.setHeader(HttpHeaders.DEPTH, depth);
 	}
 }
