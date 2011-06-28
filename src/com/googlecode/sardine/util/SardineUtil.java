@@ -178,14 +178,12 @@ public class SardineUtil
 		}
 		catch (SAXException e)
 		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+			throw new RuntimeException(e.getMessage(), e);
 		}
 		catch (JAXBException e)
 		{
-			IOException failure = new IOException(e.getMessage());
+			// Server does not return any valid WebDAV XML that matches our JAXB context
+			IOException failure = new IOException("Not a valid DAV response");
 			// Backward compatibility
 			failure.initCause(e);
 			throw failure;
@@ -199,7 +197,7 @@ public class SardineUtil
 	 * @return A new unmarshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	private static Unmarshaller createUnmarshaller() throws IOException
+	private static Unmarshaller createUnmarshaller()
 	{
 		try
 		{
@@ -207,10 +205,7 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
@@ -218,7 +213,7 @@ public class SardineUtil
 	 * @return A new marshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	private static Marshaller createMarshaller() throws IOException
+	private static Marshaller createMarshaller()
 	{
 		try
 		{
@@ -226,10 +221,7 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
@@ -256,7 +248,7 @@ public class SardineUtil
 	 * @return The XML string for the WebDAV request
 	 * @throws IOException When there is a JAXB error
 	 */
-	public static String toXml(Object jaxbElement) throws IOException
+	public static String toXml(Object jaxbElement)
 	{
 		StringWriter writer = new StringWriter();
 		try
@@ -266,10 +258,7 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+			throw new RuntimeException(e.getMessage(), e);
 		}
 		return writer.toString();
 	}
