@@ -3,7 +3,12 @@ package com.googlecode.sardine.util;
 import com.googlecode.sardine.model.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -12,7 +17,9 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.sax.SAXSource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -126,6 +133,65 @@ public class SardineUtil
 		return date;
 	}
 
+	public static <T> T unmarshal(InputStream in) throws IOException
+	{
+		Unmarshaller unmarshaller = createUnmarshaller();
+		try
+		{
+			XMLReader reader = XMLReaderFactory.createXMLReader();
+			try
+			{
+				reader.setFeature(
+						"http://xml.org/sax/features/external-general-entities", Boolean.FALSE);
+			}
+			catch (SAXException e)
+			{
+				; //Not all parsers will support this attribute
+			}
+			try
+			{
+				reader.setFeature(
+						"http://xml.org/sax/features/external-parameter-entities", Boolean.FALSE);
+			}
+			catch (SAXException e)
+			{
+				; //Not all parsers will support this attribute
+			}
+			try
+			{
+				reader.setFeature(
+						"http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);
+			}
+			catch (SAXException e)
+			{
+				; //Not all parsers will support this attribute
+			}
+			try
+			{
+				reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+			}
+			catch (SAXException e)
+			{
+				; //Not all parsers will support this attribute
+			}
+			return (T) unmarshaller.unmarshal(new SAXSource(reader, new InputSource(in)));
+		}
+		catch (SAXException e)
+		{
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
+		}
+		catch (JAXBException e)
+		{
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
+		}
+	}
+
 	/**
 	 * Creates an {@link Unmarshaller} from the {@link SardineUtil#JAXB_CONTEXT}.
 	 * Note: the unmarshaller is not thread safe, so it must be created for every request.
@@ -133,7 +199,7 @@ public class SardineUtil
 	 * @return A new unmarshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	public static Unmarshaller createUnmarshaller() throws IOException
+	private static Unmarshaller createUnmarshaller() throws IOException
 	{
 		try
 		{
@@ -141,7 +207,10 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			throw new IOException("Creating unmarshaller failed", e);
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
 		}
 	}
 
@@ -149,7 +218,7 @@ public class SardineUtil
 	 * @return A new marshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	public static Marshaller createMarshaller() throws IOException
+	private static Marshaller createMarshaller() throws IOException
 	{
 		try
 		{
@@ -157,7 +226,10 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			throw new IOException("Creating marshaller failed", e);
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
 		}
 	}
 
@@ -194,7 +266,10 @@ public class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			throw new IOException("Error converting element", e);
+			IOException failure = new IOException(e.getMessage());
+			// Backward compatibility
+			failure.initCause(e);
+			throw failure;
 		}
 		return writer.toString();
 	}

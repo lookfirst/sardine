@@ -23,7 +23,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -57,17 +56,7 @@ public class LockResponseHandler extends ValidatingResponseHandler<String>
 	protected String getToken(InputStream stream)
 			throws IOException
 	{
-		try
-		{
-			Prop prop = (Prop) SardineUtil.createUnmarshaller().unmarshal(stream);
-			return prop.getLockdiscovery().getActivelock().iterator().next().getLocktoken().getHref().iterator().next();
-		}
-		catch (JAXBException e)
-		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
-		}
+		Prop prop = SardineUtil.unmarshal(stream);
+		return prop.getLockdiscovery().getActivelock().iterator().next().getLocktoken().getHref().iterator().next();
 	}
 }

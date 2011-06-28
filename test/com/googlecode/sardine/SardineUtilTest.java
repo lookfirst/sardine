@@ -47,18 +47,6 @@ public class SardineUtilTest
 		assertThat(xml, containsString("allprop/>"));
 	}
 
-	@Test
-	public void testCreateUnmarshaller() throws Exception
-	{
-		assertNotNull(SardineUtil.createUnmarshaller());
-	}
-
-	@Test
-	public void testCreateMarshaller() throws Exception
-	{
-		assertNotNull(SardineUtil.createMarshaller());
-	}
-
 	private void checkXmlDeclaration(final String xml)
 	{
 		assertTrue(xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));

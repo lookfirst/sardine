@@ -23,7 +23,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -61,16 +60,6 @@ public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multis
 	protected Multistatus getMultistatus(InputStream stream)
 			throws IOException
 	{
-		try
-		{
-			return (Multistatus) SardineUtil.createUnmarshaller().unmarshal(stream);
-		}
-		catch (JAXBException e)
-		{
-			IOException failure = new IOException(e.getMessage());
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
-		}
+		return SardineUtil.unmarshal(stream);
 	}
 }

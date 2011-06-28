@@ -18,6 +18,7 @@ package com.googlecode.sardine;
 
 import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.impl.SardineImpl;
+import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -29,6 +30,7 @@ import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -41,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -375,5 +379,36 @@ public class FunctionalSardineTest
 			// Should handle a 301 response transparently
 			fail("Redirect handling failed");
 		}
+	}
+
+	@Test
+	public void testDisallowLoadExternalDtd() throws Exception
+	{
+		final CountDownLatch entry = new CountDownLatch(1);
+		Thread t = new Thread(new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					String html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+							"<html xmlns=\"http://www.w3.org/1999/xhtml\"></html>";
+					SardineUtil.unmarshal(new ByteArrayInputStream(html.getBytes()));
+					fail("Expected parsing failure for invalid namespace");
+				}
+				catch (IOException e)
+				{
+					// Success
+					assertTrue(e.getCause() instanceof JAXBException);
+				}
+				finally
+				{
+					entry.countDown();
+				}
+			}
+		});
+		t.start();
+		assertTrue("Timeout for listing resources. Possibly the XML parser is trying to read the DTD in the response.",
+				entry.await(5, TimeUnit.SECONDS));
 	}
 }
