@@ -23,7 +23,7 @@ import org.apache.http.protocol.HTTP;
 import java.net.URI;
 
 /**
- * @version $Id:$
+ * @version $Id$
  */
 public class HttpLock extends HttpEntityEnclosingRequestBase
 {
