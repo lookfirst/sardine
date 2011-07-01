@@ -195,7 +195,7 @@ public interface Sardine
 	 *         as a URI, which identifies a particular lock. A lock token is returned by every successful
 	 *         <code>LOCK</code> operation in the lockdiscovery property in the response body, and can also be found through
 	 *         lock discovery on a resource.
-	 * @throws IOException
+	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	public String lock(String url) throws IOException;
 
@@ -207,11 +207,7 @@ public interface Sardine
 	 *
 	 * @param url   Path to the resource including protocol and hostname
 	 * @param token The lock token to unlock this resource.
-	 * @return The lock token to unlock this resource. A lock token is a type of state token, represented
-	 *         as a URI, which identifies a particular lock. A lock token is returned by every successful
-	 *         <code>LOCK</code> operation in the lockdiscovery property in the response body, and can also be found through
-	 *         lock discovery on a resource.
-	 * @throws IOException
+	 * @throws IOException I/O error or HTTP response validation failure
 	 * @see #lock(String)
 	 */
 	public void unlock(String url, String token) throws IOException;
