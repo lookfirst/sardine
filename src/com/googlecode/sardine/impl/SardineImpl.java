@@ -546,7 +546,7 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * Private helper for doing the work of a put
+	 * Upload the entity using <code>PUT</code>
 	 *
 	 * @param url			Resource
 	 * @param entity		 The entity to read from
@@ -556,11 +556,7 @@ public class SardineImpl implements Sardine
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
 		Map<String, String> headers = new HashMap<String, String>();
-		if (contentType == null)
-		{
-			headers.put(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
-		}
-		else
+		if (contentType != null)
 		{
 			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
 		}
@@ -572,6 +568,8 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
+	 * Upload the entity using <code>PUT</code>
+	 *
 	 * @param url	 Resource
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
@@ -583,6 +581,9 @@ public class SardineImpl implements Sardine
 		for (String header : headers.keySet())
 		{
 			put.addHeader(header, headers.get(header));
+		}
+		if(!put.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
 		}
 		try {
 			execute(put, new VoidResponseHandler());
