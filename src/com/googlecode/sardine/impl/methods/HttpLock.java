@@ -37,7 +37,7 @@ public class HttpLock extends HttpEntityEnclosingRequestBase
 	public HttpLock(URI url)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "utf-8");
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import java.net.URI;
 
 /**
- * Simple class for making copy a bit easier to deal with. Assumes Overwrite = T.
+ * Simple class for making WebDAV <code>COPY</code> requests. Assumes Overwrite = T.
  *
  * @version $Id$
  */

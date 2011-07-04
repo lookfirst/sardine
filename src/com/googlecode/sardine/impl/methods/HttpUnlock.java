@@ -49,7 +49,7 @@ public class HttpUnlock extends HttpRequestBase
 	public HttpUnlock(URI url, String token)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "utf-8");
 		this.setHeader("Lock-Token", "<" + token + ">");
 	}
 

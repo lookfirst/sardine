@@ -23,7 +23,7 @@ import org.apache.http.protocol.HTTP;
 import java.net.URI;
 
 /**
- * Simple class for making proppatch a bit easier to deal with.
+ * Simple class for making WebDAV <code>PROPPATCH</code> requests.
  *
  * @version $Id$
  */
@@ -39,7 +39,7 @@ public class HttpPropPatch extends HttpEntityEnclosingRequestBase
 	public HttpPropPatch(URI url)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "utf-8");
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import org.apache.http.protocol.HTTP;
 import java.net.URI;
 
 /**
- * Simple class for making propfind a bit easier to deal with.
+ * Simple class for making WebDAV <code>PROPFIND</code> requests.
  *
  * @version $Id$
  */
@@ -46,7 +46,7 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	{
 		this.setDepth(String.valueOf("1"));
 		this.setURI(uri);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "UTF-8");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "utf-8");
 	}
 
 	@Override

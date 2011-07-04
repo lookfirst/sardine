@@ -22,7 +22,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import java.net.URI;
 
 /**
- * Simple class for making move a bit easier to deal with.
+ * Simple class for making WebDAV <code>MOVE</code> requests.
  *
  * @version $Id$
  */
