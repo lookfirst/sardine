@@ -30,11 +30,14 @@ public interface Sardine
 	 */
 	void setCredentials(String username, String password, String domain, String workstation);
 
+	/**
+	 * @see #list(String)
+	 */
 	@Deprecated
 	List<DavResource> getResources(String url) throws IOException;
 
 	/**
-	 * Gets a directory listing.
+	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @return List of resources for this URI including the parent resource itself
@@ -42,11 +45,14 @@ public interface Sardine
 	 */
 	List<DavResource> list(String url) throws IOException;
 
+	/**
+	 * @see #patch(String, java.util.Map, java.util.List)
+	 */
 	@Deprecated
 	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
 
 	/**
-	 * Add custom properties for a url.
+	 * Add custom properties for a url WebDAV <code>PROPPATCH</code>.
 	 *
 	 * @param url	  Path to the resource including protocol and hostname
 	 * @param addProps Properties to add to resource. If a property already exists then its value is replaced.
@@ -56,7 +62,7 @@ public interface Sardine
 	List<DavResource> patch(String url, Map<QName, String> addProps) throws IOException;
 
 	/**
-	 * Add or remove custom properties for a url.
+	 * Add or remove custom properties for a url using WebDAV <code>PROPPATCH</code>.
 	 *
 	 * @param url		 Path to the resource including protocol and hostname
 	 * @param addProps	Properties to add to resource. If a property already exists then its value is replaced.
@@ -67,7 +73,7 @@ public interface Sardine
 	List<DavResource> patch(String url, Map<QName, String> addProps, List<QName> removeProps) throws IOException;
 
 	/**
-	 * The stream must be closed after reading.
+	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
 	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @return Data stream to read from
@@ -76,6 +82,8 @@ public interface Sardine
 	InputStream get(String url) throws IOException;
 
 	/**
+	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
+	 *
 	 * @param url	 Path to the resource including protocol and hostname
 	 * @param headers Additional HTTP headers to add to the request
 	 * @return Data stream to read from
@@ -84,7 +92,7 @@ public interface Sardine
 	InputStream get(String url, Map<String, String> headers) throws IOException;
 
 	/**
-	 * Uses webdav put to send data to a server
+	 * Uses HTTP <code>PUT</code> to send data to a server. Repeatable on authentication failure.
 	 *
 	 * @param url  Path to the resource including protocol and hostname
 	 * @param data Input source
@@ -93,7 +101,7 @@ public interface Sardine
 	void put(String url, byte[] data) throws IOException;
 
 	/**
-	 * Uses webdav put to send data to a server
+	 * Uses <code>PUT</code> to send data to a server. Not repeatable on authentication failure.
 	 *
 	 * @param url		Path to the resource including protocol and hostname
 	 * @param dataStream Input source
@@ -102,7 +110,8 @@ public interface Sardine
 	void put(String url, InputStream dataStream) throws IOException;
 
 	/**
-	 * Uses webdav put to send data to a server with a specific content type header
+	 * Uses <code>PUT</code> to send data to a server with a specific content type
+	 * header. Repeatable on authentication failure.
 	 *
 	 * @param url		 Path to the resource including protocol and hostname
 	 * @param data		Input source
@@ -112,7 +121,8 @@ public interface Sardine
 	void put(String url, byte[] data, String contentType) throws IOException;
 
 	/**
-	 * Uses webdav put to send data to a server with a specific content type header
+	 * Uses <code>PUT</code> to send data to a server with a specific content
+	 * type header. Not repeatable on authentication failure.
 	 *
 	 * @param url		 Path to the resource including protocol and hostname
 	 * @param dataStream  Input source
@@ -122,6 +132,9 @@ public interface Sardine
 	void put(String url, InputStream dataStream, String contentType) throws IOException;
 
 	/**
+	 * Uses <code>PUT</code> to send data to a server with a specific content
+	 * type header. Not repeatable on authentication failure.
+	 *
 	 * @param url			Path to the resource including protocol and hostname
 	 * @param dataStream	 Input source
 	 * @param contentType	MIME type to add to the HTTP request header
@@ -131,6 +144,9 @@ public interface Sardine
 	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
 
 	/**
+	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
+	 * on authentication failure.
+	 *
 	 * @param url		Path to the resource including protocol and hostname
 	 * @param dataStream Input source
 	 * @param headers	Additional HTTP headers to add to the request
@@ -139,7 +155,7 @@ public interface Sardine
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
 
 	/**
-	 * Delete a resource at the specified url
+	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -147,7 +163,7 @@ public interface Sardine
 	void delete(String url) throws IOException;
 
 	/**
-	 * Uses webdav to create a directory at the specified url
+	 * Uses WebDAV <code>MKCOL</code> to create a directory at the specified url
 	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -155,7 +171,7 @@ public interface Sardine
 	void createDirectory(String url) throws IOException;
 
 	/**
-	 * Move a url to from source to destination. Assumes overwrite.
+	 * Move a url to from source to destination using WebDAV <code>MOVE</code>. Assumes overwrite.
 	 *
 	 * @param sourceUrl	  Path to the resource including protocol and hostname
 	 * @param destinationUrl Path to the resource including protocol and hostname
@@ -164,7 +180,7 @@ public interface Sardine
 	void move(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
-	 * Copy a url from source to destination. Assumes overwrite.
+	 * Copy a url from source to destination using WebDAV <code>COPY</code>. Assumes overwrite.
 	 *
 	 * @param sourceUrl	  Path to the resource including protocol and hostname
 	 * @param destinationUrl Path to the resource including protocol and hostname
@@ -173,7 +189,7 @@ public interface Sardine
 	void copy(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
-	 * Performs a HEAD request to see if a resource exists or not.
+	 * Performs a HTTP <code>HEAD</code> request to see if a resource exists or not.
 	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @return Anything outside of the 200-299 response code range returns false.
