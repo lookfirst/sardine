@@ -62,7 +62,6 @@
             <sfile name="${commons-logging.jar}" scope="compile" />
             <sfile name="${httpclient.jar}" scope="compile" />
             <sfile name="${httpcore.jar}" scope="compile" />
-            <sfile name="${httpmime.jar}" scope="compile" />
             <sfile name="${log4j.jar}" scope="compile" />
             <sfile name="${junit.jar}" scope="compile" />
         </sfilelist>

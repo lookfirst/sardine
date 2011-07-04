@@ -16,35 +16,19 @@
 
 package com.googlecode.sardine.impl;
 
-import com.googlecode.sardine.DavResource;
-import com.googlecode.sardine.Sardine;
-import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
-import com.googlecode.sardine.impl.handler.LockResponseHandler;
-import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
-import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.ConsumingInputStream;
-import com.googlecode.sardine.impl.methods.HttpCopy;
-import com.googlecode.sardine.impl.methods.HttpLock;
-import com.googlecode.sardine.impl.methods.HttpMkCol;
-import com.googlecode.sardine.impl.methods.HttpMove;
-import com.googlecode.sardine.impl.methods.HttpPropFind;
-import com.googlecode.sardine.impl.methods.HttpPropPatch;
-import com.googlecode.sardine.impl.methods.HttpUnlock;
-import com.googlecode.sardine.model.Allprop;
-import com.googlecode.sardine.model.Exclusive;
-import com.googlecode.sardine.model.Lockinfo;
-import com.googlecode.sardine.model.Lockscope;
-import com.googlecode.sardine.model.Locktype;
-import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.model.Prop;
-import com.googlecode.sardine.model.Propertyupdate;
-import com.googlecode.sardine.model.Propfind;
-import com.googlecode.sardine.model.Remove;
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.model.Set;
-import com.googlecode.sardine.model.Write;
-import com.googlecode.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -96,17 +80,35 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
+import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.LockResponseHandler;
+import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
+import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.ConsumingInputStream;
+import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpLock;
+import com.googlecode.sardine.impl.methods.HttpMkCol;
+import com.googlecode.sardine.impl.methods.HttpMove;
+import com.googlecode.sardine.impl.methods.HttpPropFind;
+import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.impl.methods.HttpUnlock;
+import com.googlecode.sardine.model.Allprop;
+import com.googlecode.sardine.model.Exclusive;
+import com.googlecode.sardine.model.Lockinfo;
+import com.googlecode.sardine.model.Lockscope;
+import com.googlecode.sardine.model.Locktype;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Prop;
+import com.googlecode.sardine.model.Propertyupdate;
+import com.googlecode.sardine.model.Propfind;
+import com.googlecode.sardine.model.Remove;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.model.Set;
+import com.googlecode.sardine.model.Write;
+import com.googlecode.sardine.util.SardineUtil;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -192,7 +194,7 @@ public class SardineImpl implements Sardine
 					case HttpStatus.SC_MOVED_TEMPORARILY:
 						return (method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && locationHeader != null;
+								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && (locationHeader != null);
 					case HttpStatus.SC_MOVED_PERMANENTLY:
 					case HttpStatus.SC_TEMPORARY_REDIRECT:
 						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
@@ -205,10 +207,11 @@ public class SardineImpl implements Sardine
 				} //end of switch
 			}
 
+			@Override
 			public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
 					throws ProtocolException
 			{
-				URI uri = getLocationURI(request, response, context);
+				URI uri = this.getLocationURI(request, response, context);
 				String method = request.getRequestLine().getMethod();
 				if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
 				{
@@ -329,7 +332,7 @@ public class SardineImpl implements Sardine
 		Propfind body = new Propfind();
 		body.setAllprop(new Allprop());
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = execute(entity, new MultiStatusResponseHandler());
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 		for (Response resp : responses)
@@ -455,7 +458,7 @@ public class SardineImpl implements Sardine
 	 */
 	public InputStream get(String url) throws IOException
 	{
-		return get(url, Collections.<String, String>emptyMap());
+		return this.get(url, Collections.<String, String>emptyMap());
 	}
 
 	/*
@@ -471,7 +474,7 @@ public class SardineImpl implements Sardine
 		}
 		// Must use #execute without handler, otherwise the entity is consumed
 		// already after the handler exits.
-		HttpResponse response = execute(get);
+		HttpResponse response = this.execute(get);
 		VoidResponseHandler handler = new VoidResponseHandler();
 		try
 		{
@@ -492,7 +495,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, byte[] data) throws IOException
 	{
-		put(url, data, null);
+		this.put(url, data, null);
 	}
 
 	/*
@@ -502,7 +505,7 @@ public class SardineImpl implements Sardine
 	public void put(String url, byte[] data, String contentType) throws IOException
 	{
 		ByteArrayEntity entity = new ByteArrayEntity(data);
-		put(url, entity, contentType, true);
+		this.put(url, entity, contentType, true);
 	}
 
 	/*
@@ -511,7 +514,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, InputStream dataStream) throws IOException
 	{
-		put(url, dataStream, (String) null);
+		this.put(url, dataStream, (String) null);
 	}
 
 	/*
@@ -520,7 +523,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
 	{
-		put(url, dataStream, contentType, true);
+		this.put(url, dataStream, contentType, true);
 	}
 
 	/*
@@ -531,7 +534,7 @@ public class SardineImpl implements Sardine
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
-		put(url, entity, contentType, expectContinue);
+		this.put(url, entity, contentType, expectContinue);
 	}
 
 	/*
@@ -542,7 +545,7 @@ public class SardineImpl implements Sardine
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
-		put(url, entity, headers);
+		this.put(url, entity, headers);
 	}
 
 	/**
@@ -582,11 +585,12 @@ public class SardineImpl implements Sardine
 		{
 			put.addHeader(header, headers.get(header));
 		}
-		if(!put.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+		if (!put.containsHeader(HttpHeaders.CONTENT_TYPE))
+		{
 			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
 		}
 		try {
-			execute(put, new VoidResponseHandler());
+			this.execute(put, new VoidResponseHandler());
 		}
 		catch(HttpResponseException e)
 		{
@@ -596,7 +600,7 @@ public class SardineImpl implements Sardine
 				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
 				if (entity.isRepeatable())
 				{
-					execute(put, new VoidResponseHandler());
+					this.execute(put, new VoidResponseHandler());
 					return;
 				}
 			}
@@ -612,7 +616,7 @@ public class SardineImpl implements Sardine
 	public void delete(String url) throws IOException
 	{
 		HttpDelete delete = new HttpDelete(url);
-		execute(delete, new VoidResponseHandler());
+		this.execute(delete, new VoidResponseHandler());
 	}
 
 	/**
@@ -623,7 +627,7 @@ public class SardineImpl implements Sardine
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
-		execute(move, new VoidResponseHandler());
+		this.execute(move, new VoidResponseHandler());
 	}
 
 	/**
@@ -634,7 +638,7 @@ public class SardineImpl implements Sardine
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
-		execute(copy, new VoidResponseHandler());
+		this.execute(copy, new VoidResponseHandler());
 	}
 
 	/**
@@ -645,7 +649,7 @@ public class SardineImpl implements Sardine
 	public void createDirectory(String url) throws IOException
 	{
 		HttpMkCol mkcol = new HttpMkCol(url);
-		execute(mkcol, new VoidResponseHandler());
+		this.execute(mkcol, new VoidResponseHandler());
 	}
 
 	/**
@@ -656,7 +660,7 @@ public class SardineImpl implements Sardine
 	public boolean exists(String url) throws IOException
 	{
 		HttpHead head = new HttpHead(url);
-		return execute(head, new ExistsResponseHandler());
+		return this.execute(head, new ExistsResponseHandler());
 	}
 
 	/**
@@ -708,11 +712,11 @@ public class SardineImpl implements Sardine
 	 */
 	protected AbstractHttpClient createDefaultClient(ProxySelector selector)
 	{
-		SchemeRegistry schemeRegistry = createDefaultSchemeRegistry();
-		ClientConnectionManager cm = createDefaultConnectionManager(schemeRegistry);
-		HttpParams params = createDefaultHttpParams();
+		SchemeRegistry schemeRegistry = this.createDefaultSchemeRegistry();
+		ClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
+		HttpParams params = this.createDefaultHttpParams();
 		AbstractHttpClient client = new DefaultHttpClient(cm, params);
-		client.setRoutePlanner(createDefaultRoutePlanner(schemeRegistry, selector));
+		client.setRoutePlanner(this.createDefaultRoutePlanner(schemeRegistry, selector));
 		return client;
 	}
 
@@ -726,7 +730,8 @@ public class SardineImpl implements Sardine
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 		String version = Version.getSpecification();
-		if (version == null) {
+		if (version == null)
+		{
 			version = VersionInfo.UNAVAILABLE;
 		}
 		HttpProtocolParams.setUserAgent(params, "Sardine/" + version);
@@ -749,8 +754,8 @@ public class SardineImpl implements Sardine
 	protected SchemeRegistry createDefaultSchemeRegistry()
 	{
 		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", 80, createDefaultSocketFactory()));
-		registry.register(new Scheme("https", 443, createDefaultSecureSocketFactory()));
+		registry.register(new Scheme("http", 80, this.createDefaultSocketFactory()));
+		registry.register(new Scheme("https", 443, this.createDefaultSecureSocketFactory()));
 		return registry;
 	}
 

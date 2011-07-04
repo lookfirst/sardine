@@ -16,11 +16,11 @@
 
 package com.googlecode.sardine.impl.methods;
 
+import java.net.URI;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.protocol.HTTP;
-
-import java.net.URI;
 
 /**
  * @version $Id$
@@ -37,7 +37,7 @@ public class HttpLock extends HttpEntityEnclosingRequestBase
 	public HttpLock(URI url)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + "utf-8");
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + HTTP.UTF_8.toLowerCase());
 	}
 
 	@Override
