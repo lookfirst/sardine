@@ -1,20 +1,20 @@
 /*
- * Copyright 2009-2011 Jon Stevens et al.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2009-2011 Jon Stevens et al. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under the License.
  */
 
 package com.googlecode.sardine;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Element;
 
 import com.googlecode.sardine.model.Collection;
 import com.googlecode.sardine.model.Creationdate;
@@ -27,14 +27,6 @@ import com.googlecode.sardine.model.Propstat;
 import com.googlecode.sardine.model.Resourcetype;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
-import org.w3c.dom.Element;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Describes a resource on a remote server. This could be a directory or an actual file.
@@ -65,7 +57,6 @@ public class DavResource
 	 */
 	private static final String SEPARATOR = "/";
 
-
 	private final URI href;
 	private final Date creation;
 	private final Date modified;
@@ -77,11 +68,13 @@ public class DavResource
 	/**
 	 * Represents a webdav response block.
 	 *
-	 * @param href URI to the resource as returned from the server
-	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
+	 * @param href
+	 *            URI to the resource as returned from the server
+	 * @throws java.net.URISyntaxException
+	 *             If parsing the href from the response element fails
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
-						  Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
+					Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -92,18 +85,19 @@ public class DavResource
 		this.customProps = customProps;
 	}
 
-
 	/**
 	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
 	 *
-	 * @param response The response complex type of the multistatus
-	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
+	 * @param response
+	 *            The response complex type of the multistatus
+	 * @throws java.net.URISyntaxException
+	 *             If parsing the href from the response element fails
 	 */
 	public DavResource(Response response) throws URISyntaxException
 	{
 		this.href = new URI(response.getHref().get(0));
-		this.creation = SardineUtil.parseDate(getCreationDate(response));
-		this.modified = SardineUtil.parseDate(getModifiedDate(response));
+		this.creation = SardineUtil.parseDate(this.getCreationDate(response));
+		this.modified = SardineUtil.parseDate(this.getModifiedDate(response));
 		this.contentType = this.getContentType(response);
 		this.contentLength = this.getContentLength(response);
 		this.etag = this.getEtag(response);
@@ -113,14 +107,15 @@ public class DavResource
 	/**
 	 * Retrieves modifieddate from props. If it is not available return null.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getModifiedDate(Response response)
 	{
 		String modifieddate;
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return null;
 		}
 		Getlastmodified glm = list.get(0).getProp().getGetlastmodified();
@@ -138,14 +133,15 @@ public class DavResource
 	/**
 	 * Retrieves creationdate from props. If it is not available return null.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getCreationDate(Response response)
 	{
 		String creationdate;
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return null;
 		}
 		Creationdate gcd = list.get(0).getProp().getCreationdate();
@@ -161,21 +157,22 @@ public class DavResource
 	}
 
 	/**
-	 * Retrieves the content-type from prop or set it to {@link #DEFAULT_CONTENT_TYPE}. If
-	 * isDirectory always set the content-type to {@link #HTTPD_UNIX_DIRECTORY_CONTENT_TYPE}.
+	 * Retrieves the content-type from prop or set it to {@link #DEFAULT_CONTENT_TYPE}. If isDirectory always set the content-type to
+	 * {@link #HTTPD_UNIX_DIRECTORY_CONTENT_TYPE}.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return the content type.
 	 */
 	private String getContentType(Response response)
 	{
 		// Make sure that directories have the correct content type.
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return null;
 		}
 		Resourcetype resourcetype = list.get(0).getProp().getResourcetype();
-		if (resourcetype != null && resourcetype.getCollection() != null)
+		if ((resourcetype != null) && (resourcetype.getCollection() != null))
 		{
 			// Need to correct the contentType to identify as a directory.
 			return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
@@ -192,16 +189,16 @@ public class DavResource
 	}
 
 	/**
-	 * Retrieves content-length from props. If it is not available return
-	 * {@link #DEFAULT_CONTENT_LENGTH}.
+	 * Retrieves content-length from props. If it is not available return {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private long getContentLength(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return DEFAULT_CONTENT_LENGTH;
 		}
 		Getcontentlength gcl = list.get(0).getProp().getGetcontentlength();
@@ -210,8 +207,7 @@ public class DavResource
 			try
 			{
 				return Long.parseLong(gcl.getContent().get(0));
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				// ignored
 			}
@@ -220,16 +216,16 @@ public class DavResource
 	}
 
 	/**
-	 * Retrieves content-length from props. If it is not available return
-	 * {@link #DEFAULT_CONTENT_LENGTH}.
+	 * Retrieves content-length from props. If it is not available return {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private String getEtag(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return null;
 		}
 		Getetag etag = list.get(0).getProp().getGetetag();
@@ -240,18 +236,17 @@ public class DavResource
 		return null;
 	}
 
-
 	/**
-	 * Creates a simple Map from the given custom properties of a response. This implementation does not take
-	 * namespaces into account.
+	 * Creates a simple Map from the given custom properties of a response. This implementation does not take namespaces into account.
 	 *
-	 * @param response The response complex type of the multistatus
+	 * @param response
+	 *            The response complex type of the multistatus
 	 * @return Custom properties
 	 */
 	private Map<String, String> getCustomProps(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if(list.isEmpty()) {
+		if (list.isEmpty()) {
 			return null;
 		}
 		List<Element> props = list.get(0).getProp().getAny();
@@ -269,7 +264,7 @@ public class DavResource
 	 */
 	public Date getCreation()
 	{
-		return creation;
+		return this.creation;
 	}
 
 	/**
@@ -277,7 +272,7 @@ public class DavResource
 	 */
 	public Date getModified()
 	{
-		return modified;
+		return this.modified;
 	}
 
 	/**
@@ -285,7 +280,7 @@ public class DavResource
 	 */
 	public String getContentType()
 	{
-		return contentType;
+		return this.contentType;
 	}
 
 	/**
@@ -293,7 +288,7 @@ public class DavResource
 	 */
 	public Long getContentLength()
 	{
-		return contentLength;
+		return this.contentLength;
 	}
 
 	/**
@@ -301,18 +296,17 @@ public class DavResource
 	 */
 	public String getEtag()
 	{
-		return etag;
+		return this.etag;
 	}
 
 	/**
-	 * Implementation assumes that every resource with a content type
-	 * of <code>httpd/unix-directory</code> is a directory.
+	 * Implementation assumes that every resource with a content type of <code>httpd/unix-directory</code> is a directory.
 	 *
 	 * @return True if this resource denotes a directory
 	 */
 	public boolean isDirectory()
 	{
-		return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE.equals(contentType);
+		return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE.equals(this.contentType);
 	}
 
 	/**
@@ -320,7 +314,7 @@ public class DavResource
 	 */
 	public Map<String, String> getCustomProps()
 	{
-		return customProps;
+		return this.customProps;
 	}
 
 	/**
@@ -328,7 +322,7 @@ public class DavResource
 	 */
 	public URI getHref()
 	{
-		return href;
+		return this.href;
 	}
 
 	/**
@@ -339,7 +333,7 @@ public class DavResource
 	 */
 	public String getName()
 	{
-		String path = href.getPath();
+		String path = this.href.getPath();
 		try
 		{
 			if (path.endsWith(SEPARATOR))
@@ -347,8 +341,7 @@ public class DavResource
 				path = path.substring(0, path.length() - 1);
 			}
 			return path.substring(path.lastIndexOf('/') + 1);
-		}
-		catch (StringIndexOutOfBoundsException e)
+		} catch (StringIndexOutOfBoundsException e)
 		{
 			return null;
 		}
@@ -360,7 +353,7 @@ public class DavResource
 	 */
 	public String getPath()
 	{
-		return href.getPath();
+		return this.href.getPath();
 	}
 
 	/**
