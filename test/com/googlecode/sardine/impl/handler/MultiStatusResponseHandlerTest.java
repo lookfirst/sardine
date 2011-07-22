@@ -46,6 +46,21 @@ public class MultiStatusResponseHandlerTest
 	}
 
 	@Test
+	public void testEmptyResponse() throws Exception
+	{
+		MultiStatusResponseHandler handler = new MultiStatusResponseHandler();
+		final String response = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+				"<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\">\n" +
+				"<D:response>\n" +
+				"<D:href>http://server.local/dav/</D:href>\n" +
+				"</D:response>\n" +
+				"</D:multistatus>";
+		final Multistatus status = handler.getMultistatus(new ByteArrayInputStream(response.getBytes()));
+		assertNotNull(status);
+		assertEquals(1, status.getResponse().size());
+	}
+
+	@Test
 	public void testNotWelformedAlfrescoResponse() throws Exception
 	{
 		MultiStatusResponseHandler handler = new MultiStatusResponseHandler();

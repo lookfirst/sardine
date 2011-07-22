@@ -23,6 +23,7 @@ import com.googlecode.sardine.model.Getcontenttype;
 import com.googlecode.sardine.model.Getetag;
 import com.googlecode.sardine.model.Getlastmodified;
 import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Propstat;
 import com.googlecode.sardine.model.Resourcetype;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
@@ -118,7 +119,11 @@ public class DavResource
 	private String getModifiedDate(Response response)
 	{
 		String modifieddate;
-		Getlastmodified glm = response.getPropstat().get(0).getProp().getGetlastmodified();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return null;
+		}
+		Getlastmodified glm = list.get(0).getProp().getGetlastmodified();
 		if ((glm != null) && (glm.getContent().size() == 1))
 		{
 			modifieddate = glm.getContent().get(0);
@@ -139,7 +144,11 @@ public class DavResource
 	private String getCreationDate(Response response)
 	{
 		String creationdate;
-		Creationdate gcd = response.getPropstat().get(0).getProp().getCreationdate();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return null;
+		}
+		Creationdate gcd = list.get(0).getProp().getCreationdate();
 		if ((gcd != null) && (gcd.getContent().size() == 1))
 		{
 			creationdate = gcd.getContent().get(0);
@@ -161,7 +170,11 @@ public class DavResource
 	private String getContentType(Response response)
 	{
 		// Make sure that directories have the correct content type.
-		Resourcetype resourcetype = response.getPropstat().get(0).getProp().getResourcetype();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return null;
+		}
+		Resourcetype resourcetype = list.get(0).getProp().getResourcetype();
 		if (resourcetype != null && resourcetype.getCollection() != null)
 		{
 			// Need to correct the contentType to identify as a directory.
@@ -169,7 +182,7 @@ public class DavResource
 		}
 		else
 		{
-			Getcontenttype gtt = response.getPropstat().get(0).getProp().getGetcontenttype();
+			Getcontenttype gtt = list.get(0).getProp().getGetcontenttype();
 			if ((gtt != null) && (gtt.getContent().size() == 1))
 			{
 				return gtt.getContent().get(0);
@@ -187,7 +200,11 @@ public class DavResource
 	 */
 	private long getContentLength(Response response)
 	{
-		Getcontentlength gcl = response.getPropstat().get(0).getProp().getGetcontentlength();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return DEFAULT_CONTENT_LENGTH;
+		}
+		Getcontentlength gcl = list.get(0).getProp().getGetcontentlength();
 		if ((gcl != null) && (gcl.getContent().size() == 1))
 		{
 			try
@@ -211,7 +228,11 @@ public class DavResource
 	 */
 	private String getEtag(Response response)
 	{
-		Getetag etag = response.getPropstat().get(0).getProp().getGetetag();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return null;
+		}
+		Getetag etag = list.get(0).getProp().getGetetag();
 		if ((etag != null) && (etag.getContent().size() == 1))
 		{
 			return etag.getContent().get(0);
@@ -229,7 +250,11 @@ public class DavResource
 	 */
 	private Map<String, String> getCustomProps(Response response)
 	{
-		List<Element> props = response.getPropstat().get(0).getProp().getAny();
+		List<Propstat> list = response.getPropstat();
+		if(list.isEmpty()) {
+			return null;
+		}
+		List<Element> props = list.get(0).getProp().getAny();
 		Map<String, String> customPropsMap = new HashMap<String, String>(props.size());
 		for (Element element : props)
 		{
