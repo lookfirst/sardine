@@ -49,4 +49,10 @@ public class SardineException extends HttpResponseException
 	{
 		return this.responsePhrase;
 	}
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + " (" + this.getStatusCode() + " " + responsePhrase + ")";
+    }
 }
