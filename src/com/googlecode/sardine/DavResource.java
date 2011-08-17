@@ -113,21 +113,18 @@ public class DavResource
 	 */
 	private String getModifiedDate(Response response)
 	{
-		String modifieddate;
 		List<Propstat> list = response.getPropstat();
 		if (list.isEmpty()) {
 			return null;
 		}
-		Getlastmodified glm = list.get(0).getProp().getGetlastmodified();
-		if ((glm != null) && (glm.getContent().size() == 1))
-		{
-			modifieddate = glm.getContent().get(0);
-		}
-		else
-		{
-			modifieddate = null;
-		}
-		return modifieddate;
+        for(Propstat propstat: list) {
+            Getlastmodified glm = propstat.getProp().getGetlastmodified();
+            if ((glm != null) && (glm.getContent().size() == 1))
+            {
+                return glm.getContent().get(0);
+            }
+        }
+		return null;
 	}
 
 	/**
@@ -139,21 +136,18 @@ public class DavResource
 	 */
 	private String getCreationDate(Response response)
 	{
-		String creationdate;
-		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
-			return null;
-		}
-		Creationdate gcd = list.get(0).getProp().getCreationdate();
-		if ((gcd != null) && (gcd.getContent().size() == 1))
-		{
-			creationdate = gcd.getContent().get(0);
-		}
-		else
-		{
-			creationdate = null;
-		}
-		return creationdate;
+        List<Propstat> list = response.getPropstat();
+        if (list.isEmpty()) {
+            return null;
+        }
+        for(Propstat propstat: list) {
+            Creationdate gcd = propstat.getProp().getCreationdate();
+            if ((gcd != null) && (gcd.getContent().size() == 1))
+            {
+                return gcd.getContent().get(0);
+            }
+        }
+		return null;
 	}
 
 	/**
@@ -171,20 +165,22 @@ public class DavResource
 		if (list.isEmpty()) {
 			return null;
 		}
-		Resourcetype resourcetype = list.get(0).getProp().getResourcetype();
-		if ((resourcetype != null) && (resourcetype.getCollection() != null))
-		{
-			// Need to correct the contentType to identify as a directory.
-			return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
-		}
-		else
-		{
-			Getcontenttype gtt = list.get(0).getProp().getGetcontenttype();
-			if ((gtt != null) && (gtt.getContent().size() == 1))
-			{
-				return gtt.getContent().get(0);
-			}
-		}
+        for(Propstat propstat: list) {
+            Resourcetype resourcetype = propstat.getProp().getResourcetype();
+            if ((resourcetype != null) && (resourcetype.getCollection() != null))
+            {
+                // Need to correct the contentType to identify as a directory.
+                return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
+            }
+            else
+            {
+                Getcontenttype gtt = propstat.getProp().getGetcontenttype();
+                if ((gtt != null) && (gtt.getContent().size() == 1))
+                {
+                    return gtt.getContent().get(0);
+                }
+            }
+        }
 		return DEFAULT_CONTENT_TYPE;
 	}
 
@@ -201,17 +197,19 @@ public class DavResource
 		if (list.isEmpty()) {
 			return DEFAULT_CONTENT_LENGTH;
 		}
-		Getcontentlength gcl = list.get(0).getProp().getGetcontentlength();
-		if ((gcl != null) && (gcl.getContent().size() == 1))
-		{
-			try
-			{
-				return Long.parseLong(gcl.getContent().get(0));
-			} catch (NumberFormatException e)
-			{
-				// ignored
-			}
-		}
+        for(Propstat propstat: list) {
+            Getcontentlength gcl = propstat.getProp().getGetcontentlength();
+            if ((gcl != null) && (gcl.getContent().size() == 1))
+            {
+                try
+                {
+                    return Long.parseLong(gcl.getContent().get(0));
+                } catch (NumberFormatException e)
+                {
+                    // ignored
+                }
+            }
+        }
 		return DEFAULT_CONTENT_LENGTH;
 	}
 
@@ -226,13 +224,15 @@ public class DavResource
 	{
 		List<Propstat> list = response.getPropstat();
 		if (list.isEmpty()) {
-			return null;
-		}
-		Getetag etag = list.get(0).getProp().getGetetag();
-		if ((etag != null) && (etag.getContent().size() == 1))
-		{
-			return etag.getContent().get(0);
-		}
+            return null;
+        }
+        for(Propstat propstat: list) {
+            Getetag etag = propstat.getProp().getGetetag();
+            if ((etag != null) && (etag.getContent().size() == 1))
+            {
+                return etag.getContent().get(0);
+            }
+        }
 		return null;
 	}
 
@@ -249,13 +249,14 @@ public class DavResource
 		if (list.isEmpty()) {
 			return null;
 		}
-		List<Element> props = list.get(0).getProp().getAny();
-		Map<String, String> customPropsMap = new HashMap<String, String>(props.size());
-		for (Element element : props)
-		{
-			customPropsMap.put(element.getLocalName(), element.getTextContent());
-		}
-
+        Map<String, String> customPropsMap = new HashMap<String, String>();
+        for(Propstat propstat: list) {
+            List<Element> props = propstat.getProp().getAny();
+            for (Element element : props)
+            {
+                customPropsMap.put(element.getLocalName(), element.getTextContent());
+            }
+        }
 		return customPropsMap;
 	}
 

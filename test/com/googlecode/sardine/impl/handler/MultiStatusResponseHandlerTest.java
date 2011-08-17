@@ -16,7 +16,10 @@
 
 package com.googlecode.sardine.impl.handler;
 
+import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Response;
+
 import org.junit.Test;
 
 import javax.xml.bind.UnmarshalException;
@@ -50,15 +53,104 @@ public class MultiStatusResponseHandlerTest
 	{
 		MultiStatusResponseHandler handler = new MultiStatusResponseHandler();
 		final String response = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-				"<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\">\n" +
-				"<D:response>\n" +
-				"<D:href>http://server.local/dav/</D:href>\n" +
-				"</D:response>\n" +
+				"<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\">" +
+				"<D:response>" +
+				"<D:href>http://server.local/dav/</D:href>" +
+				"</D:response>" +
 				"</D:multistatus>";
 		final Multistatus status = handler.getMultistatus(new ByteArrayInputStream(response.getBytes()));
 		assertNotNull(status);
 		assertEquals(1, status.getResponse().size());
 	}
+
+    @Test
+    public void testZopeResponse() throws Exception
+    {
+        final String response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<d:multistatus xmlns:d=\"DAV:\">" +
+                " <d:response>" +
+                "  <d:href>/webdavtest/</d:href>" +
+                "  <d:propstat xmlns:n=\"http://www.zope.org/propsets/default\">" +
+                "   <d:prop>" +
+                "    <n:title>WebDAV test f[0xc3][0x83][0xc2][0xbc]r Cyberduck</n:title>" +
+                "   </d:prop>" +
+                "   <d:status>HTTP/1.1 200 OK</d:status>" +
+                "  </d:propstat>" +
+                "  <d:propstat xmlns:n=\"DAV:\">" +
+                "   <d:prop>" +
+                "    <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>" +
+                "    <n:displayname>WebDAV test f[0xc3][0x83][0xc2][0xbc]r Cyberduck</n:displayname>" +
+                "    <n:resourcetype>" +
+                "     <n:collection/>" +
+                "    </n:resourcetype>" +
+                "    <n:getcontenttype/>" +
+                "    <n:getcontentlength/>" +
+                "    <n:source/>" +
+                "    <n:supportedlock>" +
+                "     <n:lockentry>" +
+                "      <d:lockscope>" +
+                "       <d:exclusive/>" +
+                "      </d:lockscope>" +
+                "      <d:locktype>" +
+                "       <d:write/>" +
+                "      </d:locktype>" +
+                "     </n:lockentry>" +
+                "    </n:supportedlock>" +
+                "    <n:lockdiscovery>" +
+                "" +
+                "</n:lockdiscovery>" +
+                "    <n:getlastmodified>Wed, 17 Aug 2011 14:49:04 GMT</n:getlastmodified>" +
+                "   </d:prop>" +
+                "   <d:status>HTTP/1.1 200 OK</d:status>" +
+                "  </d:propstat>" +
+                " </d:response>" +
+                " <d:response>" +
+                "  <d:href>/webdavtest/folder1/</d:href>" +
+                "  <d:propstat xmlns:n=\"http://www.zope.org/propsets/default\">" +
+                "   <d:prop>" +
+                "    <n:title/>" +
+                "   </d:prop>" +
+                "   <d:status>HTTP/1.1 200 OK</d:status>" +
+                "  </d:propstat>" +
+                "  <d:propstat xmlns:n=\"DAV:\">" +
+                "   <d:prop>" +
+                "    <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>" +
+                "    <n:displayname>folder1</n:displayname>" +
+                "    <n:resourcetype>" +
+                "     <n:collection/>" +
+                "    </n:resourcetype>" +
+                "    <n:getcontenttype/>" +
+                "    <n:getcontentlength/>" +
+                "    <n:source/>" +
+                "    <n:supportedlock>" +
+                "     <n:lockentry>" +
+                "      <d:lockscope>" +
+                "       <d:exclusive/>" +
+                "      </d:lockscope>" +
+                "      <d:locktype>" +
+                "       <d:write/>" +
+                "      </d:locktype>" +
+                "     </n:lockentry>" +
+                "    </n:supportedlock>" +
+                "    <n:lockdiscovery>" +
+                "" +
+                "</n:lockdiscovery>" +
+                "    <n:getlastmodified>Wed, 17 Aug 2011 14:50:18 GMT</n:getlastmodified>" +
+                "   </d:prop>" +
+                "   <d:status>HTTP/1.1 200 OK</d:status>" +
+                "  </d:propstat>" +
+                " </d:response>" +
+                "</d:multistatus>";
+        MultiStatusResponseHandler handler = new MultiStatusResponseHandler();
+        Multistatus status = handler.getMultistatus(new ByteArrayInputStream(response.getBytes()));
+        assertNotNull(status);
+        assertEquals(2, status.getResponse().size());
+        for(Response r: status.getResponse()) {
+            assertNotNull(r.getPropstat());
+            assertFalse(r.getPropstat().isEmpty());
+            assertTrue(new DavResource(r).isDirectory());
+        }
+    }
 
 	@Test
 	public void testNotWelformedAlfrescoResponse() throws Exception
