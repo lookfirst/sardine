@@ -78,6 +78,8 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import com.googlecode.sardine.DavResource;
@@ -118,6 +120,8 @@ import com.googlecode.sardine.util.SardineUtil;
  */
 public class SardineImpl implements Sardine
 {
+    private static Logger log = LoggerFactory.getLogger(DavResource.class);
+
 	private static final String UTF_8 = "UTF-8";
 
 	/**
@@ -335,15 +339,15 @@ public class SardineImpl implements Sardine
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
-		for (Response resp : responses)
+		for (Response response : responses)
 		{
 			try
 			{
-				resources.add(new DavResource(resp));
+				resources.add(new DavResource(response));
 			}
 			catch (URISyntaxException e)
 			{
-				// Ignore resource with invalid URI
+                log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
@@ -402,15 +406,15 @@ public class SardineImpl implements Sardine
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
-		for (Response resp : responses)
+		for (Response response : responses)
 		{
 			try
 			{
-				resources.add(new DavResource(resp));
+				resources.add(new DavResource(response));
 			}
 			catch (URISyntaxException e)
 			{
-				// Ignore resource with invalid URI
+                log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;

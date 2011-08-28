@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import com.googlecode.sardine.model.Collection;
@@ -36,6 +38,7 @@ import com.googlecode.sardine.util.SardineUtil;
  */
 public class DavResource
 {
+    private static Logger log = LoggerFactory.getLogger(DavResource.class);
 
 	/**
 	 * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
@@ -206,7 +209,7 @@ public class DavResource
                     return Long.parseLong(gcl.getContent().get(0));
                 } catch (NumberFormatException e)
                 {
-                    // ignored
+                    log.warn(String.format("Failed to parse content length %s", gcl.getContent().get(0)));
                 }
             }
         }
@@ -344,6 +347,7 @@ public class DavResource
 			return path.substring(path.lastIndexOf('/') + 1);
 		} catch (StringIndexOutOfBoundsException e)
 		{
+            log.warn(String.format("Failed to parse name from path %s", path));
 			return null;
 		}
 	}
