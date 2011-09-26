@@ -1,18 +1,12 @@
 package com.googlecode.sardine.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import com.googlecode.sardine.model.ObjectFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -24,15 +18,20 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
-
-import com.googlecode.sardine.model.ObjectFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Basic utility code. I borrowed some code from the webdavlib for
@@ -83,29 +82,78 @@ public class SardineUtil
 	/**
 	 * Date formats using for Date parsing.
 	 */
-	private static final SimpleDateFormat DATETIME_FORMATS[] =
+	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS = Arrays.asList(
+			new ThreadLocal<SimpleDateFormat>()
 			{
-					new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US),
-					new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
-					new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.US),
-					new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US),
-					new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US),
-					new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-					new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
-			};
-
-	/**
-	 * GMT timezone.
-	 */
-	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-
-	static
-	{
-		for (SimpleDateFormat format : DATETIME_FORMATS)
-		{
-			format.setTimeZone(UTC);
-		}
-	}
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			},
+			new ThreadLocal<SimpleDateFormat>()
+			{
+				@Override
+				protected SimpleDateFormat initialValue()
+				{
+					SimpleDateFormat format = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					return format;
+				}
+			}
+	);
 
 	/**
 	 * Loops over all the possible date formats and tries to find the right one.
@@ -120,11 +168,11 @@ public class SardineUtil
 			return null;
 		}
 		Date date = null;
-		for (SimpleDateFormat format : DATETIME_FORMATS)
+		for (ThreadLocal<SimpleDateFormat> format : DATETIME_FORMATS)
 		{
 			try
 			{
-				date = format.parse(value);
+				date = format.get().parse(value);
 				break;
 			}
 			catch (ParseException e)
