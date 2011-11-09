@@ -16,6 +16,7 @@
 
 package com.googlecode.sardine;
 
+
 import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.impl.SardineImpl;
 import com.googlecode.sardine.util.SardineUtil;
@@ -31,6 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -38,7 +41,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ProxySelector;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -410,5 +415,45 @@ public class FunctionalSardineTest
 		t.start();
 		assertTrue("Timeout for listing resources. Possibly the XML parser is trying to read the DTD in the response.",
 				entry.await(5, TimeUnit.SECONDS));
+	}
+
+	@Test
+	public void testMetadata() throws Exception{
+		// 1 prepare dav test ressource
+        final String url = "http://sudo.ch/dav/anon/sardine/metadata.txt";
+		Sardine sardine = SardineFactory.begin();
+		if (sardine.exists(url)) {
+			sardine.delete(url);
+        }
+		sardine.put(url, "Hello".getBytes("UTF-8"), "text/plain");
+		
+		// 2 setup some custom properties, with custom namespaces
+        Map<QName,String> newProps = new HashMap<QName, String>();
+        newProps.put(new QName("http://my.namespace.com", "mykey", "ns1"), "myvalue");
+        newProps.put(new QName(SardineUtil.CUSTOM_NAMESPACE_URI,
+                "mykey",
+                SardineUtil.CUSTOM_NAMESPACE_PREFIX), "my&value2");
+        newProps.put(new QName("hello", "mykey", "ns2"), "my<value3");
+        sardine.patch(url,newProps);
+
+        // 3 check properties are properly re-read
+        List<DavResource> resources = sardine.list(url);
+        assertEquals(resources.size(),1);
+        assertEquals(resources.get(0).getContentLength(),(Long)5L);
+		Map<QName,String> props = resources.get(0).getCustomPropsNS();
+		
+		for (Map.Entry<QName, String> entry : newProps.entrySet()){
+			assertEquals(entry.getValue(),props.get(entry.getKey()));
+		}
+		
+		// 4 check i can properly delete some of those added properties
+		List<QName> removeProps = new ArrayList<QName>();
+		removeProps.add(new QName("http://my.namespace.com","mykey","ns1"));
+		sardine.patch(url, Collections.<QName,String>emptyMap(), removeProps);
+		
+		props = sardine.list(url).get(0).getCustomPropsNS();
+		assertNull(props.get(new QName("http://my.namespace.com","mykey")));
+		assertEquals(props.get(new QName(SardineUtil.CUSTOM_NAMESPACE_URI,"mykey")),"my&value2");
+		assertEquals(props.get(new QName("hello", "mykey")),"my<value3");
 	}
 }

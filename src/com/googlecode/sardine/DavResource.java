@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -66,7 +68,7 @@ public class DavResource
 	private final String contentType;
 	private final String etag;
 	private final Long contentLength;
-	private final Map<String, String> customProps;
+	private final Map<QName, String> customProps;
 
 	/**
 	 * Represents a webdav response block.
@@ -77,7 +79,7 @@ public class DavResource
 	 *             If parsing the href from the response element fails
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
-					Long contentLength, String etag, Map<String, String> customProps) throws URISyntaxException
+					Long contentLength, String etag, Map<QName, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -240,24 +242,45 @@ public class DavResource
 	}
 
 	/**
-	 * Creates a simple Map from the given custom properties of a response. This implementation does not take namespaces into account.
+	 * Creates a simple complex Map from the given custom properties of a response.
+     * This implementation does take namespaces into account.
 	 *
 	 * @param response
 	 *            The response complex type of the multistatus
 	 * @return Custom properties
 	 */
-	private Map<String, String> getCustomProps(Response response)
+	private Map<QName, String> getCustomProps(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
 		if (list.isEmpty()) {
 			return null;
 		}
-        Map<String, String> customPropsMap = new HashMap<String, String>();
+        Map<QName, String> customPropsMap = new HashMap<QName, String>();
         for(Propstat propstat: list) {
             List<Element> props = propstat.getProp().getAny();
             for (Element element : props)
             {
-                customPropsMap.put(element.getLocalName(), element.getTextContent());
+    			String namespace = element.getNamespaceURI();
+    			if (namespace == null) {
+        			customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
+                            element.getLocalName(),
+                            SardineUtil.DEFAULT_NAMESPACE_PREFIX),
+                            element.getTextContent());
+                }
+    			else {
+    				if (element.getPrefix() == null) {
+    					customPropsMap.put(new QName(element.getNamespaceURI(),
+                                element.getLocalName()),
+                                element.getTextContent());
+                    }
+                    else {
+    					customPropsMap.put(new QName(element.getNamespaceURI(),
+                                element.getLocalName(),
+                                element.getPrefix()),
+                                element.getTextContent());
+                    }
+                }
+
             }
         }
 		return customPropsMap;
@@ -314,9 +337,22 @@ public class DavResource
 	}
 
 	/**
-	 * @return Additional metadata
+	 * @return Additional metadata. This implementation does not take namespaces into account.
 	 */
 	public Map<String, String> getCustomProps()
+	{
+        Map<String, String> local = new HashMap<String, String>();
+        Map<QName, String> properties = this.getCustomPropsNS();
+        for(QName key: properties.keySet()) {
+            local.put(key.getLocalPart(), properties.get(key));
+        }
+        return local;
+	}
+
+	/**
+	 * @return Additional metadata with namespace informations
+	 */
+	public Map<QName,String> getCustomPropsNS()
 	{
 		return this.customProps;
 	}
