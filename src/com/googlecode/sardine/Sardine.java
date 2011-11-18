@@ -223,7 +223,7 @@ public interface Sardine
 	 *         lock discovery on a resource.
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	public String lock(String url) throws IOException;
+	String lock(String url) throws IOException;
 
 	/**
 	 * Unlock the resource.
@@ -236,7 +236,7 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 * @see #lock(String)
 	 */
-	public void unlock(String url, String token) throws IOException;
+	void unlock(String url, String token) throws IOException;
 
 	/**
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
