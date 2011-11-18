@@ -19,7 +19,6 @@ package com.googlecode.sardine.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -283,7 +282,7 @@ public class SardineImpl implements Sardine
 		this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
 	 */
@@ -314,7 +313,7 @@ public class SardineImpl implements Sardine
 		this.context.removeAttribute(ClientContext.AUTH_CACHE);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
 	 */
@@ -323,13 +322,22 @@ public class SardineImpl implements Sardine
 		return this.list(url);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
 	 */
-	public List<DavResource> list(String url) throws IOException
+	public List<DavResource> list(String url) throws IOException {
+		return this.list(url, 1);
+	}
+
+	/**
+	 * (non-Javadoc)
+	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
+	 */
+	public List<DavResource> list(String url, int depth) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth(Integer.toString(depth));
 		Propfind body = new Propfind();
 		body.setAllprop(new Allprop());
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
@@ -417,10 +425,10 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
-	 */
+    /**
+     * (non-Javadoc)
+     * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
+     */
 	public String lock(String url) throws IOException
 	{
 		HttpLock entity = new HttpLock(url);
@@ -436,7 +444,7 @@ public class SardineImpl implements Sardine
 		return this.execute(entity, new LockResponseHandler());
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#unlock(java.lang.String, java.lang.String)
 	 */
@@ -453,7 +461,7 @@ public class SardineImpl implements Sardine
 		this.execute(entity, new VoidResponseHandler());
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String)
 	 */
@@ -462,7 +470,7 @@ public class SardineImpl implements Sardine
 		return this.get(url, Collections.<String, String>emptyMap());
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String, java.util.Map)
 	 */
@@ -499,7 +507,7 @@ public class SardineImpl implements Sardine
 		this.put(url, data, null);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
 	 */
@@ -509,7 +517,7 @@ public class SardineImpl implements Sardine
 		this.put(url, entity, contentType, true);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream)
 	 */
@@ -518,7 +526,7 @@ public class SardineImpl implements Sardine
 		this.put(url, dataStream, (String) null);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
 	 */
@@ -527,7 +535,7 @@ public class SardineImpl implements Sardine
 		this.put(url, dataStream, contentType, true);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
 	 */
@@ -538,7 +546,7 @@ public class SardineImpl implements Sardine
 		this.put(url, entity, contentType, expectContinue);
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.util.Map)
 	 */

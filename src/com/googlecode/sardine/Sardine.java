@@ -46,6 +46,16 @@ public interface Sardine
 	List<DavResource> list(String url) throws IOException;
 
 	/**
+	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param the depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> list(String url, int depth) throws IOException;
+
+	/**
 	 * @see #patch(String, java.util.Map, java.util.List)
 	 */
 	@Deprecated
@@ -257,4 +267,5 @@ public interface Sardine
 	 * Disable preemptive authentication.
 	 */
 	void disablePreemptiveAuthentication();
+
 }
