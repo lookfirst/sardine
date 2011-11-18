@@ -284,7 +284,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
+	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(String) 
 	 */
 	public void enablePreemptiveAuthentication(String hostname)
 	{
