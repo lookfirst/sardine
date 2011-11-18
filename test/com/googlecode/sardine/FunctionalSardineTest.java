@@ -298,6 +298,16 @@ public class FunctionalSardineTest
 	}
 
 	@Test
+	public void testDepth() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		final String url = "http://sudo.ch/dav/anon/sardine/";
+		List<DavResource> resources = sardine.list(url, 0);
+		assertNotNull(resources);
+		assertEquals(1, resources.size());
+	}
+
+	@Test
 	public void testDelete() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
