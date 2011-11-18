@@ -27,7 +27,9 @@ import org.apache.http.client.HttpResponseException;
  */
 public class SardineException extends HttpResponseException
 {
-	private String responsePhrase;
+    private static final long serialVersionUID = -3900043433469104564L;
+
+    private String responsePhrase;
 
 	/**
 	 * @param msg			Custom description of failure
