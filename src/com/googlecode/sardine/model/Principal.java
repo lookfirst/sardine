@@ -39,46 +39,15 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "href","unauthenticated","content"
+    "href","property"
 })
-@XmlRootElement(name = "owner")
-public class Owner {
+@XmlRootElement(name = "principal")
+public class Principal {
 
 	private String href;
-	private Unauthenticated unauthenticated;
-    @XmlMixed
-    @XmlAnyElement(lax = true)
-    protected List<Object> content;
+	private Property property;
 
-    /**
-     * Gets the value of the content property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the content property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getContent().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Object }
-     * {@link String }
-     * 
-     * 
-     */
-    public List<Object> getContent() {
-        if (content == null) {
-            content = new ArrayList<Object>();
-        }
-        return this.content;
-    }
+ 
 
 	public String getHref() {
 		return href;
@@ -88,12 +57,13 @@ public class Owner {
 		this.href = href;
 	}
 
-	public Unauthenticated getUnauthenticated() {
-		return unauthenticated;
+	public Property getProperty() {
+		return property;
 	}
 
-	public void setUnauthenticated(Unauthenticated unauthenticated) {
-		this.unauthenticated = unauthenticated;
+	public void setProperty(Property property) {
+		this.property = property;
 	}
+
 
 }

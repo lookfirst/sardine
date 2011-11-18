@@ -39,13 +39,12 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "href","unauthenticated","content"
+    "href","content"
 })
-@XmlRootElement(name = "owner")
-public class Owner {
+@XmlRootElement(name = "group")
+public class Group {
 
 	private String href;
-	private Unauthenticated unauthenticated;
     @XmlMixed
     @XmlAnyElement(lax = true)
     protected List<Object> content;
@@ -86,14 +85,6 @@ public class Owner {
 
 	public void setHref(String href) {
 		this.href = href;
-	}
-
-	public Unauthenticated getUnauthenticated() {
-		return unauthenticated;
-	}
-
-	public void setUnauthenticated(Unauthenticated unauthenticated) {
-		this.unauthenticated = unauthenticated;
 	}
 
 }

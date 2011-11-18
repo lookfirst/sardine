@@ -32,9 +32,8 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
-@XmlRootElement(name = "write")
-public class Write implements SimplePrivilege {
+@XmlRootElement(name = "write-properties")
+public class WriteProperties implements SimplePrivilege {
 
-	
 
 }

@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.w3c.dom.Element;
 
 
+
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -38,6 +39,7 @@ import org.w3c.dom.Element;
  *         &lt;element ref="{DAV:}lockdiscovery" minOccurs="0"/>
  *         &lt;element ref="{DAV:}resourcetype" minOccurs="0"/>
  *         &lt;element ref="{DAV:}supportedlock" minOccurs="0"/>
+ *         &lt;element ref="{DAV:}owner" minOccurs="0"/>  &lt;!-- (for DAV:acl) -->
  *         &lt;any/>
  *       &lt;/all>
  *     &lt;/restriction>
@@ -64,7 +66,11 @@ public class Prop {
     protected Lockdiscovery lockdiscovery;
     protected Resourcetype resourcetype;
     protected Supportedlock supportedlock;
-    @XmlAnyElement
+    protected Owner owner;
+    protected Group group;
+    protected Acl acl;
+
+	@XmlAnyElement
     protected List<Element> any;
 
     /**
@@ -335,5 +341,28 @@ public class Prop {
         }
         return this.any;
     }
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Owner owner) {
+		this.owner = owner;
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+    public Acl getAcl() {
+		return acl;
+	}
+
+	public void setAcl(Acl acl) {
+		this.acl = acl;
+	}
 
 }

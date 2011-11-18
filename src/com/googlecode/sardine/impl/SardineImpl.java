@@ -16,18 +16,39 @@
 
 package com.googlecode.sardine.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
+import com.googlecode.sardine.DavAcl;
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
+import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.LockResponseHandler;
+import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
+import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.ConsumingInputStream;
+import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpLock;
+import com.googlecode.sardine.impl.methods.HttpMkCol;
+import com.googlecode.sardine.impl.methods.HttpMove;
+import com.googlecode.sardine.impl.methods.HttpPropFind;
+import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.impl.methods.HttpUnlock;
+import com.googlecode.sardine.model.Acl;
+import com.googlecode.sardine.model.Allprop;
+import com.googlecode.sardine.model.Exclusive;
+import com.googlecode.sardine.model.Group;
+import com.googlecode.sardine.model.Lockinfo;
+import com.googlecode.sardine.model.Lockscope;
+import com.googlecode.sardine.model.Locktype;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Owner;
+import com.googlecode.sardine.model.Prop;
+import com.googlecode.sardine.model.Propertyupdate;
+import com.googlecode.sardine.model.Propfind;
+import com.googlecode.sardine.model.Remove;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.model.Set;
+import com.googlecode.sardine.model.Write;
+import com.googlecode.sardine.util.SardineUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -81,35 +102,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import com.googlecode.sardine.DavResource;
-import com.googlecode.sardine.Sardine;
-import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
-import com.googlecode.sardine.impl.handler.LockResponseHandler;
-import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
-import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.ConsumingInputStream;
-import com.googlecode.sardine.impl.methods.HttpCopy;
-import com.googlecode.sardine.impl.methods.HttpLock;
-import com.googlecode.sardine.impl.methods.HttpMkCol;
-import com.googlecode.sardine.impl.methods.HttpMove;
-import com.googlecode.sardine.impl.methods.HttpPropFind;
-import com.googlecode.sardine.impl.methods.HttpPropPatch;
-import com.googlecode.sardine.impl.methods.HttpUnlock;
-import com.googlecode.sardine.model.Allprop;
-import com.googlecode.sardine.model.Exclusive;
-import com.googlecode.sardine.model.Lockinfo;
-import com.googlecode.sardine.model.Lockscope;
-import com.googlecode.sardine.model.Locktype;
-import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.model.Prop;
-import com.googlecode.sardine.model.Propertyupdate;
-import com.googlecode.sardine.model.Propfind;
-import com.googlecode.sardine.model.Remove;
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.model.Set;
-import com.googlecode.sardine.model.Write;
-import com.googlecode.sardine.util.SardineUtil;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -119,7 +121,7 @@ import com.googlecode.sardine.util.SardineUtil;
  */
 public class SardineImpl implements Sardine
 {
-    private static Logger log = LoggerFactory.getLogger(DavResource.class);
+	private static Logger log = LoggerFactory.getLogger(DavResource.class);
 
 	private static final String UTF_8 = "UTF-8";
 
@@ -203,7 +205,7 @@ public class SardineImpl implements Sardine
 					case HttpStatus.SC_TEMPORARY_REDIRECT:
 						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
-                                || method.equalsIgnoreCase(HttpLock.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME);
 					case HttpStatus.SC_SEE_OTHER:
 						return true;
@@ -225,7 +227,7 @@ public class SardineImpl implements Sardine
 				{
 					return new HttpLock(this.getLocationURI(request, response, context));
 				}
-                return super.getRedirect(request, response, context);
+				return super.getRedirect(request, response, context);
 			}
 		});
 		this.setCredentials(username, password);
@@ -284,7 +286,8 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(String) 
+	 *
+	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(String)
 	 */
 	public void enablePreemptiveAuthentication(String hostname)
 	{
@@ -315,6 +318,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
 	 */
 	public List<DavResource> getResources(String url) throws IOException
@@ -324,14 +328,17 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
 	 */
-	public List<DavResource> list(String url) throws IOException {
+	public List<DavResource> list(String url) throws IOException
+	{
 		return this.list(url, 1);
 	}
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
 	 */
 	public List<DavResource> list(String url, int depth) throws IOException
@@ -352,7 +359,7 @@ public class SardineImpl implements Sardine
 			}
 			catch (URISyntaxException e)
 			{
-                log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
@@ -419,16 +426,17 @@ public class SardineImpl implements Sardine
 			}
 			catch (URISyntaxException e)
 			{
-                log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
 	}
 
-    /**
-     * (non-Javadoc)
-     * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
-     */
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
+	 */
 	public String lock(String url) throws IOException
 	{
 		HttpLock entity = new HttpLock(url);
@@ -446,6 +454,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#unlock(java.lang.String, java.lang.String)
 	 */
 	public void unlock(String url, String token) throws IOException
@@ -463,6 +472,45 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#getAcl(String)
+	 */
+	public DavAcl getAcl(String url) throws IOException
+	{
+		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth("0");
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		prop.setOwner(new Owner());
+		prop.setGroup(new Group());
+		prop.setAcl(new Acl());
+		body.setProp(prop);
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		if (responses.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			return new DavAcl(responses.get(0));
+		}
+	}
+
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#setAcl(String)
+	 */
+	public void setAcl(String url) throws IOException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String)
 	 */
 	public InputStream get(String url) throws IOException
@@ -472,6 +520,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#get(java.lang.String, java.util.Map)
 	 */
 	public InputStream get(String url, Map<String, String> headers) throws IOException
@@ -509,6 +558,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
 	 */
 	public void put(String url, byte[] data, String contentType) throws IOException
@@ -519,6 +569,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream)
 	 */
 	public void put(String url, InputStream dataStream) throws IOException
@@ -528,6 +579,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
 	 */
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
@@ -537,6 +589,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
 	 */
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
@@ -548,6 +601,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * (non-Javadoc)
+	 *
 	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.util.Map)
 	 */
 	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
@@ -598,10 +652,11 @@ public class SardineImpl implements Sardine
 		{
 			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
 		}
-		try {
+		try
+		{
 			this.execute(put, new VoidResponseHandler());
 		}
-		catch(HttpResponseException e)
+		catch (HttpResponseException e)
 		{
 			if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
 			{
@@ -685,9 +740,9 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
-            // Clear circular redirect cache
-            this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
-            // Execute with response handler
+			// Clear circular redirect cache
+			this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+			// Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
 		catch (IOException e)
@@ -708,9 +763,9 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
-            // Clear circular redirect cache
-            this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
-            // Execute with no response handler
+			// Clear circular redirect cache
+			this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+			// Execute with no response handler
 			return this.client.execute(request, this.context);
 		}
 		catch (IOException e)

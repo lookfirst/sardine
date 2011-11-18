@@ -69,6 +69,7 @@ public class DavResource
 	private final String etag;
 	private final Long contentLength;
 	private final Map<QName, String> customProps;
+	private final DavAcl acl;
 
 	/**
 	 * Represents a webdav response block.
@@ -88,6 +89,7 @@ public class DavResource
 		this.contentLength = contentLength;
 		this.etag = etag;
 		this.customProps = customProps;
+		this.acl = null;
 	}
 
 	/**
@@ -107,6 +109,7 @@ public class DavResource
 		this.contentLength = this.getContentLength(response);
 		this.etag = this.getEtag(response);
 		this.customProps = this.getCustomProps(response);
+		this.acl = new DavAcl(response);
 	}
 
 	/**

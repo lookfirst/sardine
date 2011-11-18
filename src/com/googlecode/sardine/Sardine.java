@@ -239,6 +239,23 @@ public interface Sardine
 	void unlock(String url, String token) throws IOException;
 
 	/**
+	 * Read access control list for resource
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return Current ACL set on the resource
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	DavAcl getAcl(String url) throws IOException;
+
+	/**
+	 * Write access control list for resource
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void setAcl(String url) throws IOException;
+
+	/**
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
 	 * will include "gzip" as an "Accept-Encoding" header.
 	 * <p/>
