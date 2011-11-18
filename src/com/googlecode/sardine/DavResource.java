@@ -40,7 +40,7 @@ import com.googlecode.sardine.util.SardineUtil;
  */
 public class DavResource
 {
-    private static Logger log = LoggerFactory.getLogger(DavResource.class);
+	private static Logger log = LoggerFactory.getLogger(DavResource.class);
 
 	/**
 	 * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
@@ -74,13 +74,11 @@ public class DavResource
 	/**
 	 * Represents a webdav response block.
 	 *
-	 * @param href
-	 *            URI to the resource as returned from the server
-	 * @throws java.net.URISyntaxException
-	 *             If parsing the href from the response element fails
+	 * @param href URI to the resource as returned from the server
+	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
-					Long contentLength, String etag, Map<QName, String> customProps) throws URISyntaxException
+						  Long contentLength, String etag, Map<QName, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -95,10 +93,8 @@ public class DavResource
 	/**
 	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
-	 * @throws java.net.URISyntaxException
-	 *             If parsing the href from the response element fails
+	 * @param response The response complex type of the multistatus
+	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
 	public DavResource(Response response) throws URISyntaxException
 	{
@@ -115,46 +111,48 @@ public class DavResource
 	/**
 	 * Retrieves modifieddate from props. If it is not available return null.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getModifiedDate(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
+		if (list.isEmpty())
+		{
 			return null;
 		}
-        for(Propstat propstat: list) {
-            Getlastmodified glm = propstat.getProp().getGetlastmodified();
-            if ((glm != null) && (glm.getContent().size() == 1))
-            {
-                return glm.getContent().get(0);
-            }
-        }
+		for (Propstat propstat : list)
+		{
+			Getlastmodified glm = propstat.getProp().getGetlastmodified();
+			if ((glm != null) && (glm.getContent().size() == 1))
+			{
+				return glm.getContent().get(0);
+			}
+		}
 		return null;
 	}
 
 	/**
 	 * Retrieves creationdate from props. If it is not available return null.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return Null if not found in props
 	 */
 	private String getCreationDate(Response response)
 	{
-        List<Propstat> list = response.getPropstat();
-        if (list.isEmpty()) {
-            return null;
-        }
-        for(Propstat propstat: list) {
-            Creationdate gcd = propstat.getProp().getCreationdate();
-            if ((gcd != null) && (gcd.getContent().size() == 1))
-            {
-                return gcd.getContent().get(0);
-            }
-        }
+		List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return null;
+		}
+		for (Propstat propstat : list)
+		{
+			Creationdate gcd = propstat.getProp().getCreationdate();
+			if ((gcd != null) && (gcd.getContent().size() == 1))
+			{
+				return gcd.getContent().get(0);
+			}
+		}
 		return null;
 	}
 
@@ -162,130 +160,139 @@ public class DavResource
 	 * Retrieves the content-type from prop or set it to {@link #DEFAULT_CONTENT_TYPE}. If isDirectory always set the content-type to
 	 * {@link #HTTPD_UNIX_DIRECTORY_CONTENT_TYPE}.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return the content type.
 	 */
 	private String getContentType(Response response)
 	{
 		// Make sure that directories have the correct content type.
 		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
+		if (list.isEmpty())
+		{
 			return null;
 		}
-        for(Propstat propstat: list) {
-            Resourcetype resourcetype = propstat.getProp().getResourcetype();
-            if ((resourcetype != null) && (resourcetype.getCollection() != null))
-            {
-                // Need to correct the contentType to identify as a directory.
-                return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
-            }
-            else
-            {
-                Getcontenttype gtt = propstat.getProp().getGetcontenttype();
-                if ((gtt != null) && (gtt.getContent().size() == 1))
-                {
-                    return gtt.getContent().get(0);
-                }
-            }
-        }
+		for (Propstat propstat : list)
+		{
+			Resourcetype resourcetype = propstat.getProp().getResourcetype();
+			if ((resourcetype != null) && (resourcetype.getCollection() != null))
+			{
+				// Need to correct the contentType to identify as a directory.
+				return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
+			}
+			else
+			{
+				Getcontenttype gtt = propstat.getProp().getGetcontenttype();
+				if ((gtt != null) && (gtt.getContent().size() == 1))
+				{
+					return gtt.getContent().get(0);
+				}
+			}
+		}
 		return DEFAULT_CONTENT_TYPE;
 	}
 
 	/**
 	 * Retrieves content-length from props. If it is not available return {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private long getContentLength(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
+		if (list.isEmpty())
+		{
 			return DEFAULT_CONTENT_LENGTH;
 		}
-        for(Propstat propstat: list) {
-            Getcontentlength gcl = propstat.getProp().getGetcontentlength();
-            if ((gcl != null) && (gcl.getContent().size() == 1))
-            {
-                try
-                {
-                    return Long.parseLong(gcl.getContent().get(0));
-                } catch (NumberFormatException e)
-                {
-                    log.warn(String.format("Failed to parse content length %s", gcl.getContent().get(0)));
-                }
-            }
-        }
+		for (Propstat propstat : list)
+		{
+			Getcontentlength gcl = propstat.getProp().getGetcontentlength();
+			if ((gcl != null) && (gcl.getContent().size() == 1))
+			{
+				try
+				{
+					return Long.parseLong(gcl.getContent().get(0));
+				}
+				catch (NumberFormatException e)
+				{
+					log.warn(String.format("Failed to parse content length %s", gcl.getContent().get(0)));
+				}
+			}
+		}
 		return DEFAULT_CONTENT_LENGTH;
 	}
 
 	/**
 	 * Retrieves content-length from props. If it is not available return {@link #DEFAULT_CONTENT_LENGTH}.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return contentlength
 	 */
 	private String getEtag(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
-            return null;
-        }
-        for(Propstat propstat: list) {
-            Getetag etag = propstat.getProp().getGetetag();
-            if ((etag != null) && (etag.getContent().size() == 1))
-            {
-                return etag.getContent().get(0);
-            }
-        }
+		if (list.isEmpty())
+		{
+			return null;
+		}
+		for (Propstat propstat : list)
+		{
+			Getetag etag = propstat.getProp().getGetetag();
+			if ((etag != null) && (etag.getContent().size() == 1))
+			{
+				return etag.getContent().get(0);
+			}
+		}
 		return null;
 	}
 
 	/**
 	 * Creates a simple complex Map from the given custom properties of a response.
-     * This implementation does take namespaces into account.
+	 * This implementation does take namespaces into account.
 	 *
-	 * @param response
-	 *            The response complex type of the multistatus
+	 * @param response The response complex type of the multistatus
 	 * @return Custom properties
 	 */
 	private Map<QName, String> getCustomProps(Response response)
 	{
 		List<Propstat> list = response.getPropstat();
-		if (list.isEmpty()) {
+		if (list.isEmpty())
+		{
 			return null;
 		}
-        Map<QName, String> customPropsMap = new HashMap<QName, String>();
-        for(Propstat propstat: list) {
-            List<Element> props = propstat.getProp().getAny();
-            for (Element element : props)
-            {
-    			String namespace = element.getNamespaceURI();
-    			if (namespace == null) {
-        			customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
-                            element.getLocalName(),
-                            SardineUtil.DEFAULT_NAMESPACE_PREFIX),
-                            element.getTextContent());
-                }
-    			else {
-    				if (element.getPrefix() == null) {
-    					customPropsMap.put(new QName(element.getNamespaceURI(),
-                                element.getLocalName()),
-                                element.getTextContent());
-                    }
-                    else {
-    					customPropsMap.put(new QName(element.getNamespaceURI(),
-                                element.getLocalName(),
-                                element.getPrefix()),
-                                element.getTextContent());
-                    }
-                }
+		Map<QName, String> customPropsMap = new HashMap<QName, String>();
+		for (Propstat propstat : list)
+		{
+			List<Element> props = propstat.getProp().getAny();
+			for (Element element : props)
+			{
+				String namespace = element.getNamespaceURI();
+				if (namespace == null)
+				{
+					customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
+							element.getLocalName(),
+							SardineUtil.DEFAULT_NAMESPACE_PREFIX),
+							element.getTextContent());
+				}
+				else
+				{
+					if (element.getPrefix() == null)
+					{
+						customPropsMap.put(new QName(element.getNamespaceURI(),
+								element.getLocalName()),
+								element.getTextContent());
+					}
+					else
+					{
+						customPropsMap.put(new QName(element.getNamespaceURI(),
+								element.getLocalName(),
+								element.getPrefix()),
+								element.getTextContent());
+					}
+				}
 
-            }
-        }
+			}
+		}
 		return customPropsMap;
 	}
 
@@ -344,18 +351,19 @@ public class DavResource
 	 */
 	public Map<String, String> getCustomProps()
 	{
-        Map<String, String> local = new HashMap<String, String>();
-        Map<QName, String> properties = this.getCustomPropsNS();
-        for(QName key: properties.keySet()) {
-            local.put(key.getLocalPart(), properties.get(key));
-        }
-        return local;
+		Map<String, String> local = new HashMap<String, String>();
+		Map<QName, String> properties = this.getCustomPropsNS();
+		for (QName key : properties.keySet())
+		{
+			local.put(key.getLocalPart(), properties.get(key));
+		}
+		return local;
 	}
 
 	/**
 	 * @return Additional metadata with namespace informations
 	 */
-	public Map<QName,String> getCustomPropsNS()
+	public Map<QName, String> getCustomPropsNS()
 	{
 		return this.customProps;
 	}
@@ -384,9 +392,10 @@ public class DavResource
 				path = path.substring(0, path.length() - 1);
 			}
 			return path.substring(path.lastIndexOf('/') + 1);
-		} catch (StringIndexOutOfBoundsException e)
+		}
+		catch (StringIndexOutOfBoundsException e)
 		{
-            log.warn(String.format("Failed to parse name from path %s", path));
+			log.warn(String.format("Failed to parse name from path %s", path));
 			return null;
 		}
 	}
@@ -398,6 +407,14 @@ public class DavResource
 	public String getPath()
 	{
 		return this.href.getPath();
+	}
+
+	/**
+	 * @return Access control list
+	 */
+	public DavAcl getAcl()
+	{
+		return acl;
 	}
 
 	/**
