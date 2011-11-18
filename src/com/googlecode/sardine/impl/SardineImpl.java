@@ -198,38 +198,35 @@ public class SardineImpl implements Sardine
 					case HttpStatus.SC_MOVED_TEMPORARILY:
 						return (method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && (locationHeader != null);
 					case HttpStatus.SC_MOVED_PERMANENTLY:
 					case HttpStatus.SC_TEMPORARY_REDIRECT:
 						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
+                                || method.equalsIgnoreCase(HttpLock.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME);
 					case HttpStatus.SC_SEE_OTHER:
 						return true;
 					default:
 						return false;
-				} //end of switch
+				}
 			}
 
 			@Override
 			public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
 					throws ProtocolException
 			{
-				URI uri = this.getLocationURI(request, response, context);
 				String method = request.getRequestLine().getMethod();
-				if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
-				{
-					return new HttpHead(uri);
-				}
 				if (method.equalsIgnoreCase(HttpPropFind.METHOD_NAME))
 				{
-					return new HttpPropFind(uri);
+					return new HttpPropFind(this.getLocationURI(request, response, context));
 				}
 				if (method.equalsIgnoreCase(HttpLock.METHOD_NAME))
 				{
-					return new HttpLock(uri);
+					return new HttpLock(this.getLocationURI(request, response, context));
 				}
-				return new HttpGet(uri);
+                return super.getRedirect(request, response, context);
 			}
 		});
 		this.setCredentials(username, password);
@@ -668,8 +665,7 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * Wraps all checked exceptions to {@link IOException}. Validate the response using the
-	 * response handler. Aborts the request if there is an exception.
+	 * Validate the response using the response handler. Aborts the request if there is an exception.
 	 *
 	 * @param <T>             Return type
 	 * @param request		 Request to execute
@@ -681,6 +677,9 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
+            // Clear circular redirect cache
+            this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+            // Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
 		catch (IOException e)
@@ -691,8 +690,7 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * No validation of the response. Wraps all checked exceptions to {@link IOException}.
-	 * Aborts the request if there is an exception.
+	 * No validation of the response. Aborts the request if there is an exception.
 	 *
 	 * @param request Request to execute
 	 * @return The response to check the reply status code
@@ -702,6 +700,9 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
+            // Clear circular redirect cache
+            this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+            // Execute with no response handler
 			return this.client.execute(request, this.context);
 		}
 		catch (IOException e)

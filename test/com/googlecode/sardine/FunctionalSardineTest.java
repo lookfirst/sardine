@@ -376,8 +376,9 @@ public class FunctionalSardineTest
 		try
 		{
 			// Test extended redirect handler for PROPFIND
-			final List<DavResource> resources = sardine.list(url);
-			assertNotNull(resources);
+			assertNotNull(sardine.list(url));
+            // Test another attempt. Must not fail with circular redirect
+			assertNotNull(sardine.list(url));
 		}
 		catch (SardineException e)
 		{
