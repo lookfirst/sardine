@@ -6,7 +6,7 @@ package com.googlecode.sardine;
  * @author Jeff Schnitzer
  * @version $Id$
  */
-public class Version
+public final class Version
 {
     private Version() {}
 

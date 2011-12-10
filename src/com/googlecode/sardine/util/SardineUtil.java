@@ -40,7 +40,7 @@ import java.util.TimeZone;
  * @author jonstevens
  * @version $Id$
  */
-public class SardineUtil
+public final class SardineUtil
 {
     private SardineUtil() {}
 

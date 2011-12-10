@@ -10,7 +10,7 @@ import java.net.ProxySelector;
  * @author jonstevens
  * @version $Id$
  */
-public class SardineFactory
+public final class SardineFactory
 {
     private SardineFactory() {}
 
