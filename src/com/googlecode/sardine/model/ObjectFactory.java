@@ -31,13 +31,13 @@ import javax.xml.namespace.QName;
 public class ObjectFactory
 {
 
-	private static final QName _Status_QNAME = new QName("DAV:", "status");
-	private static final QName _Dst_QNAME = new QName("DAV:", "dst");
-	private static final QName _Src_QNAME = new QName("DAV:", "src");
-	private static final QName _Timeout_QNAME = new QName("DAV:", "timeout");
-	private static final QName _Depth_QNAME = new QName("DAV:", "depth");
-	private static final QName _Responsedescription_QNAME = new QName("DAV:", "responsedescription");
-	private static final QName _Href_QNAME = new QName("DAV:", "href");
+	private static final QName STATUS_QNAME = new QName("DAV:", "status");
+	private static final QName DST_QNAME = new QName("DAV:", "dst");
+	private static final QName SRC_QNAME = new QName("DAV:", "src");
+	private static final QName TIMEOUT_QNAME = new QName("DAV:", "timeout");
+	private static final QName DEPTH_QNAME = new QName("DAV:", "depth");
+	private static final QName RESPONSEDESCRIPTION_QNAME = new QName("DAV:", "responsedescription");
+	private static final QName HREF_QNAME = new QName("DAV:", "href");
 
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.googlecode.sardine.model
@@ -333,16 +333,19 @@ public class ObjectFactory
 	{
 		return new All();
 	}
-	
-	public Unauthenticated createUnauthenticated(){
+
+	public Unauthenticated createUnauthenticated()
+	{
 		return new Unauthenticated();
 	}
-	
-	public Authenticated createAuthenticated(){
+
+	public Authenticated createAuthenticated()
+	{
 		return new Authenticated();
 	}
-	
-	public Self createSelf(){
+
+	public Self createSelf()
+	{
 		return new Self();
 	}
 
@@ -405,7 +408,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "status")
 	public JAXBElement<String> createStatus(String value)
 	{
-		return new JAXBElement<String>(_Status_QNAME, String.class, null, value);
+		return new JAXBElement<String>(STATUS_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -414,7 +417,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "dst")
 	public JAXBElement<String> createDst(String value)
 	{
-		return new JAXBElement<String>(_Dst_QNAME, String.class, null, value);
+		return new JAXBElement<String>(DST_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -423,7 +426,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "src")
 	public JAXBElement<String> createSrc(String value)
 	{
-		return new JAXBElement<String>(_Src_QNAME, String.class, null, value);
+		return new JAXBElement<String>(SRC_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -432,7 +435,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "timeout")
 	public JAXBElement<String> createTimeout(String value)
 	{
-		return new JAXBElement<String>(_Timeout_QNAME, String.class, null, value);
+		return new JAXBElement<String>(TIMEOUT_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -441,7 +444,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "depth")
 	public JAXBElement<String> createDepth(String value)
 	{
-		return new JAXBElement<String>(_Depth_QNAME, String.class, null, value);
+		return new JAXBElement<String>(DEPTH_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -450,7 +453,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "responsedescription")
 	public JAXBElement<String> createResponsedescription(String value)
 	{
-		return new JAXBElement<String>(_Responsedescription_QNAME, String.class, null, value);
+		return new JAXBElement<String>(RESPONSEDESCRIPTION_QNAME, String.class, null, value);
 	}
 
 	/**
@@ -459,7 +462,7 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "href")
 	public JAXBElement<String> createHref(String value)
 	{
-		return new JAXBElement<String>(_Href_QNAME, String.class, null, value);
+		return new JAXBElement<String>(HREF_QNAME, String.class, null, value);
 	}
 
 }
