@@ -39,65 +39,21 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "href","property","all","authenticated","unauthenticated","self"
+    "href"
 })
-@XmlRootElement(name = "principal")
-public class Principal {
+@XmlRootElement(name = "principal-collection-set")
+public class PrincipalCollectionSet {
 
-	private String href;
-	private Property property;
-	private All all;
-	private Authenticated authenticated;
-	private Unauthenticated unauthenticated;
-	private Self self;
+	private List<String> href;
+
  
 
-	public String getHref() {
+	public List<String> getHref() {
 		return href;
 	}
 
-	public void setHref(String href) {
+	public void setHref(List<String> href) {
 		this.href = href;
-	}
-
-	public Property getProperty() {
-		return property;
-	}
-
-	public void setProperty(Property property) {
-		this.property = property;
-	}
-
-	public All getAll() {
-		return all;
-	}
-
-	public void setAll(All all) {
-		this.all = all;
-	}
-
-	public Authenticated getAuthenticated() {
-		return authenticated;
-	}
-
-	public void setAuthenticated(Authenticated authenticated) {
-		this.authenticated = authenticated;
-	}
-
-	public Unauthenticated getUnauthenticated() {
-		return unauthenticated;
-	}
-
-	public void setUnauthenticated(Unauthenticated unauthenticated) {
-		this.unauthenticated = unauthenticated;
-	}
-
-	public Self getSelf() {
-		return self;
-	}
-
-	public void setSelf(Self self) {
-		this.self = self;
 	}
 
 

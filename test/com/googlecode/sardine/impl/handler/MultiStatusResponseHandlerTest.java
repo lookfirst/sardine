@@ -17,6 +17,7 @@
 package com.googlecode.sardine.impl.handler;
 
 import com.googlecode.sardine.DavAcl;
+import com.googlecode.sardine.DavPrincipal;
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Response;
@@ -682,13 +683,14 @@ public class MultiStatusResponseHandlerTest
 						"  </d:ace>" +
 						"  <d:ace>" +
 						"    <d:principal>" +
-						"      <d:property><d:group/></d:property>" +
+						"      <d:href>/some/user</d:href>" +
 						"    </d:principal>" +
 						"    <d:deny>" +
 						"      <d:privilege><d:all/></d:privilege>" +
 						"    </d:deny>" +
 						"  </d:ace>" +
 						"  <d:ace>" +
+						"    <d:protected/>" +
 						"    <d:principal><d:all/></d:principal>" +
 						"    <d:grant>" +
 						"      <d:privilege><d:read/></d:privilege>" +
@@ -744,13 +746,14 @@ public class MultiStatusResponseHandlerTest
 						"  </d:ace>" +
 						"  <d:ace>" +
 						"    <d:principal>" +
-						"      <d:property><d:group/></d:property>" +
+						"      <d:href>/some/user</d:href>" +
 						"    </d:principal>" +
 						"    <d:deny>" +
 						"      <d:privilege><d:all/></d:privilege>" +
 						"    </d:deny>" +
 						"  </d:ace>" +
 						"  <d:ace>" +
+						"    <d:protected/>" +
 						"    <d:principal><d:all/></d:principal>" +
 						"    <d:grant>" +
 						"      <d:privilege><d:read/></d:privilege>" +
@@ -783,9 +786,18 @@ public class MultiStatusResponseHandlerTest
 			assertEquals("write-properties", davAcl.getAces().get(0).getGranted().get(2));
 			assertEquals("all", davAcl.getAces().get(1).getDenied().get(0));
 			//property ACLs should be handled
-			assertEquals(new QName("DAV:", "owner"), davAcl.getAces().get(0).getProperty());
+			assertEquals(DavPrincipal.PrincipalType.PROPERTY,davAcl.getAces().get(0).getPrincipal().getPrincipalType());
+			assertEquals(new QName("DAV:", "owner"), davAcl.getAces().get(0).getPrincipal().getProperty());
+			//href ACLs should be handled
+			assertEquals(DavPrincipal.PrincipalType.HREF,davAcl.getAces().get(3).getPrincipal().getPrincipalType());
+			assertEquals("/some/user", davAcl.getAces().get(3).getPrincipal().getValue());
+			//key acl should be supported
+			assertEquals(DavPrincipal.PrincipalType.KEY,davAcl.getAces().get(4).getPrincipal().getPrincipalType());
+			assertEquals("all",davAcl.getAces().get(4).getPrincipal().getValue());			
 			// inheritance ACLs
 			assertEquals("/", davAcl.getAces().get(0).getInherited());
+			// protected acls
+			assertTrue(davAcl.getAces().get(4).isProtected());
 		}
 	}
 }

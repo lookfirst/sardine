@@ -2,6 +2,7 @@ package com.googlecode.sardine.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -20,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "",propOrder={"principal","grant","deny","inherited"})
+@XmlType(name = "",propOrder={"principal","grant","deny","inherited","protected1"})
 @XmlRootElement(name = "ace")
 public class Ace {
 
@@ -28,7 +29,11 @@ public class Ace {
 	protected Principal principal;
 	protected Grant grant;
 	protected Deny deny;
-	private Inherited inherited;
+	protected Inherited inherited;
+
+    @XmlElement(name="protected")
+	private Protected protected1;
+    
 	public Principal getPrincipal() {
 		return principal;
 	}
@@ -52,6 +57,12 @@ public class Ace {
 	}
 	public void setInherited(Inherited inherited) {
 		this.inherited = inherited;
+	}
+	public Protected getProtected() {
+		return protected1;
+	}
+	public void setProtected(Protected protected1) {
+		this.protected1 = protected1;
 	}
 	
 	

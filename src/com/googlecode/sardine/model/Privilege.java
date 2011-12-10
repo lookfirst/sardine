@@ -1,5 +1,6 @@
 package com.googlecode.sardine.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,6 +21,8 @@ public class Privilege {
 	private List<Object> content;
 
 	public List<Object> getContent() {
+		if (content==null)
+			content = new ArrayList<Object>();
 		return content;
 	}
 

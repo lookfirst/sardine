@@ -333,6 +333,18 @@ public class ObjectFactory
 	{
 		return new All();
 	}
+	
+	public Unauthenticated createUnauthenticated(){
+		return new Unauthenticated();
+	}
+	
+	public Authenticated createAuthenticated(){
+		return new Authenticated();
+	}
+	
+	public Self createSelf(){
+		return new Self();
+	}
 
 	public Bind createBind()
 	{

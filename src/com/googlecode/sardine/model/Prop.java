@@ -13,6 +13,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.w3c.dom.Element;
@@ -66,9 +67,15 @@ public class Prop {
     protected Lockdiscovery lockdiscovery;
     protected Resourcetype resourcetype;
     protected Supportedlock supportedlock;
+    
+    //ACL elements
     protected Owner owner;
     protected Group group;
     protected Acl acl;
+    @XmlElement(name="principal-collection-set")
+    protected PrincipalCollectionSet principalCollectionSet;
+    @XmlElement(name="principal-URL")
+	private PrincipalURL principalURL;
 
 	@XmlAnyElement
     protected List<Element> any;
@@ -363,6 +370,22 @@ public class Prop {
 
 	public void setAcl(Acl acl) {
 		this.acl = acl;
+	}
+
+	public PrincipalCollectionSet getPrincipalCollectionSet() {
+		return principalCollectionSet;
+	}
+
+	public void setPrincipalCollectionSet(PrincipalCollectionSet principalCollectionSet) {
+		this.principalCollectionSet = principalCollectionSet;
+	}
+
+	public PrincipalURL getPrincipalURL() {
+		return principalURL;
+	}
+
+	public void setPrincipalURL(PrincipalURL principalURL) {
+		this.principalURL = principalURL;
 	}
 
 }

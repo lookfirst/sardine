@@ -17,6 +17,7 @@
 package com.googlecode.sardine;
 
 
+import com.googlecode.sardine.DavPrincipal.PrincipalType;
 import com.googlecode.sardine.impl.SardineException;
 import com.googlecode.sardine.impl.SardineImpl;
 import com.googlecode.sardine.util.SardineUtil;
@@ -29,6 +30,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ProxySelector;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,6 +153,68 @@ public class FunctionalSardineTest
 		assertNotNull(resources.iterator().next().getContentLength());
 	}
 
+	@Test
+    @Ignore
+	public void testSetAcl() throws IOException
+	{
+		final String url = String.format("http://demo.sabredav.org/public/folder-%s/", UUID.randomUUID().toString());
+		Sardine sardine = SardineFactory.begin("testuser", "test");
+        sardine.createDirectory(url);
+		List<DavAce> aces = new ArrayList<DavAce>();
+		sardine.setAcl(url, aces);
+		DavAcl acls = sardine.getAcl(url);
+		for (DavAce davace : acls.getAces())
+		{
+			if (davace.getInherited() == null)
+				fail("We have cleared all ACEs, should not have anymore non inherited ACEs");
+		}
+		aces.clear();
+		DavAce ace = new DavAce(new DavPrincipal(PrincipalType.HREF, "/users/someone", null));
+		ace.getGranted().add("read");
+		aces.add(ace);
+		ace = new DavAce(new DavPrincipal(PrincipalType.PROPERTY, new QName("DAV:", "owner", "somespace"), null));
+		ace.getGranted().add("read");
+		aces.add(ace);
+		sardine.setAcl(url, aces);
+		int count = 0;
+		for (DavAce davace : sardine.getAcl(url).getAces())
+		{
+			if (davace.getInherited() == null)
+			{
+				count++;
+			}
+		}
+        sardine.delete(url);
+		assertEquals("After setting two ACL, should find them back", 2, count);
+	}
+
+    @Test
+    @Ignore
+	public void testDavOwner() throws IOException
+	{
+		final String url = String.format("http://demo.sabredav.org/public/folder-%s/", UUID.randomUUID().toString());
+		Sardine sardine = SardineFactory.begin("testuser", "test");
+		sardine.createDirectory(url);
+		DavAcl acl = sardine.getAcl(url);
+		sardine.delete(url);
+		assertNotNull(acl.getOwner());
+		assertNotNull(acl.getGroup());
+	}
+
+	@Test
+	public void testDavPrincipals() throws IOException, URISyntaxException
+	{
+		final String url = String.format("http://demo.sabredav.org/public/folder-%s/", UUID.randomUUID().toString());
+		Sardine sardine = SardineFactory.begin("testuser", "test");
+		sardine.createDirectory(url);
+		List<String> principals = sardine.getPrincipalCollectionSet(url);
+		sardine.delete(url);
+		assertNotNull(principals);
+		for (String p : principals)
+		{
+			assertNotNull(p);
+		}
+	}
 
 	@Test
 	public void testPutRange() throws Exception

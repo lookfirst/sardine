@@ -1,13 +1,11 @@
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.model.Ace;
-import com.googlecode.sardine.model.Privilege;
-import com.googlecode.sardine.model.SimplePrivilege;
-
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.googlecode.sardine.model.*;
+import com.googlecode.sardine.util.SardineUtil;
 
 /**
  * An Access control element (ACE) either grants or denies a particular set of (non-
@@ -37,7 +35,7 @@ public class DavAce
 	 * <p/>
 	 * DAV:property not supported.
 	 */
-	private final String principal;
+	private final DavPrincipal principal;
 
 	/**
 	 * List of granted privileges.
@@ -60,20 +58,20 @@ public class DavAce
 	 */
 	private final String inherited;
 
-	private final QName property;
+	private final boolean isprotected;
 
+
+	public DavAce(DavPrincipal principal){
+		this.principal=principal;
+		this.granted=new ArrayList<String>();
+		this.denied=new ArrayList<String>();
+		this.inherited=null;
+		this.isprotected=false;
+	}
 	public DavAce(Ace ace)
 	{
-		principal = ace.getPrincipal().getHref();
-		if (ace.getPrincipal().getProperty() != null)
-		{
-			property = new QName(ace.getPrincipal().getProperty().getProperty().getNamespaceURI(),
-					ace.getPrincipal().getProperty().getProperty().getLocalName());
-		}
-		else
-		{
-			property = null;
-		}
+		principal = new DavPrincipal(ace.getPrincipal());
+		
 		granted = new ArrayList<String>();
 		denied = new ArrayList<String>();
 		if (ace.getGrant() != null)
@@ -110,16 +108,12 @@ public class DavAce
 		{
 			inherited = null;
 		}
+		this.isprotected = (ace.getProtected()!=null);
 	}
 
-	public String getPrincipal()
+	public DavPrincipal getPrincipal()
 	{
 		return principal;
-	}
-
-	public QName getProperty()
-	{
-		return property;
 	}
 
 	public List<String> getGranted()
@@ -135,5 +129,72 @@ public class DavAce
 	public String getInherited()
 	{
 		return inherited;
+	}
+	
+	public boolean isProtected(){
+		return isprotected;
+	}
+
+	public Ace toModel() {
+		Ace ace = new Ace();
+		Principal p = new Principal();
+		switch(principal.getPrincipalType()){
+		case HREF:
+			p.setHref(principal.getValue());
+			break;
+		case PROPERTY:
+			p.setProperty(new Property());
+			p.getProperty().setProperty(SardineUtil.createElement(principal.getProperty()));
+			break;
+		case KEY:
+			if (DavPrincipal.KEY_ALL.equals(principal.getValue()))
+				p.setAll(new All());
+			else if (DavPrincipal.KEY_AUTHENTICATED.equals(principal.getValue()))
+				p.setAuthenticated(new Authenticated());
+			else  if (DavPrincipal.KEY_UNAUTHENTICATED.equals(principal.getValue()))
+				p.setUnauthenticated(new Unauthenticated());
+			else if (DavPrincipal.KEY_SELF.equals(principal.getValue()))
+				p.setSelf(new Self());
+		}
+		ace.setPrincipal(p);
+		if (granted!=null && granted.size()>0){
+			ace.setGrant(new Grant());
+			ace.getGrant().setPrivilege(toPrivilege(granted));
+		}
+		if (denied!=null && denied.size()>0){
+			ace.setDeny(new Deny());
+			ace.getDeny().setPrivilege(toPrivilege(denied));
+		}
+		return ace;
+	}
+	private List<Privilege> toPrivilege(List<String> rights) {
+		List<Privilege> privileges = new ArrayList<Privilege>();
+		for (String right : rights){
+			Privilege p = new Privilege();
+			if ("all".equals(right))
+				p.getContent().add(new All());
+			else if ("bind".equals(right))
+				p.getContent().add(new Bind());
+			else if ("read".equals(right))
+				p.getContent().add(new Read());
+			else if ("read-acl".equals(right))
+				p.getContent().add(new ReadAcl());
+			else if ("read-current-user-privilege-set".equals(right))
+				p.getContent().add(new ReadCurrentUserPrivilegeSet());
+			else if ("unbind".equals(right))
+				p.getContent().add(new UnBind());
+			else if ("unlock".equals(right))
+				p.getContent().add(new Unlock());
+			else if ("write".equals(right))
+				p.getContent().add(new Write());
+			else if ("write-content".equals(right))
+				p.getContent().add(new WriteContent());
+			else if ("write-properties".equals(right))
+				p.getContent().add(new WriteProperties());
+			else
+				continue;
+			privileges.add(p);
+		}
+		return privileges;
 	}
 }

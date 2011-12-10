@@ -16,39 +16,18 @@
 
 package com.googlecode.sardine.impl;
 
-import com.googlecode.sardine.DavAcl;
-import com.googlecode.sardine.DavResource;
-import com.googlecode.sardine.Sardine;
-import com.googlecode.sardine.Version;
-import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
-import com.googlecode.sardine.impl.handler.LockResponseHandler;
-import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
-import com.googlecode.sardine.impl.handler.VoidResponseHandler;
-import com.googlecode.sardine.impl.io.ConsumingInputStream;
-import com.googlecode.sardine.impl.methods.HttpCopy;
-import com.googlecode.sardine.impl.methods.HttpLock;
-import com.googlecode.sardine.impl.methods.HttpMkCol;
-import com.googlecode.sardine.impl.methods.HttpMove;
-import com.googlecode.sardine.impl.methods.HttpPropFind;
-import com.googlecode.sardine.impl.methods.HttpPropPatch;
-import com.googlecode.sardine.impl.methods.HttpUnlock;
-import com.googlecode.sardine.model.Acl;
-import com.googlecode.sardine.model.Allprop;
-import com.googlecode.sardine.model.Exclusive;
-import com.googlecode.sardine.model.Group;
-import com.googlecode.sardine.model.Lockinfo;
-import com.googlecode.sardine.model.Lockscope;
-import com.googlecode.sardine.model.Locktype;
-import com.googlecode.sardine.model.Multistatus;
-import com.googlecode.sardine.model.Owner;
-import com.googlecode.sardine.model.Prop;
-import com.googlecode.sardine.model.Propertyupdate;
-import com.googlecode.sardine.model.Propfind;
-import com.googlecode.sardine.model.Remove;
-import com.googlecode.sardine.model.Response;
-import com.googlecode.sardine.model.Set;
-import com.googlecode.sardine.model.Write;
-import com.googlecode.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -102,16 +81,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.googlecode.sardine.DavAce;
+import com.googlecode.sardine.DavAcl;
+import com.googlecode.sardine.DavPrincipal;
+import com.googlecode.sardine.DavResource;
+import com.googlecode.sardine.Sardine;
+import com.googlecode.sardine.Version;
+import com.googlecode.sardine.impl.handler.ExistsResponseHandler;
+import com.googlecode.sardine.impl.handler.LockResponseHandler;
+import com.googlecode.sardine.impl.handler.MultiStatusResponseHandler;
+import com.googlecode.sardine.impl.handler.VoidResponseHandler;
+import com.googlecode.sardine.impl.io.ConsumingInputStream;
+import com.googlecode.sardine.impl.methods.HttpAcl;
+import com.googlecode.sardine.impl.methods.HttpCopy;
+import com.googlecode.sardine.impl.methods.HttpLock;
+import com.googlecode.sardine.impl.methods.HttpMkCol;
+import com.googlecode.sardine.impl.methods.HttpMove;
+import com.googlecode.sardine.impl.methods.HttpPropFind;
+import com.googlecode.sardine.impl.methods.HttpPropPatch;
+import com.googlecode.sardine.impl.methods.HttpUnlock;
+import com.googlecode.sardine.model.Ace;
+import com.googlecode.sardine.model.Acl;
+import com.googlecode.sardine.model.Allprop;
+import com.googlecode.sardine.model.Displayname;
+import com.googlecode.sardine.model.Exclusive;
+import com.googlecode.sardine.model.Group;
+import com.googlecode.sardine.model.Lockinfo;
+import com.googlecode.sardine.model.Lockscope;
+import com.googlecode.sardine.model.Locktype;
+import com.googlecode.sardine.model.Multistatus;
+import com.googlecode.sardine.model.Owner;
+import com.googlecode.sardine.model.PrincipalCollectionSet;
+import com.googlecode.sardine.model.PrincipalURL;
+import com.googlecode.sardine.model.Prop;
+import com.googlecode.sardine.model.Propertyupdate;
+import com.googlecode.sardine.model.Propfind;
+import com.googlecode.sardine.model.Propstat;
+import com.googlecode.sardine.model.Remove;
+import com.googlecode.sardine.model.Resourcetype;
+import com.googlecode.sardine.model.Response;
+import com.googlecode.sardine.model.Set;
+import com.googlecode.sardine.model.Write;
+import com.googlecode.sardine.util.SardineUtil;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -200,12 +211,14 @@ public class SardineImpl implements Sardine
 						return (method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpAcl.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && (locationHeader != null);
 					case HttpStatus.SC_MOVED_PERMANENTLY:
 					case HttpStatus.SC_TEMPORARY_REDIRECT:
 						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
+								|| method.equalsIgnoreCase(HttpAcl.METHOD_NAME)
 								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME);
 					case HttpStatus.SC_SEE_OTHER:
 						return true;
@@ -464,9 +477,34 @@ public class SardineImpl implements Sardine
 		Lockscope scopeType = new Lockscope();
 		scopeType.setExclusive(new Exclusive());
 		body.setLockscope(scopeType);
-		Locktype lockType = new Locktype();
-		lockType.setWrite(new Write());
-		body.setLocktype(lockType);
+        Locktype lockType = new Locktype();
+        lockType.setWrite(new Write());
+        body.setLocktype(lockType);
+        this.execute(entity, new VoidResponseHandler());
+    }
+
+	/**
+	 * (non-Javadoc)
+	 *
+	 * @see com.googlecode.sardine.Sardine#setAcl(String, List<DavAce>)
+	 */
+	public void setAcl(String url, List<DavAce> aces) throws IOException
+	{
+		HttpAcl entity = new HttpAcl(url);
+		// Build WebDAV <code>ACL</code> entity.
+		Acl body = new Acl();
+		body.setAce(new ArrayList<Ace>());
+		for (DavAce davAce : aces)
+		{
+			// protected and inherited acl must not be part of ACL http request
+			if (davAce.getInherited() != null || davAce.isProtected())
+			{
+				continue;
+			}
+			Ace ace = davAce.toModel();
+			body.getAce().add(ace);
+		}
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		this.execute(entity, new VoidResponseHandler());
 	}
 
@@ -498,14 +536,82 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#setAcl(String)
-	 */
-	public void setAcl(String url) throws IOException
+	public List<DavPrincipal> getPrincipals(String url) throws IOException
 	{
-		throw new UnsupportedOperationException();
+		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth("1");
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		prop.setDisplayname(new Displayname());
+		prop.setResourcetype(new Resourcetype());
+		prop.setPrincipalURL(new PrincipalURL());
+		body.setProp(prop);
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		if (responses.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			List<DavPrincipal> collections = new ArrayList<DavPrincipal>();
+			for (Response r : responses)
+			{
+				if (r.getPropstat() != null)
+				{
+					for (Propstat propstat : r.getPropstat())
+					{
+						if (propstat.getProp() != null
+								&& propstat.getProp().getResourcetype() != null
+								&& propstat.getProp().getResourcetype().getPrincipal() != null)
+						{
+							collections.add(new DavPrincipal(DavPrincipal.PrincipalType.HREF,
+									r.getHref().get(0),
+									propstat.getProp().getDisplayname().getContent().get(0)));
+						}
+					}
+				}
+			}
+			return collections;
+		}
+	}
+
+	public List<String> getPrincipalCollectionSet(String url) throws IOException
+	{
+		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth("0");
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		prop.setPrincipalCollectionSet(new PrincipalCollectionSet());
+		body.setProp(prop);
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		if (responses.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			List<String> collections = new ArrayList<String>();
+			for (Response r : responses)
+			{
+				if (r.getPropstat() != null)
+				{
+					for (Propstat propstat : r.getPropstat())
+					{
+						if (propstat.getProp() != null
+								&& propstat.getProp().getPrincipalCollectionSet() != null
+								&& propstat.getProp().getPrincipalCollectionSet().getHref() != null)
+						{
+							collections.addAll(propstat.getProp().getPrincipalCollectionSet().getHref());
+						}
+					}
+				}
+			}
+			return collections;
+		}
 	}
 
 	/**
@@ -865,4 +971,5 @@ public class SardineImpl implements Sardine
 	{
 		return new ProxySelectorRoutePlanner(schemeRegistry, selector);
 	}
+
 }

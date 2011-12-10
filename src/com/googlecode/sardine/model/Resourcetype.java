@@ -40,13 +40,14 @@ import org.w3c.dom.Element;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "collection",
+    "collection","principal",
     "any"
 })
 @XmlRootElement(name = "resourcetype")
 public class Resourcetype {
 
     protected Collection collection;
+    private Principal principal;
     @XmlAnyElement
     protected List<Element> any;
 
@@ -74,7 +75,15 @@ public class Resourcetype {
         this.collection = value;
     }
 
-    /**
+    public Principal getPrincipal() {
+		return principal;
+	}
+
+	public void setPrincipal(Principal principal) {
+		this.principal = principal;
+	}
+
+	/**
      * Gets the value of the any property.
      * 
      * <p>
