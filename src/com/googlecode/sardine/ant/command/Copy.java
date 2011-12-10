@@ -2,6 +2,8 @@ package com.googlecode.sardine.ant.command;
 
 import com.googlecode.sardine.ant.Command;
 
+import java.io.IOException;
+
 /**
  * A nice ant wrapper around sardine.copy().
  *
@@ -17,17 +19,19 @@ public class Copy extends Command
 
 	/** */
 	@Override
-	public void execute() throws Exception
+	public void execute() throws IOException
 	{
 		this.getTask().getSardine().copy(this.srcUrl, this.dstUrl);
 	}
 
 	/** */
 	@Override
-	protected void validateAttributes() throws Exception
+	protected void validateAttributes()
 	{
 		if (this.srcUrl == null || this.dstUrl == null)
-			throw new NullPointerException("srcUrl and dstUrl cannot be null");
+		{
+			throw new IllegalArgumentException("srcUrl and dstUrl cannot be null");
+		}
 	}
 
 	/** */

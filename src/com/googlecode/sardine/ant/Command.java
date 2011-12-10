@@ -2,6 +2,8 @@ package com.googlecode.sardine.ant;
 
 import org.apache.tools.ant.ProjectComponent;
 
+import java.io.IOException;
+
 
 /**
  * Base class for a Command which represents a sardine command
@@ -13,9 +15,9 @@ public abstract class Command extends ProjectComponent
 {
 	private SardineTask task = null;
 
-	public abstract void execute() throws Exception;
+	public abstract void execute() throws IOException;
 
-	protected abstract void validateAttributes() throws Exception;
+	protected abstract void validateAttributes();
 
 	/**
 	 *
@@ -32,7 +34,7 @@ public abstract class Command extends ProjectComponent
 		{
 			if (this.task.isFailonerror())
 			{
-				throw new Exception(e);
+				throw e;
 			}
 			else
 			{

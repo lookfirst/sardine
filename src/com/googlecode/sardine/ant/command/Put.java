@@ -2,6 +2,8 @@ package com.googlecode.sardine.ant.command;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,17 +24,17 @@ public class Put extends Command
 	private String url;
 
 	/** */
-	List<FileSet> filesets = new ArrayList<FileSet>();
+	private List<FileSet> filesets = new ArrayList<FileSet>();
 
 	/** */
-	File file = null;
-	
+	private File file = null;
+
 	/** */
 	private String contentType;
 
 	/** */
 	@Override
-	public void execute() throws Exception
+	public void execute() throws IOException
 	{
 		Project p = this.getProject();
 
@@ -42,16 +44,18 @@ public class Put extends Command
 		}
 		else
 		{
-			for (FileSet fileset: this.filesets)
+			for (FileSet fileset : this.filesets)
 			{
 				File dir = fileset.getDir(p);
 				DirectoryScanner ds = fileset.getDirectoryScanner(p);
 
-				for (String file: ds.getIncludedFiles())
+				for (String f : ds.getIncludedFiles())
 				{
-					File absolute = new File(dir, file);
+					File absolute = new File(dir, f);
 					if (absolute.isFile())
+					{
 						this.process(absolute);
+					}
 				}
 			}
 		}
@@ -60,23 +64,27 @@ public class Put extends Command
 	/**
 	 * Process an individual file with sardine.put()
 	 */
-	protected void process(File file) throws Exception
+	protected void process(File file) throws IOException
 	{
 		this.getTask().getSardine().put(this.url, new FileInputStream(file), contentType);
 	}
 
 	/** */
 	@Override
-	protected void validateAttributes() throws Exception
+	protected void validateAttributes()
 	{
 		if (this.url == null)
-			throw new NullPointerException("url cannot be null");
-
+		{
+			throw new IllegalArgumentException("url cannot be null");
+		}
 		if (this.file == null && this.filesets.size() == 0)
-			throw new NullPointerException("Need to define the file attribute or add a fileset.");
-
+		{
+			throw new IllegalArgumentException("Need to define the file attribute or add a fileset.");
+		}
 		if (this.file != null && !this.file.exists())
-			throw new Exception("Could not find file: " + this.file);
+		{
+			throw new IllegalArgumentException("Could not find file: " + this.file);
+		}
 	}
 
 	/** */

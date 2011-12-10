@@ -2,9 +2,11 @@ package com.googlecode.sardine.ant.command;
 
 import com.googlecode.sardine.ant.Command;
 
+import java.io.IOException;
+
 /**
  * A nice ant wrapper around sardine.exists().
- *
+ * <p/>
  * Sets the property value to "true".
  *
  * @author Jon Stevens
@@ -19,21 +21,26 @@ public class Exists extends Command
 
 	/** */
 	@Override
-	public void execute() throws Exception
+	public void execute() throws IOException
 	{
 		if (this.getTask().getSardine().exists(this.url))
+		{
 			this.getProject().setProperty(this.property, "true");
+		}
 	}
 
 	/** */
 	@Override
-	protected void validateAttributes() throws Exception
+	protected void validateAttributes()
 	{
 		if (this.url == null)
-			throw new NullPointerException("url cannot be null");
-
+		{
+			throw new IllegalArgumentException("url cannot be null");
+		}
 		if (this.property == null)
-			throw new NullPointerException("property cannot be null");
+		{
+			throw new IllegalArgumentException("property cannot be null");
+		}
 	}
 
 	/** */

@@ -2,6 +2,8 @@ package com.googlecode.sardine.ant.command;
 
 import com.googlecode.sardine.ant.Command;
 
+import java.io.IOException;
+
 /**
  * A nice ant wrapper around sardine.createDirectory().
  *
@@ -14,17 +16,19 @@ public class CreateDirectory extends Command
 
 	/** */
 	@Override
-	public void execute() throws Exception
+	public void execute() throws IOException
 	{
 		this.getTask().getSardine().createDirectory(this.url);
 	}
 
 	/** */
 	@Override
-	protected void validateAttributes() throws Exception
+	protected void validateAttributes()
 	{
 		if (this.url == null)
-			throw new NullPointerException("url cannot be null");
+		{
+			throw new IllegalArgumentException("url cannot be null");
+		}
 	}
 
 	/** */
