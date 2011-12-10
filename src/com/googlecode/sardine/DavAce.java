@@ -61,17 +61,19 @@ public class DavAce
 	private final boolean isprotected;
 
 
-	public DavAce(DavPrincipal principal){
-		this.principal=principal;
-		this.granted=new ArrayList<String>();
-		this.denied=new ArrayList<String>();
-		this.inherited=null;
-		this.isprotected=false;
+	public DavAce(DavPrincipal principal)
+	{
+		this.principal = principal;
+		this.granted = new ArrayList<String>();
+		this.denied = new ArrayList<String>();
+		this.inherited = null;
+		this.isprotected = false;
 	}
+
 	public DavAce(Ace ace)
 	{
 		principal = new DavPrincipal(ace.getPrincipal());
-		
+
 		granted = new ArrayList<String>();
 		denied = new ArrayList<String>();
 		if (ace.getGrant() != null)
@@ -108,7 +110,7 @@ public class DavAce
 		{
 			inherited = null;
 		}
-		this.isprotected = (ace.getProtected()!=null);
+		this.isprotected = (ace.getProtected() != null);
 	}
 
 	public DavPrincipal getPrincipal()
@@ -130,69 +132,107 @@ public class DavAce
 	{
 		return inherited;
 	}
-	
-	public boolean isProtected(){
+
+	public boolean isProtected()
+	{
 		return isprotected;
 	}
 
-	public Ace toModel() {
+	public Ace toModel()
+	{
 		Ace ace = new Ace();
 		Principal p = new Principal();
-		switch(principal.getPrincipalType()){
-		case HREF:
-			p.setHref(principal.getValue());
-			break;
-		case PROPERTY:
-			p.setProperty(new Property());
-			p.getProperty().setProperty(SardineUtil.createElement(principal.getProperty()));
-			break;
-		case KEY:
-			if (DavPrincipal.KEY_ALL.equals(principal.getValue()))
-				p.setAll(new All());
-			else if (DavPrincipal.KEY_AUTHENTICATED.equals(principal.getValue()))
-				p.setAuthenticated(new Authenticated());
-			else  if (DavPrincipal.KEY_UNAUTHENTICATED.equals(principal.getValue()))
-				p.setUnauthenticated(new Unauthenticated());
-			else if (DavPrincipal.KEY_SELF.equals(principal.getValue()))
-				p.setSelf(new Self());
+		switch (principal.getPrincipalType())
+		{
+			case HREF:
+				p.setHref(principal.getValue());
+				break;
+			case PROPERTY:
+				p.setProperty(new Property());
+				p.getProperty().setProperty(SardineUtil.createElement(principal.getProperty()));
+				break;
+			case KEY:
+				if (DavPrincipal.KEY_ALL.equals(principal.getValue()))
+				{
+					p.setAll(new All());
+				}
+				else if (DavPrincipal.KEY_AUTHENTICATED.equals(principal.getValue()))
+				{
+					p.setAuthenticated(new Authenticated());
+				}
+				else if (DavPrincipal.KEY_UNAUTHENTICATED.equals(principal.getValue()))
+				{
+					p.setUnauthenticated(new Unauthenticated());
+				}
+				else if (DavPrincipal.KEY_SELF.equals(principal.getValue()))
+				{
+					p.setSelf(new Self());
+				}
 		}
 		ace.setPrincipal(p);
-		if (granted!=null && granted.size()>0){
+		if (granted != null && granted.size() > 0)
+		{
 			ace.setGrant(new Grant());
 			ace.getGrant().setPrivilege(toPrivilege(granted));
 		}
-		if (denied!=null && denied.size()>0){
+		if (denied != null && denied.size() > 0)
+		{
 			ace.setDeny(new Deny());
 			ace.getDeny().setPrivilege(toPrivilege(denied));
 		}
 		return ace;
 	}
-	private List<Privilege> toPrivilege(List<String> rights) {
+
+	private List<Privilege> toPrivilege(List<String> rights)
+	{
 		List<Privilege> privileges = new ArrayList<Privilege>();
-		for (String right : rights){
+		for (String right : rights)
+		{
 			Privilege p = new Privilege();
 			if ("all".equals(right))
+			{
 				p.getContent().add(new All());
+			}
 			else if ("bind".equals(right))
+			{
 				p.getContent().add(new Bind());
+			}
 			else if ("read".equals(right))
+			{
 				p.getContent().add(new Read());
+			}
 			else if ("read-acl".equals(right))
+			{
 				p.getContent().add(new ReadAcl());
+			}
 			else if ("read-current-user-privilege-set".equals(right))
+			{
 				p.getContent().add(new ReadCurrentUserPrivilegeSet());
+			}
 			else if ("unbind".equals(right))
+			{
 				p.getContent().add(new UnBind());
+			}
 			else if ("unlock".equals(right))
+			{
 				p.getContent().add(new Unlock());
+			}
 			else if ("write".equals(right))
+			{
 				p.getContent().add(new Write());
+			}
 			else if ("write-content".equals(right))
+			{
 				p.getContent().add(new WriteContent());
+			}
 			else if ("write-properties".equals(right))
+			{
 				p.getContent().add(new WriteProperties());
+			}
 			else
+			{
 				continue;
+			}
 			privileges.add(p);
 		}
 		return privileges;

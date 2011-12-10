@@ -73,9 +73,13 @@ public class DavAcl
 			if (o != null)
 			{
 				if (o.getUnauthenticated() != null)
+				{
 					return "unauthenticated";
+				}
 				else if (o.getHref() != null)
+				{
 					return o.getHref();
+				}
 			}
 		}
 		return null;
@@ -94,7 +98,9 @@ public class DavAcl
 			if (o != null)
 			{
 				if (o.getHref() != null)
+				{
 					return o.getHref();
+				}
 			}
 		}
 		return null;

@@ -234,10 +234,10 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Getetag etag = propstat.getProp().getGetetag();
-			if ((etag != null) && (etag.getContent().size() == 1))
+			Getetag e = propstat.getProp().getGetetag();
+			if ((e != null) && (e.getContent().size() == 1))
 			{
-				return etag.getContent().get(0);
+				return e.getContent().get(0);
 			}
 		}
 		return null;

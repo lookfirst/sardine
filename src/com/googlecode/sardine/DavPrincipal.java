@@ -61,9 +61,13 @@ public class DavPrincipal
 	protected DavPrincipal(PrincipalType principalType, String value, QName property, String name)
 	{
 		if (value != null && principalType == PrincipalType.PROPERTY)
+		{
 			throw new IllegalArgumentException("Principal type property can't have a string value");
+		}
 		if (property != null && principalType != PrincipalType.PROPERTY)
+		{
 			throw new IllegalArgumentException("Principal type " + principalType.name() + " property is not allowed to have a QName property");
+		}
 		this.principalType = principalType;
 		this.value = value;
 		this.property = property;
@@ -96,13 +100,21 @@ public class DavPrincipal
 			this.principalType = PrincipalType.KEY;
 			this.property = null;
 			if (principal.getAll() != null)
+			{
 				this.value = KEY_ALL;
+			}
 			else if (principal.getAuthenticated() != null)
+			{
 				this.value = KEY_AUTHENTICATED;
+			}
 			else if (principal.getUnauthenticated() != null)
+			{
 				this.value = KEY_UNAUTHENTICATED;
+			}
 			else
+			{
 				this.value = KEY_SELF;
+			}
 		}
 		else
 		{
