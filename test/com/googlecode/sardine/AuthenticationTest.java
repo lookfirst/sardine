@@ -29,6 +29,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -127,6 +128,7 @@ public class AuthenticationTest
 	}
 
 	@Test
+	@Ignore
 	public void testNtlmAuth() throws Exception
 	{
 		fail("Need a NTLM enabled WebDAV server for testing");
