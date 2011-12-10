@@ -31,13 +31,13 @@ import javax.xml.namespace.QName;
 public class ObjectFactory
 {
 
-	private final static QName _Status_QNAME = new QName("DAV:", "status");
-	private final static QName _Dst_QNAME = new QName("DAV:", "dst");
-	private final static QName _Src_QNAME = new QName("DAV:", "src");
-	private final static QName _Timeout_QNAME = new QName("DAV:", "timeout");
-	private final static QName _Depth_QNAME = new QName("DAV:", "depth");
-	private final static QName _Responsedescription_QNAME = new QName("DAV:", "responsedescription");
-	private final static QName _Href_QNAME = new QName("DAV:", "href");
+	private static final QName _Status_QNAME = new QName("DAV:", "status");
+	private static final QName _Dst_QNAME = new QName("DAV:", "dst");
+	private static final QName _Src_QNAME = new QName("DAV:", "src");
+	private static final QName _Timeout_QNAME = new QName("DAV:", "timeout");
+	private static final QName _Depth_QNAME = new QName("DAV:", "depth");
+	private static final QName _Responsedescription_QNAME = new QName("DAV:", "responsedescription");
+	private static final QName _Href_QNAME = new QName("DAV:", "href");
 
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.googlecode.sardine.model
