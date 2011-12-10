@@ -76,7 +76,7 @@ public class SardineTask extends Task
 
 	/** */
 	@Override
-	public void execute() throws BuildException
+	public void execute()
 	{
 		try
 		{

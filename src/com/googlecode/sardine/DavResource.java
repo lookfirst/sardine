@@ -7,19 +7,6 @@
 
 package com.googlecode.sardine;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-
 import com.googlecode.sardine.model.Collection;
 import com.googlecode.sardine.model.Creationdate;
 import com.googlecode.sardine.model.Getcontentlength;
@@ -31,6 +18,17 @@ import com.googlecode.sardine.model.Propstat;
 import com.googlecode.sardine.model.Resourcetype;
 import com.googlecode.sardine.model.Response;
 import com.googlecode.sardine.util.SardineUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Describes a resource on a remote server. This could be a directory or an actual file.
