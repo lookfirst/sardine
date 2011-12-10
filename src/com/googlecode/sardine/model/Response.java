@@ -56,11 +56,11 @@ import java.util.List;
 public class Response {
 
     @XmlElement(required = true)
-    protected List<String> href;
-    protected String status;
-    protected List<Propstat> propstat;
-    protected Error error;
-    protected String responsedescription;
+    private List<String> href;
+    private String status;
+    private List<Propstat> propstat;
+    private Error error;
+    private String responsedescription;
 
     /**
      * Gets the value of the href property.

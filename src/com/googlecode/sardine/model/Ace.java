@@ -26,10 +26,10 @@ import javax.xml.bind.annotation.XmlType;
 public class Ace {
 
 	
-	protected Principal principal;
-	protected Grant grant;
-	protected Deny deny;
-	protected Inherited inherited;
+	private Principal principal;
+	private Grant grant;
+	private Deny deny;
+	private Inherited inherited;
 
     @XmlElement(name="protected")
 	private Protected protected1;

@@ -46,8 +46,8 @@ import javax.xml.bind.annotation.XmlType;
 public class Multistatus {
 
     @XmlElement(required = true)
-    protected List<Response> response;
-    protected String responsedescription;
+    private List<Response> response;
+    private String responsedescription;
 
     /**
      * Gets the value of the response property.

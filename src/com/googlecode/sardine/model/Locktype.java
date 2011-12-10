@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Locktype {
 
     @XmlElement(required = true)
-    protected Write write;
+    private Write write;
 
     /**
      * Gets the value of the write property.

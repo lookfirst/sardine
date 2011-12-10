@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Locktoken {
 
     @XmlElement(required = true)
-    protected List<String> href;
+    private List<String> href;
 
     /**
      * Gets the value of the href property.

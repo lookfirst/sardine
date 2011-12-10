@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Error {
 
     @XmlAnyElement(lax = true)
-    protected Object any;
+    private Object any;
 
     /**
      * Gets the value of the any property.

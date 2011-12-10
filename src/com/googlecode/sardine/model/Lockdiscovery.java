@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "lockdiscovery")
 public class Lockdiscovery {
 
-    protected List<Activelock> activelock;
+    private List<Activelock> activelock;
 
     /**
      * Gets the value of the activelock property.

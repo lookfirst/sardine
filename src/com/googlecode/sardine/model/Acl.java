@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "")
 @XmlRootElement(name = "acl")
 public class Acl {
-	protected List<Ace> ace;
+	private List<Ace> ace;
 
 	public List<Ace> getAce() {
 		return ace;

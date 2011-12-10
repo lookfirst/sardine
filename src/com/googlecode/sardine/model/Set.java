@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Set {
 
     @XmlElement(required = true)
-    protected Prop prop;
+    private Prop prop;
 
     /**
      * Gets the value of the prop property.

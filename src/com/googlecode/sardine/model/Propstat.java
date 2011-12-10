@@ -48,11 +48,11 @@ import javax.xml.bind.annotation.XmlType;
 public class Propstat {
 
     @XmlElement(required = true)
-    protected Prop prop;
+    private Prop prop;
     @XmlElement(required = true)
-    protected String status;
-    protected Error error;
-    protected String responsedescription;
+    private String status;
+    private Error error;
+    private String responsedescription;
 
     /**
      * Gets the value of the prop property.

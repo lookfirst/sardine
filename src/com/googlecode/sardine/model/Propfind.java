@@ -44,9 +44,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "propfind")
 public class Propfind {
 
-    protected Allprop allprop;
-    protected Propname propname;
-    protected Prop prop;
+    private Allprop allprop;
+    private Propname propname;
+    private Prop prop;
 
     /**
      * Gets the value of the allprop property.

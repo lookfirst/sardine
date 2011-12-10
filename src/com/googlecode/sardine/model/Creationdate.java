@@ -43,7 +43,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Creationdate {
 
     @XmlMixed
-    protected List<String> content;
+    private List<String> content;
 
     /**
      * Gets the value of the content property.

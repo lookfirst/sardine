@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "source")
 public class Source {
 
-    protected List<Link> link;
+    private List<Link> link;
 
     /**
      * Gets the value of the link property.

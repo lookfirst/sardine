@@ -42,8 +42,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "propertybehavior")
 public class Propertybehavior {
 
-    protected Omit omit;
-    protected Keepalive keepalive;
+    private Omit omit;
+    private Keepalive keepalive;
 
     /**
      * Gets the value of the omit property.

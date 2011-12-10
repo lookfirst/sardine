@@ -48,7 +48,7 @@ public class Keepalive {
 
     @XmlElementRef(name = "href", namespace = "DAV:", type = JAXBElement.class)
     @XmlMixed
-    protected List<Serializable> content;
+    private List<Serializable> content;
 
     /**
      * Gets the value of the content property.

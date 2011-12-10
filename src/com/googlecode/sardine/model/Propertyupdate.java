@@ -49,7 +49,7 @@ public class Propertyupdate {
         @XmlElement(name = "remove", type = Remove.class),
         @XmlElement(name = "set", type = Set.class)
     })
-    protected List<Object> removeOrSet;
+    private List<Object> removeOrSet;
 
     /**
      * Gets the value of the removeOrSet property.

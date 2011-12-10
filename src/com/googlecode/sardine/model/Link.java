@@ -46,9 +46,9 @@ import javax.xml.bind.annotation.XmlType;
 public class Link {
 
     @XmlElement(required = true)
-    protected List<String> src;
+    private List<String> src;
     @XmlElement(required = true)
-    protected List<String> dst;
+    private List<String> dst;
 
     /**
      * Gets the value of the src property.

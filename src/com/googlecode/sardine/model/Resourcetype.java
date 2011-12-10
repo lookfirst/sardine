@@ -46,10 +46,10 @@ import org.w3c.dom.Element;
 @XmlRootElement(name = "resourcetype")
 public class Resourcetype {
 
-    protected Collection collection;
+    private Collection collection;
     private Principal principal;
     @XmlAnyElement
-    protected List<Element> any;
+    private List<Element> any;
 
     /**
      * Gets the value of the collection property.

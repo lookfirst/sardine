@@ -44,9 +44,9 @@ import javax.xml.bind.annotation.XmlType;
 public class Lockentry {
 
     @XmlElement(required = true)
-    protected Lockscope lockscope;
+    private Lockscope lockscope;
     @XmlElement(required = true)
-    protected Locktype locktype;
+    private Locktype locktype;
 
     /**
      * Gets the value of the lockscope property.

@@ -48,7 +48,7 @@ public class Deny {
 	private List<Privilege> privilege;
     @XmlMixed
     @XmlAnyElement(lax = true)
-    protected List<Object> content;
+    private List<Object> content;
 
     /**
      * Gets the value of the content property.

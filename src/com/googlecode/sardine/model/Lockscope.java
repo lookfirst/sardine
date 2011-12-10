@@ -42,8 +42,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "lockscope")
 public class Lockscope {
 
-    protected Exclusive exclusive;
-    protected Shared shared;
+    private Exclusive exclusive;
+    private Shared shared;
 
     /**
      * Gets the value of the exclusive property.

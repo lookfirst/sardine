@@ -57,28 +57,28 @@ import org.w3c.dom.Element;
 @XmlRootElement(name = "prop")
 public class Prop {
 
-    protected Creationdate creationdate;
-    protected Displayname displayname;
-    protected Getcontentlanguage getcontentlanguage;
-    protected Getcontentlength getcontentlength;
-    protected Getcontenttype getcontenttype;
-    protected Getetag getetag;
-    protected Getlastmodified getlastmodified;
-    protected Lockdiscovery lockdiscovery;
-    protected Resourcetype resourcetype;
-    protected Supportedlock supportedlock;
+    private Creationdate creationdate;
+    private Displayname displayname;
+    private Getcontentlanguage getcontentlanguage;
+    private Getcontentlength getcontentlength;
+    private Getcontenttype getcontenttype;
+    private Getetag getetag;
+    private Getlastmodified getlastmodified;
+    private Lockdiscovery lockdiscovery;
+    private Resourcetype resourcetype;
+    private Supportedlock supportedlock;
     
     //ACL elements
-    protected Owner owner;
-    protected Group group;
-    protected Acl acl;
+    private Owner owner;
+    private Group group;
+    private Acl acl;
     @XmlElement(name="principal-collection-set")
-    protected PrincipalCollectionSet principalCollectionSet;
+    private PrincipalCollectionSet principalCollectionSet;
     @XmlElement(name="principal-URL")
 	private PrincipalURL principalURL;
 
 	@XmlAnyElement
-    protected List<Element> any;
+    private List<Element> any;
 
     /**
      * Gets the value of the creationdate property.

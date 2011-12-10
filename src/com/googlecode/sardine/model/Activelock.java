@@ -52,14 +52,14 @@ import javax.xml.bind.annotation.XmlType;
 public class Activelock {
 
     @XmlElement(required = true)
-    protected Lockscope lockscope;
+    private Lockscope lockscope;
     @XmlElement(required = true)
-    protected Locktype locktype;
+    private Locktype locktype;
     @XmlElement(required = true)
-    protected String depth;
-    protected Owner owner;
-    protected String timeout;
-    protected Locktoken locktoken;
+    private String depth;
+    private Owner owner;
+    private String timeout;
+    private Locktoken locktoken;
 
     /**
      * Gets the value of the lockscope property.

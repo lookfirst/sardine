@@ -47,7 +47,7 @@ public class Group {
 	private String href;
     @XmlMixed
     @XmlAnyElement(lax = true)
-    protected List<Object> content;
+    private List<Object> content;
 
     /**
      * Gets the value of the content property.
