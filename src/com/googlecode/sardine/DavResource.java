@@ -7,13 +7,11 @@
 
 package com.googlecode.sardine;
 
-import com.googlecode.sardine.model.Collection;
 import com.googlecode.sardine.model.Creationdate;
 import com.googlecode.sardine.model.Getcontentlength;
 import com.googlecode.sardine.model.Getcontenttype;
 import com.googlecode.sardine.model.Getetag;
 import com.googlecode.sardine.model.Getlastmodified;
-import com.googlecode.sardine.model.Multistatus;
 import com.googlecode.sardine.model.Propstat;
 import com.googlecode.sardine.model.Resourcetype;
 import com.googlecode.sardine.model.Response;
@@ -41,17 +39,19 @@ public class DavResource
 	private static Logger log = LoggerFactory.getLogger(DavResource.class);
 
 	/**
-	 * The default content-type if {@link Getcontenttype} is not set in the {@link Multistatus} response.
+	 * The default content-type if {@link Getcontenttype} is not set in
+	 * the {@link com.googlecode.sardine.model.Multistatus} response.
 	 */
 	public static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
 
 	/**
-	 * The default content-lenght if {@link Getcontentlength} is not set in the {@link Multistatus} response.
+	 * The default content-lenght if {@link Getcontentlength} is not set in
+	 * the {@link com.googlecode.sardine.model.Multistatus} response.
 	 */
 	public static final long DEFAULT_CONTENT_LENGTH = -1;
 
 	/**
-	 * content-type for {@link Collection}.
+	 * content-type for {@link com.googlecode.sardine.model.Collection}.
 	 */
 	public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
 
