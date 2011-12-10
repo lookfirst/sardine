@@ -889,9 +889,9 @@ public class SardineImpl implements Sardine
 		SchemeRegistry schemeRegistry = this.createDefaultSchemeRegistry();
 		ClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
 		HttpParams params = this.createDefaultHttpParams();
-		AbstractHttpClient client = new DefaultHttpClient(cm, params);
-		client.setRoutePlanner(this.createDefaultRoutePlanner(schemeRegistry, selector));
-		return client;
+		AbstractHttpClient c = new DefaultHttpClient(cm, params);
+		c.setRoutePlanner(this.createDefaultRoutePlanner(schemeRegistry, selector));
+		return c;
 	}
 
 	/**
