@@ -49,6 +49,8 @@
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask"
 			 classpath="${lib.dir}/${ant-googlecode.jar}" name="gcupload"/>
 
+	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml"/>
+
 	<property name="version" value="${sVersionRevision}"/>
 	<property name="build.version" value="${sVersionRevision}"/>
 
@@ -245,5 +247,15 @@
                   targetfilename="${build.dist.zip}"
                   summary="Sardine distribution"
                   labels="Featured, Type-Package, OpSys-All"/>
+    </target>
+
+    <target name="sonar" depends="compile-tests,jar">
+        <property name="sonar.sources" value="${src.dir}"/>
+        <property name="sonar.binaries" value="${build.classes.dir},${build.test}/test-classes"/>
+        <property name="sonar.tests" value="${test.dir}"/>
+        <property name="sonar.surefire.reportsPath" value="${build.test}"/>
+        <property name="sonar.dynamicAnalysis" value="reuseReports"/>
+        <pathconvert property="sonar.libraries" refid="sweetened.classpath" pathsep=","/>
+        <sonar:sonar key="com.googlecode:sardine" version="${build.version}" xmlns:sonar="antlib:org.sonar.ant"/>
     </target>
 </project>
