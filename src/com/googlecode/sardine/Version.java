@@ -8,6 +8,8 @@ package com.googlecode.sardine;
  */
 public class Version
 {
+    private Version() {}
+
 	/**
 	 * @return The <code>Specification-Version</code> in the JAR manifest.
 	 */

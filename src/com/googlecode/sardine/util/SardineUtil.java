@@ -42,6 +42,8 @@ import java.util.TimeZone;
  */
 public class SardineUtil
 {
+    private SardineUtil() {}
+
 	/**
 	 * Default namespace prefix
 	 */

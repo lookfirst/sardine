@@ -12,6 +12,8 @@ import java.net.ProxySelector;
  */
 public class SardineFactory
 {
+    private SardineFactory() {}
+
 	/**
 	 * Default begin() for when you don't need anything but no authentication
 	 * and default settings for SSL.
