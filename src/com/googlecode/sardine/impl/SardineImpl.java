@@ -754,7 +754,7 @@ public class SardineImpl implements Sardine
 		{
 			put.addHeader(header, headers.get(header));
 		}
-		if (entity.getContentType() == null)
+		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
 		{
 			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
 		}
