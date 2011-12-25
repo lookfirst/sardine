@@ -207,6 +207,7 @@
             </fileset>
 
             <fileset dir=".">
+                <include name="jar.properties"/>
                 <include name="build.xml"/>
                 <include name="webdav.xsd"/>
                 <include name="README.html"/>
