@@ -252,6 +252,7 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
+	@Override
 	public void setCredentials(String username, String password)
 	{
 		this.setCredentials(username, password, "", "");
@@ -263,6 +264,7 @@ public class SardineImpl implements Sardine
 	 * @param domain	  NTLM authentication
 	 * @param workstation NTLM authentication
 	 */
+	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
 		if (username != null)
@@ -282,6 +284,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * Adds handling of GZIP compression to the client.
 	 */
+	@Override
 	public void enableCompression()
 	{
 		this.client.addRequestInterceptor(new RequestAcceptEncoding());
@@ -291,17 +294,14 @@ public class SardineImpl implements Sardine
 	/**
 	 * Disable GZIP compression header.
 	 */
+	@Override
 	public void disableCompression()
 	{
 		this.client.removeRequestInterceptorByClass(RequestAcceptEncoding.class);
 		this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#enablePreemptiveAuthentication(String)
-	 */
+	@Override
 	public void enablePreemptiveAuthentication(String hostname)
 	{
 		AuthCache authCache = new BasicAuthCache();
@@ -320,40 +320,25 @@ public class SardineImpl implements Sardine
 		this.context.setAttribute(ClientContext.AUTH_CACHE, authCache);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#disablePreemptiveAuthentication(java.lang.String, java.lang.String, int)
-	 */
+	@Override
 	public void disablePreemptiveAuthentication()
 	{
 		this.context.removeAttribute(ClientContext.AUTH_CACHE);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#getResources(java.lang.String)
-	 */
+	@Override
 	public List<DavResource> getResources(String url) throws IOException
 	{
 		return this.list(url);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
-	 */
+	@Override
 	public List<DavResource> list(String url) throws IOException
 	{
 		return this.list(url, 1);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#list(java.lang.String)
-	 */
+	@Override
 	public List<DavResource> list(String url, int depth) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -378,11 +363,13 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
+	@Override
 	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
 	{
 		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
 	}
 
+	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps) throws IOException
 	{
 		return this.patch(url, setProps, Collections.<QName>emptyList());
@@ -393,6 +380,7 @@ public class SardineImpl implements Sardine
 	 * remove from removeProps. Note this method will use a {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_URI} as
 	 * namespace and {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_PREFIX} as prefix.
 	 */
+	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
 		HttpPropPatch entity = new HttpPropPatch(url);
@@ -445,11 +433,7 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#lock(java.lang.String)
-	 */
+	@Override
 	public String lock(String url) throws IOException
 	{
 		HttpLock entity = new HttpLock(url);
@@ -465,11 +449,7 @@ public class SardineImpl implements Sardine
 		return this.execute(entity, new LockResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#unlock(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public void unlock(String url, String token) throws IOException
 	{
 		HttpUnlock entity = new HttpUnlock(url, token);
@@ -483,11 +463,7 @@ public class SardineImpl implements Sardine
         this.execute(entity, new VoidResponseHandler());
     }
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#setAcl(String, List<DavAce>)
-	 */
+	@Override
 	public void setAcl(String url, List<DavAce> aces) throws IOException
 	{
 		HttpAcl entity = new HttpAcl(url);
@@ -508,11 +484,8 @@ public class SardineImpl implements Sardine
 		this.execute(entity, new VoidResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#getAcl(String)
-	 */
+
+	@Override
 	public DavAcl getAcl(String url) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -536,6 +509,7 @@ public class SardineImpl implements Sardine
 		}
 	}
 
+	@Override
 	public List<DavPrincipal> getPrincipals(String url) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -577,6 +551,7 @@ public class SardineImpl implements Sardine
 		}
 	}
 
+	@Override
 	public List<String> getPrincipalCollectionSet(String url) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -614,21 +589,13 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#get(java.lang.String)
-	 */
+	@Override
 	public InputStream get(String url) throws IOException
 	{
 		return this.get(url, Collections.<String, String>emptyMap());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#get(java.lang.String, java.util.Map)
-	 */
+	@Override
 	public InputStream get(String url, Map<String, String> headers) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
@@ -653,51 +620,32 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[])
-	 */
+	@Override
 	public void put(String url, byte[] data) throws IOException
 	{
 		this.put(url, data, null);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, byte[], java.lang.String)
-	 */
+	@Override
 	public void put(String url, byte[] data, String contentType) throws IOException
 	{
 		ByteArrayEntity entity = new ByteArrayEntity(data);
 		this.put(url, entity, contentType, true);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream)
-	 */
+	@Override
 	public void put(String url, InputStream dataStream) throws IOException
 	{
 		this.put(url, dataStream, (String) null);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String)
-	 */
+	@Override
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
 	{
 		this.put(url, dataStream, contentType, true);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.lang.String, boolean)
-	 */
+	@Override
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
@@ -705,11 +653,7 @@ public class SardineImpl implements Sardine
 		this.put(url, entity, contentType, expectContinue);
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#put(java.lang.String, java.io.InputStream, java.util.Map)
-	 */
+	@Override
 	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
@@ -778,55 +722,35 @@ public class SardineImpl implements Sardine
 		}
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#delete(java.lang.String)
-	 */
+	@Override
 	public void delete(String url) throws IOException
 	{
 		HttpDelete delete = new HttpDelete(url);
 		this.execute(delete, new VoidResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#move(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
 		this.execute(move, new VoidResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#copy(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
 		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
 		this.execute(copy, new VoidResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#createDirectory(java.lang.String)
-	 */
+	@Override
 	public void createDirectory(String url) throws IOException
 	{
 		HttpMkCol mkcol = new HttpMkCol(url);
 		this.execute(mkcol, new VoidResponseHandler());
 	}
 
-	/**
-	 * (non-Javadoc)
-	 *
-	 * @see com.googlecode.sardine.Sardine#exists(java.lang.String)
-	 */
+	@Override
 	public boolean exists(String url) throws IOException
 	{
 		HttpHead head = new HttpHead(url);
