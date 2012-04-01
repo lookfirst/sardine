@@ -39,7 +39,6 @@ public class HttpMkCol extends HttpEntityEnclosingRequestBase
 	public HttpMkCol(URI url)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + HTTP.UTF_8.toLowerCase());
 	}
 
 	@Override
