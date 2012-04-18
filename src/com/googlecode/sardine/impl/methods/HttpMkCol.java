@@ -18,9 +18,7 @@ package com.googlecode.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Simple class for making <code>MKCOL</code> requests.
