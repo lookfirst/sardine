@@ -278,6 +278,12 @@ public class SardineImpl implements Sardine
 			this.client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.DIGEST),
 					new UsernamePasswordCredentials(username, password));
+			this.client.getCredentialsProvider().setCredentials(
+					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.SPNEGO),
+					new UsernamePasswordCredentials(username, password));
+			this.client.getCredentialsProvider().setCredentials(
+					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.KERBEROS),
+					new UsernamePasswordCredentials(username, password));
 		}
 	}
 
