@@ -260,7 +260,7 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * @param username	Use in authentication header credentials
-	 * @param password	Use in authentication header credentials
+	 * @param password	Use in authentication header credentialsn
 	 * @param domain	  NTLM authentication
 	 * @param workstation NTLM authentication
 	 */
@@ -457,11 +457,11 @@ public class SardineImpl implements Sardine
 		Lockscope scopeType = new Lockscope();
 		scopeType.setExclusive(new Exclusive());
 		body.setLockscope(scopeType);
-        Locktype lockType = new Locktype();
-        lockType.setWrite(new Write());
-        body.setLocktype(lockType);
-        this.execute(entity, new VoidResponseHandler());
-    }
+		Locktype lockType = new Locktype();
+		lockType.setWrite(new Write());
+		body.setLocktype(lockType);
+		this.execute(entity, new VoidResponseHandler());
+	}
 
 	@Override
 	public void setAcl(String url, List<DavAce> aces) throws IOException
@@ -803,6 +803,12 @@ public class SardineImpl implements Sardine
 			request.abort();
 			throw e;
 		}
+	}
+
+	@Override
+	public void shutdown()
+	{
+		this.client.getConnectionManager().shutdown();
 	}
 
 	/**

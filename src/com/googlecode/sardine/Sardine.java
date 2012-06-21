@@ -48,7 +48,7 @@ public interface Sardine
 	/**
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
-	 * @param url Path to the resource including protocol and hostname
+	 * @param url   Path to the resource including protocol and hostname
 	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -250,7 +250,7 @@ public interface Sardine
 	/**
 	 * Write access control list for resource
 	 *
-	 * @param url Path to the resource including protocol and hostname
+	 * @param url  Path to the resource including protocol and hostname
 	 * @param aces Access control elements
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -258,19 +258,21 @@ public interface Sardine
 
 	/**
 	 * List the principals that can be used to set ACLs on given url
+	 *
 	 * @param url Path to the resource including protocol and hostname
 	 * @return List of principals (in the form of urls according to spec)
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<DavPrincipal> getPrincipals(String url) throws IOException;
 
-    /**
-     * The principals that are available on the server that implements this resource.
-     * @param url Path to the resource including protocol and hostname
-     * @return The URLs in DAV:principal-collection-set
-     * @throws IOException I/O error or HTTP response validation failure
-     */
-    List<String> getPrincipalCollectionSet(String url) throws IOException;
+	/**
+	 * The principals that are available on the server that implements this resource.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return The URLs in DAV:principal-collection-set
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<String> getPrincipalCollectionSet(String url) throws IOException;
 
 	/**
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
@@ -301,4 +303,13 @@ public interface Sardine
 	 * Disable preemptive authentication.
 	 */
 	void disablePreemptiveAuthentication();
+
+	/**
+	 * Releasing any resources that might be held
+	 * open. This is an optional method, and callers are not expected to call
+	 * it, but can if they want to explicitly release any open resources. Once a
+	 * client has been shutdown, it should not be used to make any more
+	 * requests.
+	 */
+	public void shutdown();
 }
