@@ -35,6 +35,7 @@ import java.io.InputStream;
  */
 public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
 {
+	@Override
 	public Multistatus handleResponse(HttpResponse response) throws IOException
 	{
 		super.validateResponse(response);

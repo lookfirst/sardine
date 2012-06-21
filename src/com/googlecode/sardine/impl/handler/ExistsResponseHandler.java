@@ -30,6 +30,7 @@ import com.googlecode.sardine.impl.SardineException;
  */
 public class ExistsResponseHandler extends ValidatingResponseHandler<Boolean>
 {
+	@Override
 	public Boolean handleResponse(HttpResponse response) throws SardineException
 	{
 		StatusLine statusLine = response.getStatusLine();

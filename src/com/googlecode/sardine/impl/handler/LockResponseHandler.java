@@ -31,6 +31,7 @@ import java.io.InputStream;
  */
 public class LockResponseHandler extends ValidatingResponseHandler<String>
 {
+	@Override
 	public String handleResponse(HttpResponse response) throws IOException
 	{
 		super.validateResponse(response);
