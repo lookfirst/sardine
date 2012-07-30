@@ -43,7 +43,7 @@
 
     <typedef resource="com/googlecode/svntask/svntask.xml" classpath="${lib.dir}/${svnkit.jar}:${lib.dir}/${svntask.jar}" />
 
-    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/${sweetened.jar}:${lib.dir}/${svnkit.jar}" />
+    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/${sweetened.jar}:${lib.dir}/${svnkit.jar}:${lib.dir}/${sqljet.jar}:${lib.dir}/${sequence-library.jar}" />
     <sweetenedVersion />
 
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask"
