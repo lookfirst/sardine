@@ -67,8 +67,8 @@ import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -706,7 +706,7 @@ public class SardineImpl implements Sardine
 		}
 		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
 		{
-			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEFAULT_CONTENT_TYPE);
+			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
 		}
 		try
 		{
@@ -848,7 +848,7 @@ public class SardineImpl implements Sardine
 		// Only selectively enable this for PUT but not all entity enclosing methods
 		HttpProtocolParams.setUseExpectContinue(params, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-		HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
+		HttpProtocolParams.setContentCharset(params, HTTP.DEF_CONTENT_CHARSET.name());
 
 		HttpConnectionParams.setTcpNoDelay(params, true);
 		HttpConnectionParams.setSocketBufferSize(params, 8192);
@@ -893,7 +893,7 @@ public class SardineImpl implements Sardine
 	 */
 	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
 	{
-		return new ThreadSafeClientConnManager(schemeRegistry);
+		return new PoolingClientConnectionManager(schemeRegistry);
 	}
 
 	/**

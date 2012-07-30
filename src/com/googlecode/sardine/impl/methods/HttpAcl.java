@@ -16,11 +16,10 @@
 
 package com.googlecode.sardine.impl.methods;
 
+import java.net.URI;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.protocol.HTTP;
-
-import java.net.URI;
 
 /**
  * Simple class for making WebDAV <code>ACL</code> requests.
@@ -42,7 +41,7 @@ public class HttpAcl extends HttpEntityEnclosingRequestBase
 	public HttpAcl(final URI uri)
 	{
 		this.setURI(uri);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + HTTP.UTF_8.toLowerCase());
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
 
 	@Override

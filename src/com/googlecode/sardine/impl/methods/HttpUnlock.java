@@ -20,7 +20,6 @@ import java.net.URI;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.protocol.HTTP;
 
 /**
  * @version $Id$
@@ -49,7 +48,7 @@ public class HttpUnlock extends HttpRequestBase
 	public HttpUnlock(URI url, String token)
 	{
 		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml" + HTTP.CHARSET_PARAM + HTTP.UTF_8.toLowerCase());
+		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 		this.setHeader("Lock-Token", "<" + token + ">");
 	}
 
