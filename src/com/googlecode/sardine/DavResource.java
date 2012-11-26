@@ -118,7 +118,7 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				Getlastmodified glm = propstat.getProp().getGetlastmodified();
 				if ((glm != null) && (glm.getContent().size() == 1))
 				{
@@ -144,7 +144,7 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				Creationdate gcd = propstat.getProp().getCreationdate();
 				if ((gcd != null) && (gcd.getContent().size() == 1))
 				{
@@ -172,7 +172,7 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				Resourcetype resourcetype = propstat.getProp().getResourcetype();
 				if ((resourcetype != null) && (resourcetype.getCollection() != null))
 				{
@@ -207,7 +207,7 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				Getcontentlength gcl = propstat.getProp().getGetcontentlength();
 				if ((gcl != null) && (gcl.getContent().size() == 1))
 				{
@@ -240,7 +240,7 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				Getetag e = propstat.getProp().getGetetag();
 				if ((e != null) && (e.getContent().size() == 1))
 				{
@@ -268,7 +268,7 @@ public class DavResource
 		Map<QName, String> customPropsMap = new HashMap<QName, String>();
 		for (Propstat propstat : list)
 		{
-			if(propstat.getProp() != null) {
+			if (propstat.getProp() != null) {
 				List<Element> props = propstat.getProp().getAny();
 				for (Element element : props)
 				{
