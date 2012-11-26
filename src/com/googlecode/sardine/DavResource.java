@@ -118,10 +118,12 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Getlastmodified glm = propstat.getProp().getGetlastmodified();
-			if ((glm != null) && (glm.getContent().size() == 1))
-			{
-				return glm.getContent().get(0);
+			if(propstat.getProp() != null) {
+				Getlastmodified glm = propstat.getProp().getGetlastmodified();
+				if ((glm != null) && (glm.getContent().size() == 1))
+				{
+					return glm.getContent().get(0);
+				}
 			}
 		}
 		return null;
@@ -142,10 +144,12 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Creationdate gcd = propstat.getProp().getCreationdate();
-			if ((gcd != null) && (gcd.getContent().size() == 1))
-			{
-				return gcd.getContent().get(0);
+			if(propstat.getProp() != null) {
+				Creationdate gcd = propstat.getProp().getCreationdate();
+				if ((gcd != null) && (gcd.getContent().size() == 1))
+				{
+					return gcd.getContent().get(0);
+				}
 			}
 		}
 		return null;
@@ -168,18 +172,20 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Resourcetype resourcetype = propstat.getProp().getResourcetype();
-			if ((resourcetype != null) && (resourcetype.getCollection() != null))
-			{
-				// Need to correct the contentType to identify as a directory.
-				return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
-			}
-			else
-			{
-				Getcontenttype gtt = propstat.getProp().getGetcontenttype();
-				if ((gtt != null) && (gtt.getContent().size() == 1))
+			if(propstat.getProp() != null) {
+				Resourcetype resourcetype = propstat.getProp().getResourcetype();
+				if ((resourcetype != null) && (resourcetype.getCollection() != null))
 				{
-					return gtt.getContent().get(0);
+					// Need to correct the contentType to identify as a directory.
+					return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
+				}
+				else
+				{
+					Getcontenttype gtt = propstat.getProp().getGetcontenttype();
+					if ((gtt != null) && (gtt.getContent().size() == 1))
+					{
+						return gtt.getContent().get(0);
+					}
 				}
 			}
 		}
@@ -201,16 +207,18 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Getcontentlength gcl = propstat.getProp().getGetcontentlength();
-			if ((gcl != null) && (gcl.getContent().size() == 1))
-			{
-				try
+			if(propstat.getProp() != null) {
+				Getcontentlength gcl = propstat.getProp().getGetcontentlength();
+				if ((gcl != null) && (gcl.getContent().size() == 1))
 				{
-					return Long.parseLong(gcl.getContent().get(0));
-				}
-				catch (NumberFormatException e)
-				{
-					log.warn(String.format("Failed to parse content length %s", gcl.getContent().get(0)));
+					try
+					{
+						return Long.parseLong(gcl.getContent().get(0));
+					}
+					catch (NumberFormatException e)
+					{
+						log.warn(String.format("Failed to parse content length %s", gcl.getContent().get(0)));
+					}
 				}
 			}
 		}
@@ -232,10 +240,12 @@ public class DavResource
 		}
 		for (Propstat propstat : list)
 		{
-			Getetag e = propstat.getProp().getGetetag();
-			if ((e != null) && (e.getContent().size() == 1))
-			{
-				return e.getContent().get(0);
+			if(propstat.getProp() != null) {
+				Getetag e = propstat.getProp().getGetetag();
+				if ((e != null) && (e.getContent().size() == 1))
+				{
+					return e.getContent().get(0);
+				}
 			}
 		}
 		return null;
@@ -258,34 +268,36 @@ public class DavResource
 		Map<QName, String> customPropsMap = new HashMap<QName, String>();
 		for (Propstat propstat : list)
 		{
-			List<Element> props = propstat.getProp().getAny();
-			for (Element element : props)
-			{
-				String namespace = element.getNamespaceURI();
-				if (namespace == null)
+			if(propstat.getProp() != null) {
+				List<Element> props = propstat.getProp().getAny();
+				for (Element element : props)
 				{
-					customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
-							element.getLocalName(),
-							SardineUtil.DEFAULT_NAMESPACE_PREFIX),
-							element.getTextContent());
-				}
-				else
-				{
-					if (element.getPrefix() == null)
+					String namespace = element.getNamespaceURI();
+					if (namespace == null)
 					{
-						customPropsMap.put(new QName(element.getNamespaceURI(),
-								element.getLocalName()),
+						customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
+								element.getLocalName(),
+								SardineUtil.DEFAULT_NAMESPACE_PREFIX),
 								element.getTextContent());
 					}
 					else
 					{
-						customPropsMap.put(new QName(element.getNamespaceURI(),
-								element.getLocalName(),
-								element.getPrefix()),
-								element.getTextContent());
+						if (element.getPrefix() == null)
+						{
+							customPropsMap.put(new QName(element.getNamespaceURI(),
+									element.getLocalName()),
+									element.getTextContent());
+						}
+						else
+						{
+							customPropsMap.put(new QName(element.getNamespaceURI(),
+									element.getLocalName(),
+									element.getPrefix()),
+									element.getTextContent());
+						}
 					}
-				}
 
+				}
 			}
 		}
 		return customPropsMap;
