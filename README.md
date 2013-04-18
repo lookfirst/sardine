@@ -1,1 +1,27 @@
-Welcome to Sardine
+Sardine is useful for interacting with a webdav server and is much easier to programmatically manage remote files than with FTP.
+
+I looked at the other Java webdav clients out there [slide](http://jakarta.apache.org/slide/), [Jackrabbit](http://jackrabbit.apache.org/) and [webdavclient4j](http://sourceforge.net/projects/webdavclient4j/). 
+None of them do things quite the way I wanted.
+
+The UsageGuide documents how to use Sardine. If you are hungry, this is an appetizer for retrieving a directory listing from a remote webdav server:
+
+```java
+Sardine sardine = SardineFactory.begin();
+List<DavResource> resources = sardine.getResources("http://yourdavserver.com/adirectory/");
+for (DavResource res : resources)
+{
+     System.out.println(res);
+}
+```
+
+Sardine is focused on being a useful library for common use cases. I also need it to support the latest version of [HttpClient](http://httpcomponents.apache.org/). It abstracts away the connection details and provides easy to use methods to accomplish webdav'y actions.
+
+There is a SardineTask so that you can use Sardine directly in your Ant scripts.
+
+Sardine uses JAXB to process XML responses from the webdav server. The generated code for this is based on the excellent webdav.xsd contained in the [Apache Wink](http://incubator.apache.org/wink/) project.
+
+Releases of Sardine map to the svn commit number. This makes management of the project easier.
+
+Sardine is fully stable and is being used in production on a very high traffic site (140+ concurrent connections 24/7). Click the Issues tab to submit requests. Most development is just adding new use cases. Check back often for new releases.
+
+If you like this library, I'd appreciate if you would blog/tweet about it. If you don't like it, well...
