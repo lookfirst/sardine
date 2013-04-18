@@ -2,56 +2,49 @@ package com.github.sardine.ant.command;
 
 import com.github.sardine.ant.Command;
 
-import java.io.IOException;
 
 /**
- * A nice ant wrapper around sardine.exists().
- * <p/>
- * Sets the property value to "true".
+ * A nice ant wrapper around sardine.exists(). Sets the property value to "true" if the resource at URL
+ * exists.
  *
  * @author Jon Stevens
  */
 public class Exists extends Command
 {
-	/** */
-	private String url;
+	/** URL to check. */
+	private String fUrl;
 
-	/** */
-	private String property;
+	/** Property to set if URL exists. */
+	private String fProperty;
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute() throws IOException
-	{
-		if (this.getTask().getSardine().exists(this.url))
-		{
-			this.getProject().setProperty(this.property, "true");
-		}
+	protected void execute() throws Exception {
+		if (getSardine().exists(fUrl))
+			getProject().setProperty(fProperty, "true");
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void validateAttributes()
-	{
-		if (this.url == null)
-		{
-			throw new IllegalArgumentException("url cannot be null");
-		}
-		if (this.property == null)
-		{
-			throw new IllegalArgumentException("property cannot be null");
-		}
+	protected void validateAttributes() throws Exception {
+		if (fUrl == null)
+			throw new IllegalArgumentException("url must not be null");
+
+		if (fProperty == null)
+			throw new IllegalArgumentException("property must not be null");
 	}
 
-	/** */
-	public void setUrl(String url)
-	{
-		this.url = url;
+	/** Set URL to check. */
+	public void setUrl(String url) {
+		fUrl = url;
 	}
 
-	/** */
-	public void setProperty(String property)
-	{
-		this.property = property;
+	/** Set property to set if URL exists. */
+	public void setProperty(String property) {
+		fProperty = property;
 	}
 }

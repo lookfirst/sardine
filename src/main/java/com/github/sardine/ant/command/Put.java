@@ -1,111 +1,152 @@
 package com.github.sardine.ant.command;
 
-import com.github.sardine.ant.Command;
-import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.FileSet;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileSet;
+
+import com.github.sardine.Sardine;
+import com.github.sardine.ant.Command;
+
 
 /**
  * A nice ant wrapper around sardine.put().
  *
  * @author Jon Stevens
  */
-public class Put extends Command
-{
-	/** */
-	private String url;
+public class Put extends Command {
 
-	/** */
-	private List<FileSet> filesets = new ArrayList<FileSet>();
+	/** The destination URL as a string. */
+	private String fUrlString;
 
-	/** */
-	private File file = null;
+	/** The parsed destination URL. */
+	private URL fDest;
 
-	/** */
-	private String contentType;
+	/** An sets of source files. */
+	private List<FileSet> fSrcFileSets = new ArrayList<FileSet>();
 
-	/** */
+	/** A single source file. */
+	private File fSrcFile = null;
+
+	/** The optional content type of the single source file. */
+	private String fContentType;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute() throws IOException
-	{
-		Project p = this.getProject();
+	protected void execute() throws Exception {
+		long fileCounter = 0;
 
-		if (this.file != null)
-		{
-			this.process(this.file);
-		}
-		else
-		{
-			for (FileSet fileset : this.filesets)
-			{
-				File dir = fileset.getDir(p);
-				DirectoryScanner ds = fileset.getDirectoryScanner(p);
-
-				for (String f : ds.getIncludedFiles())
-				{
-					File absolute = new File(dir, f);
-					if (absolute.isFile())
-					{
-						this.process(absolute);
+		if (fSrcFile != null) {
+			process(fSrcFile, fDest, false);
+			fileCounter++;
+		} else {
+			String urlString = fDest.toString();
+			// URL has to be a directory when working with file sets
+			urlString = urlString.endsWith("/") ? urlString : (urlString + '/');
+			URL baseUrl = new URL(urlString);
+			// to prevent unnecessary dir checks
+			Set<URL> alreadyCreated = new HashSet<URL>();
+			File currentParentDir = null;
+			for (Iterator<FileSet> setIterator = fSrcFileSets.iterator(); setIterator.hasNext();) {
+				FileSet fileSet = setIterator.next();
+				File dir = fileSet.getDir(getProject());
+				log("putting from " + dir + " to " + baseUrl);
+				String[] files = fileSet.getDirectoryScanner(getProject()).getIncludedFiles();
+				for (int idx = 0; idx < files.length; idx++) {
+					String fileName = files[idx].replace('\\', '/'); // no Windows backslashes in the URL
+					File parentDir = new File(fileName).getParentFile();
+					if (parentDir == null || !parentDir.equals(currentParentDir)) {
+						checkOrCreateDir(baseUrl, parentDir, alreadyCreated);
+						currentParentDir = parentDir;
 					}
+					File srcFile = new File(dir, fileName);
+					URL destUrl = new URL(baseUrl, fileName);
+					boolean expectContinue = setIterator.hasNext() || idx + 1 < files.length;
+					process(srcFile, destUrl, expectContinue);
+					fileCounter++;
 				}
 			}
+		}
+		log("putting of " + fileCounter + " file(s) completed");
+	}
+
+	/**
+	 * Check and if necessary create the parent directory for files to put. Thus it is possible to put whole
+	 * directory trees, even if the subdirecories of the tree do not yet exist.
+	 *
+	 * @param baseUrl is the root which must already exist, parent directories to this URL will not be created
+	 *        automatically
+	 * @param dir to check for and create if it does not yet exist
+	 * @param createdDirs a cache for already created directories which saves several
+	 *        {@link Sardine#exists(String)} calls
+	 * @throws IOException
+	 */
+	private void checkOrCreateDir(URL baseUrl, File dir, Set<URL> createdDirs) throws IOException {
+		if (dir != null) {
+			checkOrCreateDir(baseUrl, dir.getParentFile(), createdDirs);
+		}
+		URL dirUrl = dir == null ? baseUrl : new URL(baseUrl, dir.getPath().replace('\\', '/'));
+		if (createdDirs.contains(dirUrl)) {
+			return;
+		}
+		if (!getSardine().exists(dirUrl.toString())) {
+			log("creating directory " + dirUrl, Project.MSG_VERBOSE);
+			getSardine().createDirectory(dirUrl.toString());
+			createdDirs.add(dirUrl);
 		}
 	}
 
 	/**
 	 * Process an individual file with sardine.put()
 	 */
-	protected void process(File file) throws IOException
-	{
-		this.getTask().getSardine().put(this.url, new FileInputStream(file), contentType);
+	private void process(File file, URL dest, boolean expectContinue) throws Exception {
+		log("putting " + file + " to " + dest + " with expectContinue=" + expectContinue, Project.MSG_VERBOSE);
+		getSardine().put(dest.toString(), new FileInputStream(file), fContentType, expectContinue);
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void validateAttributes()
-	{
-		if (this.url == null)
-		{
-			throw new IllegalArgumentException("url cannot be null");
-		}
-		if (this.file == null && this.filesets.size() == 0)
-		{
-			throw new IllegalArgumentException("Need to define the file attribute or add a fileset.");
-		}
-		if (this.file != null && !this.file.exists())
-		{
-			throw new IllegalArgumentException("Could not find file: " + this.file);
-		}
+	protected void validateAttributes() throws Exception {
+		if (fUrlString == null)
+			throw new NullPointerException("url must not be null");
+		fDest = new URL(fUrlString);
+
+		if (fSrcFile == null && fSrcFileSets.size() == 0)
+			throw new NullPointerException("Need to define either the file attribute or add a fileset.");
+
+		if (fSrcFile != null && !fSrcFile.isFile())
+			throw new Exception(fSrcFile + " is not a file");
 	}
 
-	/** */
-	public void setUrl(String url)
-	{
-		this.url = url;
+	/** Set destination URL. */
+	public void setUrl(String urlString) {
+		fUrlString = urlString;
 	}
 
-	/** */
-	public void setFile(File file)
-	{
-		this.file = file;
+	/** Set source file. */
+	public void setFile(File file) {
+		fSrcFile = file;
 	}
 
-	/** */
-	public void setContentType(String contentType)
-	{
-		this.contentType = contentType;
+	/** Set optional content type of the source file. */
+	public void setContentType(String contentType) {
+		fContentType = contentType;
 	}
 
-	/** */
-	public void addConfiguredFileset(FileSet value)
-	{
-		this.filesets.add(value);
+	/** Add a source file set. */
+	public void addConfiguredFileset(FileSet value) {
+		fSrcFileSets.add(value);
 	}
 }

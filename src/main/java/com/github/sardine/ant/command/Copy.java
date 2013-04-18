@@ -2,8 +2,6 @@ package com.github.sardine.ant.command;
 
 import com.github.sardine.ant.Command;
 
-import java.io.IOException;
-
 /**
  * A nice ant wrapper around sardine.copy().
  *
@@ -11,38 +9,37 @@ import java.io.IOException;
  */
 public class Copy extends Command
 {
-	/** */
-	private String srcUrl;
+	/** Source */
+	private String fSrcUrl;
 
-	/** */
-	private String dstUrl;
+	/** Destination */
+	private String fDstUrl;
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute() throws IOException
-	{
-		this.getTask().getSardine().copy(this.srcUrl, this.dstUrl);
+	protected void execute() throws Exception {
+		log("copying " + fSrcUrl + " to " + fDstUrl);
+		getSardine().copy(fSrcUrl, fDstUrl);
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void validateAttributes()
-	{
-		if (this.srcUrl == null || this.dstUrl == null)
-		{
-			throw new IllegalArgumentException("srcUrl and dstUrl cannot be null");
-		}
+	protected void validateAttributes() throws Exception {
+		if (fSrcUrl == null || fDstUrl == null)
+			throw new IllegalArgumentException("srcUrl and dstUrl must not be null");
 	}
 
-	/** */
-	public void setSrcUrl(String srcUrl)
-	{
-		this.srcUrl = srcUrl;
+	/** Set the source URL */
+	public void setSrcUrl(String srcUrl) {
+		fSrcUrl = srcUrl;
 	}
 
-	/** */
-	public void setDstUrl(String dstUrl)
-	{
-		this.dstUrl = dstUrl;
+	/** Set the destination URL */
+	public void setDstUrl(String dstUrl) {
+		fDstUrl = dstUrl;
 	}
 }

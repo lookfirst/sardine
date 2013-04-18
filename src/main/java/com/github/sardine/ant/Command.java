@@ -1,8 +1,9 @@
 package com.github.sardine.ant;
 
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectComponent;
 
-import java.io.IOException;
+import com.github.sardine.Sardine;
 
 
 /**
@@ -13,49 +14,57 @@ import java.io.IOException;
  */
 public abstract class Command extends ProjectComponent
 {
-	private SardineTask task = null;
 
-	public abstract void execute() throws IOException;
-
-	protected abstract void validateAttributes();
+	/** Parent task. */
+	private SardineTask fSardineTask = null;
 
 	/**
+	 * This is called prior to {@link #execute()} in order to enable the command implementation to validate
+	 * the provided attributes.
 	 *
-	 * @throws Exception
+	 * @throws Exception if the command is misconfigured
 	 */
-	public void executeCommand() throws Exception
-	{
-		try
-		{
-			this.validateAttributes();
-			this.execute();
-		}
-		catch (Exception e)
-		{
-			if (this.task.isFailonerror())
-			{
+	protected abstract void validateAttributes() throws Exception;
+
+	/**
+	 * Execute the command.
+	 *
+	 * @throws Exception if the command failed
+	 */
+	protected abstract void execute() throws Exception;
+
+	/**
+	 * Check the command attribute and execute it.
+	 *
+	 * @throws Exception if the command is misconfigured or failed for some other reason
+	 */
+	public final void executeCommand() throws Exception {
+		try {
+			validateAttributes();
+			execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (fSardineTask.isFailonerror()) {
 				throw e;
 			}
-			else
-			{
-				this.task.log(e.getMessage());
-			}
+			fSardineTask.log(getClass().getSimpleName() + " failed: " + e.getLocalizedMessage(), e,
+					Project.MSG_ERR);
 		}
 	}
 
 	/**
 	 * Sets the SardineTask
 	 */
-	public void setTask(SardineTask task)
-	{
-		this.task = task;
+	public final void setTask(SardineTask task) {
+		fSardineTask = task;
 	}
 
 	/**
-	 * Gets the SardineTask
+	 * Returns the Sardine for this command.
+	 *
+	 * @return the Sardine for this command
 	 */
-	public SardineTask getTask()
-	{
-		return this.task;
+	protected final Sardine getSardine() {
+		return fSardineTask.getSardine();
 	}
 }

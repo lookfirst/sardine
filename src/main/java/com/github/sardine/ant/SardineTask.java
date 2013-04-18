@@ -22,104 +22,132 @@ import com.github.sardine.ant.command.Put;
  */
 public class SardineTask extends Task
 {
-	/** */
-	private List<Command> commands = new ArrayList<Command>();
+	/** Commands. */
+	private List<Command> fCommands = new ArrayList<Command>();
 
-	/** */
-	private boolean failonerror = false;
-	private String username = null;
-	private String password = null;
-	private Sardine sardine = null;
+	/** Attribute failOnError. */
+	private boolean fFailOnError = false;
 
-	/** */
-	public void addCopy(Copy copy)
-	{
-		this.addCommand(copy);
+	/** Attribute username. */
+	private String fUsername = null;
+
+	/** Attribute password. */
+	private String fPassword = null;
+
+	/** Attribute preemptiveAuthenticationHost. */
+	private String fPreemptiveAuthenticationHost;
+
+	/** Reference to sardine impl. */
+	private Sardine fSardine = null;
+
+	/** Add a copy command. */
+	public void addCopy(Copy copy) {
+		addCommand(copy);
 	}
 
-	/** */
-	public void addCreateDirectory(CreateDirectory createDirectory)
-	{
-		this.addCommand(createDirectory);
+	/** Add a createDirectory command. */
+	public void addCreateDirectory(CreateDirectory createDirectory) {
+		addCommand(createDirectory);
 	}
 
-	/** */
-	public void addDelete(Delete delete)
-	{
-		this.addCommand(delete);
+	/** Add a delete command. */
+	public void addDelete(Delete delete) {
+		addCommand(delete);
 	}
 
-	/** */
-	public void addExists(Exists exists)
-	{
-		this.addCommand(exists);
+	/** Add a delete command. */
+	public void addExists(Exists exists) {
+		addCommand(exists);
 	}
 
-	/** */
-	public void addMove(Move move)
-	{
-		this.addCommand(move);
+	/** Add a move command. */
+	public void addMove(Move move) {
+		addCommand(move);
 	}
 
-	/** */
-	public void addPut(Put put)
-	{
-		this.addCommand(put);
+	/** Add a put command. */
+	public void addPut(Put put) {
+		addCommand(put);
 	}
 
-	/** */
-	private void addCommand(Command command)
-	{
+	/** Internal addCommand implementation. */
+	private void addCommand(Command command) {
 		command.setTask(this);
-		this.commands.add(command);
+		fCommands.add(command);
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute()
-	{
-		try
-		{
-			this.sardine = SardineFactory.begin(this.username, this.password);
+	public void execute() throws BuildException {
+		try {
+			fSardine = SardineFactory.begin(fUsername, fPassword);
+			if (fPreemptiveAuthenticationHost != null && !fPreemptiveAuthenticationHost.isEmpty()) {
+				fSardine.enablePreemptiveAuthentication(fPreemptiveAuthenticationHost);
+			}
 
-			for (Command command : this.commands)
-			{
+			for (Command command: fCommands) {
 				command.executeCommand();
 			}
-		}
-		catch (Exception e)
-		{
-			throw new BuildException(e);
+		} catch (Exception e) {
+			throw new BuildException("failed: " + e.getLocalizedMessage(), e);
 		}
 	}
 
-	/** */
-	public void setFailonerror(boolean failonerror)
-	{
-		this.failonerror = failonerror;
+	/**
+	 * Set the fail on error behavior.
+	 *
+	 * @param failonerror <code>true</code> to fail on the first error; <code>false</code> to just log errors
+	 *        and continue
+	 */
+	public void setFailonerror(boolean failonerror) {
+		fFailOnError = failonerror;
 	}
 
-	/** */
-	public boolean isFailonerror()
-	{
-		return this.failonerror;
+	/**
+	 * Returns the fail on error behavior.
+	 *
+	 * @return <code>true</code> to fail on the first error; <code>false</code> to just log errors and
+	 *         continue
+	 */
+	public boolean isFailonerror() {
+		return fFailOnError;
 	}
 
-	/** */
-	public void setUsername(String username)
-	{
-		this.username = username;
+	/**
+	 * Setter for attribute username.
+	 *
+	 * @param username used for authentication
+	 */
+	public void setUsername(String username) {
+		fUsername = username;
 	}
 
-	/** */
-	public void setPassword(String password)
-	{
-		this.password = password;
+	/**
+	 * Setter for attribute password.
+	 *
+	 * @param password used for authentication
+	 */
+	public void setPassword(String password) {
+		fPassword = password;
 	}
 
-	/** */
-	public Sardine getSardine()
-	{
-		return this.sardine;
+	/**
+	 * Setter for attribute preemptiveAuthenticationHost.
+	 *
+	 * @param host name of the host to acivate the preemptive authentication for
+	 */
+	public void setPreemptiveAuthenticationHost(String host) {
+		fPreemptiveAuthenticationHost = host;
+	}
+
+	/**
+	 * Returns the sardine impl.
+	 *
+	 * @return the sardine impl
+	 */
+	public Sardine getSardine() {
+		return fSardine;
 	}
 }

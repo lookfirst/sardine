@@ -2,8 +2,6 @@ package com.github.sardine.ant.command;
 
 import com.github.sardine.ant.Command;
 
-import java.io.IOException;
-
 /**
  * A nice ant wrapper around sardine.delete().
  *
@@ -11,29 +9,29 @@ import java.io.IOException;
  */
 public class Delete extends Command
 {
-	/** */
-	private String url;
+	/** To delete. */
+	private String fUrl;
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute() throws IOException
-	{
-		this.getTask().getSardine().delete(this.url);
+	protected void execute() throws Exception {
+		log("deleting " + fUrl);
+		getSardine().delete(fUrl);
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void validateAttributes()
-	{
-		if (this.url == null)
-		{
-			throw new IllegalArgumentException("url cannot be null");
-		}
+	protected void validateAttributes() throws Exception {
+		if (fUrl == null)
+			throw new IllegalArgumentException("url must not be null");
 	}
 
-	/** */
-	public void setUrl(String url)
-	{
-		this.url = url;
+	/** Set URL to delete. */
+	public void setUrl(String url) {
+		fUrl = url;
 	}
 }

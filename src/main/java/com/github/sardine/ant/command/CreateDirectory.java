@@ -2,8 +2,6 @@ package com.github.sardine.ant.command;
 
 import com.github.sardine.ant.Command;
 
-import java.io.IOException;
-
 /**
  * A nice ant wrapper around sardine.createDirectory().
  *
@@ -11,29 +9,29 @@ import java.io.IOException;
  */
 public class CreateDirectory extends Command
 {
-	/** */
-	private String url;
+	/** URL to create. */
+	private String fUrl;
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void execute() throws IOException
-	{
-		this.getTask().getSardine().createDirectory(this.url);
+	protected void execute() throws Exception {
+		log("creating directory " + fUrl);
+		getSardine().createDirectory(fUrl);
 	}
 
-	/** */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void validateAttributes()
-	{
-		if (this.url == null)
-		{
-			throw new IllegalArgumentException("url cannot be null");
-		}
+	protected void validateAttributes() throws Exception {
+		if (fUrl == null)
+			throw new IllegalArgumentException("url must not be null");
 	}
 
-	/** */
-	public void setUrl(String url)
-	{
-		this.url = url;
+	/** Set the URL to create. */
+	public void setUrl(String url) {
+		fUrl = url;
 	}
 }
