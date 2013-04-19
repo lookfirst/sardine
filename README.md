@@ -3,7 +3,7 @@ Sardine is useful for interacting with a webdav server and is much easier to pro
 I looked at the other Java webdav clients out there [slide](http://jakarta.apache.org/slide/), [Jackrabbit](http://jackrabbit.apache.org/) and [webdavclient4j](http://sourceforge.net/projects/webdavclient4j/). 
 None of them do things quite the way I wanted.
 
-The UsageGuide documents how to use Sardine. If you are hungry, this is an appetizer for retrieving a directory listing from a remote webdav server:
+The [UsageGuide](https://github.com/lookfirst/sardine/wiki/UsageGuide) documents how to use Sardine. If you are hungry, this is an appetizer for retrieving a directory listing from a remote webdav server:
 
 ```java
 Sardine sardine = SardineFactory.begin();
