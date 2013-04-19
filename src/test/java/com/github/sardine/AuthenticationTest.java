@@ -16,8 +16,19 @@
 
 package com.github.sardine;
 
-import com.github.sardine.impl.SardineException;
-import com.github.sardine.impl.SardineImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.net.URI;
+import java.security.Principal;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -30,16 +41,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.net.URI;
-import java.security.Principal;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.*;
+import com.github.sardine.impl.SardineException;
+import com.github.sardine.impl.SardineImpl;
 
 /**
  * @version $Id:$
@@ -49,9 +56,13 @@ public class AuthenticationTest
 	private static final String TEST_PROPERTIES_FILENAME = "test.properties";
 	protected Properties properties;
 
+	@Rule
+    public ExpectedException thrown = ExpectedException.none();
+
 	@Before
 	public void properties() throws Exception
 	{
+		thrown.expect(NullPointerException.class);
 		properties = new Properties();
 		properties.load(ClassLoader.getSystemResourceAsStream(TEST_PROPERTIES_FILENAME));
 	}

@@ -84,7 +84,6 @@ public final class SardineUtil
 	/**
 	 * Date formats using for Date parsing.
 	 */
-	@SuppressWarnings("unchecked")
     private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS = Arrays.asList(
 			new ThreadLocal<SimpleDateFormat>()
 			{
