@@ -19,7 +19,7 @@
 	</licenses>
 	<scm>
 	    <url>https://github.com/lookfirst/sardine</url>
-		<connection>https://github.com/lookfirst/sardine.git</connection>
+		<connection>https://github.com/lookfirst/sardine</connection>
 		<developerConnection>git@github.com:lookfirst/sardine.git</developerConnection>
 	</scm>
 	<developers>
