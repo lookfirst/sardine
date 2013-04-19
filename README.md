@@ -16,11 +16,9 @@ for (DavResource res : resources)
 
 Sardine is focused on being a useful library for common use cases. I also need it to support the latest version of [HttpClient](http://httpcomponents.apache.org/). It abstracts away the connection details and provides easy to use methods to accomplish webdav'y actions.
 
-There is a SardineTask so that you can use Sardine directly in your Ant scripts.
+There is a [SardineTask](https://github.com/lookfirst/sardine/wiki/SardineTask) so that you can use Sardine directly in your Ant scripts.
 
 Sardine uses JAXB to process XML responses from the webdav server. The generated code for this is based on the excellent webdav.xsd contained in the [Apache Wink](http://incubator.apache.org/wink/) project.
-
-Releases of Sardine map to the svn commit number. This makes management of the project easier.
 
 Sardine is fully stable and is being used in production on a very high traffic site (140+ concurrent connections 24/7). Click the Issues tab to submit requests. Most development is just adding new use cases. Check back often for new releases.
 
