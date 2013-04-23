@@ -28,7 +28,7 @@ import java.io.InputStream;
 
 /**
  * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of
- * a {@link com.googlecode.sardine.impl.methods.HttpPropFind} request.
+ * a {@link com.github.sardine.impl.methods.HttpPropFind} request.
  *
  * @author mirko
  * @version $Id$

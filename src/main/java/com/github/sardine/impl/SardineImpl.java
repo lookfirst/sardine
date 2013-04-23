@@ -382,9 +382,9 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * Creates a {@link com.googlecode.sardine.model.Propertyupdate} element containing all properties to set from setProps and all properties to
-	 * remove from removeProps. Note this method will use a {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_URI} as
-	 * namespace and {@link com.googlecode.sardine.util.SardineUtil#CUSTOM_NAMESPACE_PREFIX} as prefix.
+	 * Creates a {@link com.github.sardine.model.Propertyupdate} element containing all properties to set from setProps and all properties to
+	 * remove from removeProps. Note this method will use a {@link com.github.sardine.util.SardineUtil#CUSTOM_NAMESPACE_URI} as
+	 * namespace and {@link com.github.sardine.util.SardineUtil#CUSTOM_NAMESPACE_PREFIX} as prefix.
 	 */
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException

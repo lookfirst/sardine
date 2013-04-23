@@ -56,7 +56,7 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 
 	/**
 	 * A client may submit a Depth header with a value of "0", "1", or "infinity" with
-	 * a {@link com.googlecode.sardine.model.Propfind} on a collection resource with internal member URIs.
+	 * a {@link com.github.sardine.model.Propfind} on a collection resource with internal member URIs.
 	 *
 	 * @param depth <code>"0"</code>, <code>"1"</code> or <code>"infinity"</code>.
 	 */

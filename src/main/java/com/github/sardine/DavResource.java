@@ -40,18 +40,18 @@ public class DavResource
 
 	/**
 	 * The default content-type if {@link Getcontenttype} is not set in
-	 * the {@link com.googlecode.sardine.model.Multistatus} response.
+	 * the {@link com.github.sardine.model.Multistatus} response.
 	 */
 	public static final String DEFAULT_CONTENT_TYPE = "application/octetstream";
 
 	/**
 	 * The default content-lenght if {@link Getcontentlength} is not set in
-	 * the {@link com.googlecode.sardine.model.Multistatus} response.
+	 * the {@link com.github.sardine.model.Multistatus} response.
 	 */
 	public static final long DEFAULT_CONTENT_LENGTH = -1;
 
 	/**
-	 * content-type for {@link com.googlecode.sardine.model.Collection}.
+	 * content-type for {@link com.github.sardine.model.Collection}.
 	 */
 	public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
 
@@ -87,7 +87,7 @@ public class DavResource
 	}
 
 	/**
-	 * Converts the given {@link Response} to a {@link com.googlecode.sardine.DavResource}.
+	 * Converts the given {@link Response} to a {@link com.github.sardine.DavResource}.
 	 *
 	 * @param response The response complex type of the multistatus
 	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
