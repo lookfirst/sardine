@@ -184,6 +184,8 @@
                 <element ref="dav:lockdiscovery" minOccurs="0"/>
                 <element ref="dav:resourcetype" minOccurs="0"/>
                 <element ref="dav:supportedlock" minOccurs="0"/>
+                <element ref="dav:quota-available-bytes" minOccurs="0"/>
+                <element ref="dav:quota-used-bytes" minOccurs="0"/>
                 <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
                 <!--
                 <element ref="dav:contentclass" minOccurs="0"/>
@@ -343,6 +345,18 @@
             <sequence minOccurs="0" maxOccurs="unbounded">
                 <element ref="dav:link"/>
             </sequence>
+        </complexType>
+    </element>
+
+    <element name="quota-available-bytes">
+        <complexType mixed="true">
+            <sequence/>
+        </complexType>
+    </element>
+
+    <element name="quota-used-bytes">
+        <complexType mixed="true">
+            <sequence/>
         </complexType>
     </element>
 

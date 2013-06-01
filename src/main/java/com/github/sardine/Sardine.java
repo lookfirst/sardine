@@ -248,6 +248,15 @@ public interface Sardine
 	DavAcl getAcl(String url) throws IOException;
 
 	/**
+	 * Read quota properties for resource
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @return Current Quota and Size Properties for resource
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	DavQuota getQuota(String url) throws IOException;
+
+	/**
 	 * Write access control list for resource
 	 *
 	 * @param url  Path to the resource including protocol and hostname

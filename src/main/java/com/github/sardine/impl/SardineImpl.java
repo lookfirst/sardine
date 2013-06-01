@@ -80,10 +80,10 @@ import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
 import com.github.sardine.DavPrincipal;
+import com.github.sardine.DavQuota;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.Version;
@@ -117,6 +117,8 @@ import com.github.sardine.model.Prop;
 import com.github.sardine.model.Propertyupdate;
 import com.github.sardine.model.Propfind;
 import com.github.sardine.model.Propstat;
+import com.github.sardine.model.QuotaUsedBytes;
+import com.github.sardine.model.QuotaAvailableBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
@@ -512,6 +514,29 @@ public class SardineImpl implements Sardine
 		else
 		{
 			return new DavAcl(responses.get(0));
+		}
+	}
+
+	@Override
+	public DavQuota getQuota(String url) throws IOException
+	{
+		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth("0");
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		prop.setQuotaAvailableBytes(new QuotaAvailableBytes());
+		prop.setQuotaUsedBytes(new QuotaUsedBytes());
+		body.setProp(prop);
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		if (responses.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			return new DavQuota(responses.get(0));
 		}
 	}
 
