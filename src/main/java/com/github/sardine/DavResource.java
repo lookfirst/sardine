@@ -8,6 +8,8 @@
 package com.github.sardine;
 
 import com.github.sardine.model.Creationdate;
+import com.github.sardine.model.Displayname;
+import com.github.sardine.model.Getcontentlanguage;
 import com.github.sardine.model.Getcontentlength;
 import com.github.sardine.model.Getcontenttype;
 import com.github.sardine.model.Getetag;
@@ -65,6 +67,8 @@ public class DavResource
 	private final Date modified;
 	private final String contentType;
 	private final String etag;
+	private final String displayName;
+	private final String contentLanguage;
 	private final Long contentLength;
 	private final Map<QName, String> customProps;
 
@@ -75,7 +79,8 @@ public class DavResource
 	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
-						  Long contentLength, String etag, Map<QName, String> customProps) throws URISyntaxException
+						  Long contentLength, String etag, String displayName, String contentLanguage,
+						  Map<QName, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -83,6 +88,8 @@ public class DavResource
 		this.contentType = contentType;
 		this.contentLength = contentLength;
 		this.etag = etag;
+		this.displayName = displayName;
+		this.contentLanguage = contentLanguage;
 		this.customProps = customProps;
 	}
 
@@ -100,6 +107,8 @@ public class DavResource
 		this.contentType = this.getContentType(response);
 		this.contentLength = this.getContentLength(response);
 		this.etag = this.getEtag(response);
+		this.displayName = this.getDisplayName(response);
+		this.contentLanguage = this.getContentLanguage(response);
 		this.customProps = this.getCustomProps(response);
 	}
 
@@ -252,6 +261,68 @@ public class DavResource
 	}
 
 	/**
+	 * Retrieves the content-language from prop.
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return the content language; {@code null} if it is not avaialble
+	 */
+	private String getContentLanguage(Response response)
+	{
+		// Make sure that directories have the correct content type.
+		List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return null;
+		}
+		for (Propstat propstat : list)
+		{
+			if (propstat.getProp() != null) {
+				Resourcetype resourcetype = propstat.getProp().getResourcetype();
+				if ((resourcetype != null) && (resourcetype.getCollection() != null))
+				{
+					// Need to correct the contentType to identify as a directory.
+					return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE;
+				}
+				else
+				{
+					Getcontentlanguage gtl = propstat.getProp().getGetcontentlanguage();
+					if ((gtl != null) && (gtl.getContent().size() == 1))
+					{
+						return gtl.getContent().get(0);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves displayName from props.
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return the display name; {@code null} if it is not available
+	 */
+	private String getDisplayName(Response response)
+	{
+		List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return null;
+		}
+		for (Propstat propstat : list)
+		{
+			if (propstat.getProp() != null) {
+				Displayname dn = propstat.getProp().getDisplayname();
+				if ((dn != null) && (dn.getContent().size() == 1))
+				{
+					return dn.getContent().get(0);
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Creates a simple complex Map from the given custom properties of a response.
 	 * This implementation does take namespaces into account.
 	 *
@@ -341,6 +412,22 @@ public class DavResource
 	public String getEtag()
 	{
 		return this.etag;
+	}
+
+	/**
+	 * @return Content language
+	 */
+	public String getContentLanguage()
+	{
+		return this.contentLanguage;
+	}
+
+	/**
+	 * @return Display name
+	 */
+	public String getDisplayName()
+	{
+		return this.displayName;
 	}
 
 	/**
