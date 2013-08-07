@@ -3,11 +3,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>com.github.lookfirst</groupId>
 	<artifactId>sardine</artifactId>
 	<packaging>jar</packaging>
-	<version>5.0.1</version>
+	<version>5.0.1-SNAPSHOT</version>
 	<description>An easy to use webdav client for java</description>
 	<name>Sardine WEBDAV client</name>
 	<url>https://github.com/lookfirst/sardine</url>
@@ -26,9 +25,12 @@
 		<developer>
 			<name>Jon Stevens</name>
 		</developer>
-		<developer>
-			<name>David Kocher</name>
-		</developer>
+        <developer>
+            <name>David Kocher</name>
+            <id>iterate</id>
+            <email>post@iterate.ch</email>
+            <organization>iterate GmbH</organization>
+        </developer>
 	</developers>
 	<distributionManagement>
 		<repository>
@@ -157,15 +159,13 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-
-		<!-- ant and junit must be defined as provided for a succesful compile. -->
+		<!-- ant and junit must be defined as provided for a successful compile. -->
 		<dependency>
 			<groupId>org.apache.ant</groupId>
 			<artifactId>ant</artifactId>
 			<version>1.9.0</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<!-- test utilities -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -180,5 +180,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>
