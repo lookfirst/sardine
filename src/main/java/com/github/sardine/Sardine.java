@@ -154,6 +154,19 @@ public interface Sardine
 	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
 
 	/**
+	 * Uses <code>PUT</code> to send data to a server with a specific content
+	 * type header. Not repeatable on authentication failure.
+	 *
+	 * @param url			Path to the resource including protocol and hostname
+	 * @param dataStream	 Input source
+	 * @param contentType	MIME type to add to the HTTP request header
+	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
+	 * @param contentLength data size in bytes to set to Content-Length header
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength) throws IOException;
+
+	/**
 	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
 	 * on authentication failure.
 	 *

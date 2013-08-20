@@ -680,7 +680,13 @@ public class SardineImpl implements Sardine
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
-		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		put(url, dataStream, contentType, expectContinue, -1);
+	}
+
+	@Override
+	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength) throws IOException
+	{
+		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength);
 		this.put(url, entity, contentType, expectContinue);
 	}
 
