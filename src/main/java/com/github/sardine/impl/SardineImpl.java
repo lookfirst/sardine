@@ -110,6 +110,7 @@ import com.github.sardine.model.Lockinfo;
 import com.github.sardine.model.Lockscope;
 import com.github.sardine.model.Locktype;
 import com.github.sardine.model.Multistatus;
+import com.github.sardine.model.ObjectFactory;
 import com.github.sardine.model.Owner;
 import com.github.sardine.model.PrincipalCollectionSet;
 import com.github.sardine.model.PrincipalURL;
@@ -349,10 +350,29 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> list(String url, int depth) throws IOException
 	{
+		return list(url, depth, true);
+	}
+	@Override
+	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
+	{
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
 		Propfind body = new Propfind();
-		body.setAllprop(new Allprop());
+		if (allProp)
+			body.setAllprop(new Allprop());
+		else {
+			Prop prop = new Prop();
+			ObjectFactory objectFactory = new ObjectFactory();
+			prop.setGetcontentlength(objectFactory.createGetcontentlength());
+			prop.setGetlastmodified(objectFactory.createGetlastmodified());
+			prop.setCreationdate(objectFactory.createCreationdate());
+			prop.setDisplayname(objectFactory.createDisplayname());
+			prop.setGetcontenttype(objectFactory.createGetcontenttype());
+			prop.setResourcetype(objectFactory.createResourcetype());
+			prop.setGetetag(objectFactory.createGetetag());
+			
+			body.setProp(prop);
+		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
