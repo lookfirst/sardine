@@ -56,6 +56,19 @@ public interface Sardine
 	List<DavResource> list(String url, int depth) throws IOException;
 
 	/**
+	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
+	 *
+	 * @param url   Path to the resource including protocol and hostname
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @param allProp If allprop should be used, which can be inefficient sometimes; 
+	 * warning: no allprop does not retrieve custom props, just the basic ones
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> list(String url, int depth, boolean allProp)
+			throws IOException;
+
+	/**
 	 * @see #patch(String, java.util.Map, java.util.List)
 	 */
 	@Deprecated
@@ -152,6 +165,19 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, String contentType, boolean expectContinue) throws IOException;
+
+	/**
+	 * Uses <code>PUT</code> to send data to a server with a specific content
+	 * type header. Not repeatable on authentication failure.
+	 *
+	 * @param url			Path to the resource including protocol and hostname
+	 * @param dataStream	 Input source
+	 * @param contentType	MIME type to add to the HTTP request header
+	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
+	 * @param contentLength data size in bytes to set to Content-Length header
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
@@ -321,4 +347,5 @@ public interface Sardine
 	 * requests.
 	 */
 	public void shutdown();
+
 }
