@@ -28,27 +28,24 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -155,7 +152,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl()
 	{
-		this(null, null);
+		this.init(this.createDefaultClient(null), new SardineRedirectStrategy(), null, null);
 	}
 
 	/**
@@ -166,7 +163,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password)
 	{
-		this(username, password, null);
+		this.init(this.createDefaultClient(null), new SardineRedirectStrategy(), username, password);
 	}
 
 	/**
@@ -176,7 +173,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-		this.init(this.createDefaultClient(selector), username, password);
+		this.init(this.createDefaultClient(selector), new SardineRedirectStrategy(), username, password);
 	}
 
 	/**
@@ -184,7 +181,16 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(AbstractHttpClient http)
 	{
-		this(http, null, null);
+		this.init(http, new SardineRedirectStrategy(), null, null);
+	}
+
+	/**
+	 * @param http Custom client configuration
+     *             @param redirect Custom redirect strategy
+	 */
+	public SardineImpl(AbstractHttpClient http, RedirectStrategy redirect)
+	{
+        this.init(http, redirect, null, null);
 	}
 
 	/**
@@ -194,58 +200,13 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(AbstractHttpClient http, String username, String password)
 	{
-		this.init(http, username, password);
+		this.init(http, new SardineRedirectStrategy(), username, password);
 	}
 
-	private void init(AbstractHttpClient http, String username, String password)
+	private void init(AbstractHttpClient http, RedirectStrategy redirect, String username, String password)
 	{
 		this.client = http;
-		this.client.setRedirectStrategy(new DefaultRedirectStrategy()
-		{
-			@Override
-			public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException
-			{
-				int statusCode = response.getStatusLine().getStatusCode();
-				String method = request.getRequestLine().getMethod();
-				Header locationHeader = response.getFirstHeader("location");
-				switch (statusCode)
-				{
-					case HttpStatus.SC_MOVED_TEMPORARILY:
-						return (method.equalsIgnoreCase(HttpGet.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpAcl.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME)) && (locationHeader != null);
-					case HttpStatus.SC_MOVED_PERMANENTLY:
-					case HttpStatus.SC_TEMPORARY_REDIRECT:
-						return method.equalsIgnoreCase(HttpGet.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpHead.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpLock.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpAcl.METHOD_NAME)
-								|| method.equalsIgnoreCase(HttpPropFind.METHOD_NAME);
-					case HttpStatus.SC_SEE_OTHER:
-						return true;
-					default:
-						return false;
-				}
-			}
-
-			@Override
-			public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
-					throws ProtocolException
-			{
-				String method = request.getRequestLine().getMethod();
-				if (method.equalsIgnoreCase(HttpPropFind.METHOD_NAME))
-				{
-					return new HttpPropFind(this.getLocationURI(request, response, context));
-				}
-				if (method.equalsIgnoreCase(HttpLock.METHOD_NAME))
-				{
-					return new HttpLock(this.getLocationURI(request, response, context));
-				}
-				return super.getRedirect(request, response, context);
-			}
-		});
+		this.client.setRedirectStrategy(redirect);
 		this.setCredentials(username, password);
 	}
 
