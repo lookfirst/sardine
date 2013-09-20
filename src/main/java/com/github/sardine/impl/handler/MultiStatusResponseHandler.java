@@ -46,9 +46,16 @@ public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multis
 		if (entity == null)
 		{
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),
-					statusLine.getReasonPhrase());
-		}
-		return this.getMultistatus(entity.getContent());
+                    statusLine.getReasonPhrase());
+        }
+        try
+        {
+            return this.getMultistatus(entity.getContent());
+        }
+        catch(IOException e) {
+            // JAXB error unmarshalling response stream
+            throw new SardineException(e.getMessage(), statusLine.getStatusCode(), statusLine.getReasonPhrase());
+        }
 	}
 
 	/**

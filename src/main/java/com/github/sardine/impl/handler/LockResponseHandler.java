@@ -38,13 +38,20 @@ public class LockResponseHandler extends ValidatingResponseHandler<String>
 
 		// Process the response from the server.
 		HttpEntity entity = response.getEntity();
+        StatusLine statusLine = response.getStatusLine();
 		if (entity == null)
 		{
-			StatusLine statusLine = response.getStatusLine();
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),
 					statusLine.getReasonPhrase());
 		}
-		return this.getToken(entity.getContent());
+        try
+        {
+    		return this.getToken(entity.getContent());
+        }
+        catch(IOException e) {
+            // JAXB error unmarshalling response stream
+            throw new SardineException(e.getMessage(), statusLine.getStatusCode(), statusLine.getReasonPhrase());
+        }
 	}
 
 	/**
