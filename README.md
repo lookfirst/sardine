@@ -22,6 +22,8 @@ Sardine uses JAXB to process XML responses from the webdav server. The generated
 
 Sardine is fully stable and is being used in production on a very high traffic site (140+ concurrent connections 24/7). Click the Issues tab to submit requests. Most development is just adding new use cases. Check back often for new releases.
 
+Questions? Please ask on our [mailing list](https://groups.google.com/forum/#!forum/sardine-dav). Issues? File an issue in the github issue tracker.
+
 Sardine available under the Apache License 2.0.
 
 If you like this library, I'd appreciate if you would blog/tweet about it. If you don't like it, well...
