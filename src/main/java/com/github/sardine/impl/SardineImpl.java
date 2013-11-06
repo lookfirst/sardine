@@ -710,6 +710,11 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
 	{
+        this.put(url, entity, headers, new VoidResponseHandler());
+      	}
+
+    public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
+    {
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
 		for (String header : headers.keySet())
@@ -722,7 +727,7 @@ public class SardineImpl implements Sardine
 		}
 		try
 		{
-			this.execute(put, new VoidResponseHandler());
+            return this.execute(put, handler);
 		}
 		catch (HttpResponseException e)
 		{
@@ -732,8 +737,7 @@ public class SardineImpl implements Sardine
 				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
 				if (entity.isRepeatable())
 				{
-					this.execute(put, new VoidResponseHandler());
-					return;
+                    return this.execute(put, handler);
 				}
 			}
 			throw e;
