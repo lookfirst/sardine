@@ -1,6 +1,7 @@
 package com.github.sardine.util;
 
 import com.github.sardine.model.ObjectFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -18,6 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -84,7 +86,8 @@ public final class SardineUtil
 	/**
 	 * Date formats using for Date parsing.
 	 */
-    private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS = Arrays.asList(
+    @SuppressWarnings("unchecked")
+	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS = Arrays.asList(
 			new ThreadLocal<SimpleDateFormat>()
 			{
 				@Override
