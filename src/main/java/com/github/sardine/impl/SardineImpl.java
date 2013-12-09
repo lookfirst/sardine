@@ -187,11 +187,11 @@ public class SardineImpl implements Sardine
 
 	/**
 	 * @param http Custom client configuration
-     *             @param redirect Custom redirect strategy
+	 *             @param redirect Custom redirect strategy
 	 */
 	public SardineImpl(AbstractHttpClient http, RedirectStrategy redirect)
 	{
-        this.init(http, redirect, null, null);
+		this.init(http, redirect, null, null);
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class SardineImpl implements Sardine
 			prop.setGetcontenttype(objectFactory.createGetcontenttype());
 			prop.setResourcetype(objectFactory.createResourcetype());
 			prop.setGetetag(objectFactory.createGetetag());
-			
+
 			body.setProp(prop);
 		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
@@ -719,11 +719,11 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
 	{
-        this.put(url, entity, headers, new VoidResponseHandler());
-      	}
+		this.put(url, entity, headers, new VoidResponseHandler());
+		  }
 
-    public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
-    {
+	public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
+	{
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
 		for (String header : headers.keySet())
@@ -736,7 +736,7 @@ public class SardineImpl implements Sardine
 		}
 		try
 		{
-            return this.execute(put, handler);
+			return this.execute(put, handler);
 		}
 		catch (HttpResponseException e)
 		{
@@ -746,7 +746,7 @@ public class SardineImpl implements Sardine
 				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
 				if (entity.isRepeatable())
 				{
-                    return this.execute(put, handler);
+					return this.execute(put, handler);
 				}
 			}
 			throw e;

@@ -60,7 +60,7 @@ public interface Sardine
 	 *
 	 * @param url   Path to the resource including protocol and hostname
 	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
-	 * @param allProp If allprop should be used, which can be inefficient sometimes; 
+	 * @param allProp If allprop should be used, which can be inefficient sometimes;
 	 * warning: no allprop does not retrieve custom props, just the basic ones
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
