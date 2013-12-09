@@ -252,6 +252,22 @@ public interface Sardine
 	String lock(String url) throws IOException;
 
 	/**
+	 * A LOCK request with no request body is a "LOCK refresh" request. It's purpose is to restart all timers
+	 * associated with a lock. The request MUST include an "If" header that contains the lock tokens of the
+	 * locks to be refreshed (note there may be multiple in the case of shared locks).
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param token The lock token used to lock the resource
+	 * @param file The name of the file at the end of the url
+	 * @return The lock token to unlock this resource. A lock token is a type of state token, represented
+	 *         as a URI, which identifies a particular lock. A lock token is returned by every successful
+	 *         <code>LOCK</code> operation in the lockdiscovery property in the response body, and can also be found through
+	 *         lock discovery on a resource.
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	String refreshLock(String url, String token, String file) throws IOException;
+
+	/**
 	 * Unlock the resource.
 	 * <p/>
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support

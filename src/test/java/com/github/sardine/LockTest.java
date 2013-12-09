@@ -16,13 +16,15 @@
 
 package com.github.sardine;
 
-import com.github.sardine.impl.SardineException;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+
+import com.github.sardine.impl.SardineException;
 
 /**
  * @version $Id$
@@ -70,5 +72,22 @@ public class LockTest
 		{
 			assertEquals(405, e.getStatusCode());
 		}
+	}
+
+	@Test
+	public void lockRefreshUnlock() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+
+		String existingFile = "0be720f6-2013-46f2-a369-a7e2df047ef8";
+		String existingFileUrl = "http://sudo.ch/dav/anon/sardine/" + existingFile;
+
+		String lockToken = sardine.lock(existingFileUrl);
+		String result = sardine.refreshLock(existingFileUrl, lockToken, existingFile);
+
+		assertTrue(lockToken.startsWith("opaquelocktoken:"));
+		assertTrue(lockToken.equals(result));
+
+		sardine.unlock(existingFileUrl, lockToken);
 	}
 }

@@ -77,6 +77,7 @@ import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
 import com.github.sardine.DavPrincipal;
@@ -435,6 +436,14 @@ public class SardineImpl implements Sardine
 		body.setLocktype(lockType);
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		// Return the lock token
+		return this.execute(entity, new LockResponseHandler());
+	}
+
+	@Override
+	public String refreshLock(String url, String token, String file) throws IOException
+	{
+		HttpLock entity = new HttpLock(url);
+		entity.setHeader("If", "<" + file + "> (<" + token + ">)");
 		return this.execute(entity, new LockResponseHandler());
 	}
 
