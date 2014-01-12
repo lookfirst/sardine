@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lookfirst/sardine.png)](https://travis-ci.org/lookfirst/sardine)
+
 Sardine is useful for interacting with a webdav server and is much easier to programmatically manage remote files than with FTP.
 
 I looked at the other Java webdav clients out there [slide](http://jakarta.apache.org/slide/), [Jackrabbit](http://jackrabbit.apache.org/) and [webdavclient4j](http://sourceforge.net/projects/webdavclient4j/). 
