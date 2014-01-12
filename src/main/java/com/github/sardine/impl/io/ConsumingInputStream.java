@@ -16,12 +16,10 @@
 
 package com.github.sardine.impl.io;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Wrapper for the input stream, will consume the rest of the response on {@link ConsumingInputStream#close()}.
@@ -29,10 +27,8 @@ import java.io.InputStream;
  * @author mirko
  * @version $Id$
  */
-public class ConsumingInputStream extends InputStream
+public class ConsumingInputStream extends ContentLengthInputStream
 {
-
-	private InputStream delegate;
 	private HttpResponse response;
 
 	/**
@@ -42,57 +38,8 @@ public class ConsumingInputStream extends InputStream
 	 */
 	public ConsumingInputStream(final HttpResponse response) throws IOException
 	{
+        super(response.getEntity().getContent(), response.getEntity().getContentLength());
 		this.response = response;
-		HttpEntity entity = response.getEntity();
-		this.delegate = entity.getContent();
-	}
-
-	@Override
-	public int read(byte[] b) throws IOException
-	{
-		return delegate.read(b);
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException
-	{
-		return delegate.read(b, off, len);
-	}
-
-	@Override
-	public long skip(long n) throws IOException
-	{
-		return delegate.skip(n);
-	}
-
-	@Override
-	public int available() throws IOException
-	{
-		return delegate.available();
-	}
-
-	@Override
-	public void mark(int readlimit)
-	{
-		delegate.mark(readlimit);
-	}
-
-	@Override
-	public void reset() throws IOException
-	{
-		delegate.reset();
-	}
-
-	@Override
-	public boolean markSupported()
-	{
-		return delegate.markSupported();
-	}
-
-	@Override
-	public int read() throws IOException
-	{
-		return delegate.read();
 	}
 
 	@Override

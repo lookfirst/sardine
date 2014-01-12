@@ -90,6 +90,7 @@ import com.github.sardine.impl.handler.LockResponseHandler;
 import com.github.sardine.impl.handler.MultiStatusResponseHandler;
 import com.github.sardine.impl.handler.VoidResponseHandler;
 import com.github.sardine.impl.io.ConsumingInputStream;
+import com.github.sardine.impl.io.ContentLengthInputStream;
 import com.github.sardine.impl.methods.HttpAcl;
 import com.github.sardine.impl.methods.HttpCopy;
 import com.github.sardine.impl.methods.HttpLock;
@@ -611,13 +612,13 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public InputStream get(String url) throws IOException
+	public ContentLengthInputStream get(String url) throws IOException
 	{
 		return this.get(url, Collections.<String, String>emptyMap());
 	}
 
 	@Override
-	public InputStream get(String url, Map<String, String> headers) throws IOException
+	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
 		for (String header : headers.keySet())
