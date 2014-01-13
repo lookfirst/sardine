@@ -34,6 +34,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -131,9 +132,10 @@ public class SardineImpl implements Sardine
 
 	private static final String UTF_8 = "UTF-8";
 
-	HttpClientBuilder builder;
+	private HttpClientBuilder builder;
 	private HttpClient client;
 	private HttpClientConnectionManager connectionManager; 
+    private ProtocolVersion version = HttpVersion.HTTP_1_1;
 
 	/**
 	 * Local context with authentication cache. Make sure the same context is used to execute
@@ -145,9 +147,10 @@ public class SardineImpl implements Sardine
 	 * Constructor that accepts a custom built client
 	 * @param client
 	 */
-	public SardineImpl(HttpClient client)
+	public SardineImpl(HttpClient client, ProtocolVersion version)
 	{
 		this.client = client;
+		this.version = version;
 	}
 
 
@@ -818,7 +821,7 @@ public class SardineImpl implements Sardine
 	public boolean exists(String url) throws IOException
 	{
 		HttpHead head = new HttpHead(url);
-		head.setProtocolVersion(HttpVersion.HTTP_1_1);
+		head.setProtocolVersion(version);
 		
 		return this.execute(head, new ExistsResponseHandler());
 	}
