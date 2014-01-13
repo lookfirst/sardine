@@ -141,7 +141,7 @@ public class SardineImpl implements Sardine
 	 * Local context with authentication cache. Make sure the same context is used to execute
 	 * logically related requests.
 	 */
-	private HttpContext context;
+	private HttpContext context = new BasicHttpContext();
 	
 	/**
 	 * Constructor that accepts a custom built client
@@ -213,7 +213,6 @@ public class SardineImpl implements Sardine
 			version = VersionInfo.UNAVAILABLE;
 		}
 		builder.setUserAgent("Sardine/" + version);
-		context = new BasicHttpContext();
 		setCredentials(username, password);
 		builder.setRedirectStrategy(redirect);
 		client = builder.build();
@@ -822,7 +821,6 @@ public class SardineImpl implements Sardine
 	{
 		HttpHead head = new HttpHead(url);
 		head.setProtocolVersion(version);
-		
 		return this.execute(head, new ExistsResponseHandler());
 	}
 
