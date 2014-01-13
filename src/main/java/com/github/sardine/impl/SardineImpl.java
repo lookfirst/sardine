@@ -64,6 +64,7 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -203,17 +204,8 @@ public class SardineImpl implements Sardine
 		
 		connectionManager = cm;
 		builder.setConnectionManager(connectionManager);
-		builder.setSchemePortResolver(new SchemePortResolver() {
-			
-			@Override
-			public int resolve(HttpHost host) throws UnsupportedSchemeException {
-				if (host.getSchemeName().equals("http"))
-					return 80;
-				else if (host.getSchemeName().equals("https"))
-					return 443;				
-				return 0;
-			}
-		});
+		builder.setSchemePortResolver(DefaultSchemePortResolver.INSTANCE);
+
 		String version = Version.getSpecification();
 		if (version == null)
 		{
