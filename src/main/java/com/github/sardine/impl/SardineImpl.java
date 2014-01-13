@@ -54,8 +54,6 @@ import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.SchemePortResolver;
-import org.apache.http.conn.UnsupportedSchemeException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
