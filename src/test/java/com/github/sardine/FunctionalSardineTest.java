@@ -102,7 +102,7 @@ public class FunctionalSardineTest
 				client.removeResponseInterceptorByClass(this.getClass());
 			}
 		});
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = new SardineImpl();
 		sardine.enableCompression();
 //		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
 		final String url = "http://sudo.ch/dav/anon/sardine/single/file";
@@ -226,7 +226,7 @@ public class FunctionalSardineTest
 	public void testPutRange() throws Exception
 	{
 		final DefaultHttpClient client = new DefaultHttpClient();
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = new SardineImpl();
 		// mod_dav supports Range headers for PUT
 		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		client.addResponseInterceptor(new HttpResponseInterceptor()
@@ -287,7 +287,7 @@ public class FunctionalSardineTest
 				client.removeResponseInterceptorByClass(this.getClass());
 			}
 		});
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = new SardineImpl();
 		// mod_dav supports Range headers for GET
 		final String url = "http://sudo.ch/dav/anon/sardine/single/file";
 		// Resume

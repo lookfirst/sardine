@@ -171,7 +171,7 @@ public class AuthenticationTest
 				};
 			}
 		});
-		SardineImpl sardine = new SardineImpl(client);
+		SardineImpl sardine = new SardineImpl();
 		URI url = URI.create("http://sudo.ch/dav/basic/");
 		//Send basic authentication header in initial request
 		sardine.enablePreemptiveAuthentication(url.getHost());
@@ -202,7 +202,7 @@ public class AuthenticationTest
 				client.removeRequestInterceptorByClass(this.getClass());
 			}
 		});
-		Sardine sardine = new SardineImpl(client);
+		Sardine sardine = new SardineImpl();
 		sardine.setCredentials("anonymous", null);
 		// mod_dav supports Range headers for PUT
 		final URI url = URI.create("http://sardine.googlecode.com/svn/trunk/README.html");
