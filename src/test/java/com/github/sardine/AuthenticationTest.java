@@ -37,7 +37,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -148,9 +148,9 @@ public class AuthenticationTest
 	@Test
 	public void testBasicPreemptiveAuth() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
+		HttpClientBuilder builder = HttpClientBuilder.create();
 		final CountDownLatch count = new CountDownLatch(1);
-		client.setCredentialsProvider(new BasicCredentialsProvider()
+		builder.setDefaultCredentialsProvider(new BasicCredentialsProvider()
 		{
 			@Override
 			public Credentials getCredentials(AuthScope authscope)
@@ -171,7 +171,7 @@ public class AuthenticationTest
 				};
 			}
 		});
-		SardineImpl sardine = new SardineImpl();
+		SardineImpl sardine = new SardineImpl(builder);
 		URI url = URI.create("http://sudo.ch/dav/basic/");
 		//Send basic authentication header in initial request
 		sardine.enablePreemptiveAuthentication(url.getHost());
@@ -192,21 +192,26 @@ public class AuthenticationTest
 	@Test
 	public void testBasicPreemptiveAuthHeader() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addRequestInterceptor(new HttpRequestInterceptor()
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		builder.addInterceptorFirst(new HttpRequestInterceptor()
 		{
 			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
 			{
 				assertNotNull(r.getHeaders(HttpHeaders.AUTHORIZATION));
 				assertEquals(1, r.getHeaders(HttpHeaders.AUTHORIZATION).length);
-				client.removeRequestInterceptorByClass(this.getClass());
+				//client.removeRequestInterceptorByClass(this.getClass());
 			}
 		});
-		Sardine sardine = new SardineImpl();
-		sardine.setCredentials("anonymous", null);
-		// mod_dav supports Range headers for PUT
 		final URI url = URI.create("http://sardine.googlecode.com/svn/trunk/README.html");
-		sardine.enablePreemptiveAuthentication(url.getHost());
+		Sardine sardine = new SardineImpl(builder){
+			public void buildClient() {
+				setCredentials("anonymous", null);
+				// mod_dav supports Range headers for PUT
+				enablePreemptiveAuthentication(url.getHost());
+				super.buildClient();
+				
+			}
+		};
 		assertTrue(sardine.exists(url.toString()));
 	}
 }

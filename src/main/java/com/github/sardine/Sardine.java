@@ -1,6 +1,9 @@
 package com.github.sardine;
 
 import javax.xml.namespace.QName;
+
+import org.apache.http.ProtocolVersion;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -15,6 +18,17 @@ import java.util.Set;
  */
 public interface Sardine
 {
+	/***
+	 * build client using client builder
+	 */
+	void buildClient();
+	
+	/***
+	 * Set http protocol version: default version is http/1.1
+	 * @param version
+	 */
+	void setProtocolVersion(ProtocolVersion version);
+	
 	/**
 	 * Add credentials to any scope.
 	 *
@@ -347,13 +361,6 @@ public interface Sardine
 	 * automatically decompress the files upon reception.
 	 */
 	void enableCompression();
-
-	/**
-	 * Disables support for HTTP compression.
-	 *
-	 * @see Sardine#enableCompression()
-	 */
-	void disableCompression();
 
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.

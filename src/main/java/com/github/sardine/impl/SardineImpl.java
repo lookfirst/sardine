@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Jon Stevens et al.
++ * Copyright 2009-2011 Jon Stevens et al.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,17 +143,34 @@ public class SardineImpl implements Sardine
 	 */
 	private HttpContext context = new BasicHttpContext();
 	
-	/**
-	 * Constructor that accepts a custom built client
-	 * @param client
+	/***
+	 * 
+	 * @param builder
 	 */
-	public SardineImpl(HttpClient client, ProtocolVersion version)
-	{
-		this.client = client;
-		this.version = version;
+	public SardineImpl(HttpClientBuilder builder){
+		 this(builder, null);
 	}
+	
+	/**
+	 * Constructor which takes a custom client builder. It is up to the caller to make sure
+	 * that the builder is fully initialized
+	 * @param builder custom client builder
+	 * @param connectionManager custom connection manager
+	 */
+	public SardineImpl(HttpClientBuilder builder, HttpClientConnectionManager connectionManager) {
+		this.builder = builder;
+		if (builder != null) {
+			this.connectionManager = connectionManager;
+			if (connectionManager == null)
+				setConnectionManager();
+			buildClient();
+		}
+		else
+			log.warn("builder is null: unable to initialize");
 
-
+	}
+	
+	
 	/**
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
@@ -176,7 +193,7 @@ public class SardineImpl implements Sardine
 	 * @param http Custom client configuration
 	 *             @param redirect Custom redirect strategy
 	 */
-	public SardineImpl( RedirectStrategy redirect)
+	public SardineImpl(RedirectStrategy redirect)
 	{
 		this.init(redirect, null, null);
 	}
@@ -191,9 +208,39 @@ public class SardineImpl implements Sardine
 		this.init(new SardineRedirectStrategy(), username, password);
 	}
 
+	/***
+	 * Default initialization
+	 * @param redirect
+	 * @param username
+	 * @param password
+	 */
 	private void init(RedirectStrategy redirect, String username, String password)
 	{
 		builder = HttpClientBuilder.create();
+		setConnectionManager();
+		builder.setSchemePortResolver(DefaultSchemePortResolver.INSTANCE);
+		setUserAgent();
+		builder.setRedirectStrategy(redirect);
+		setCredentials(username, password);
+		buildClient();
+	}
+	
+	/***
+	 * Set use agent
+	 */
+	protected void setUserAgent() {
+		String version = Version.getSpecification();
+		if (version == null)
+		{
+			version = VersionInfo.UNAVAILABLE;
+		}
+		builder.setUserAgent("Sardine/" + version);
+	}
+	
+	/***
+	 * Set connection manager
+	 */
+	protected void setConnectionManager() {
 		BasicHttpClientConnectionManager cm  = new BasicHttpClientConnectionManager();
 		cm.setConnectionConfig(	ConnectionConfig.custom()
 				                                .setCharset(HTTP.DEF_CONTENT_CHARSET)
@@ -205,17 +252,26 @@ public class SardineImpl implements Sardine
 		
 		connectionManager = cm;
 		builder.setConnectionManager(connectionManager);
-		builder.setSchemePortResolver(DefaultSchemePortResolver.INSTANCE);
-
-		String version = Version.getSpecification();
-		if (version == null)
-		{
-			version = VersionInfo.UNAVAILABLE;
-		}
-		builder.setUserAgent("Sardine/" + version);
-		setCredentials(username, password);
-		builder.setRedirectStrategy(redirect);
-		client = builder.build();
+	}
+	
+	/***
+	 * Build client. 
+	 */
+	@Override
+	public void buildClient() {
+		if (builder != null)
+		     client = builder.build();
+		else
+			log.warn("builder is null: cannot build client");
+	}
+	
+	/***
+	 * Set http protocol version
+	 * @param version
+	 */
+	@Override
+	public void setProtocolVersion(ProtocolVersion version) {
+		this.version = version;
 	}
 
 	/**
@@ -224,9 +280,7 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	@Override
-	public void setCredentials(String username, String password)
-	{
+	public void setCredentials(String username, String password){
 		this.setCredentials(username, password, "", "");
 	}
 
@@ -236,9 +290,7 @@ public class SardineImpl implements Sardine
 	 * @param domain	  NTLM authentication
 	 * @param workstation NTLM authentication
 	 */
-	@Override
-	public void setCredentials(String username, String password, String domain, String workstation)
-	{
+	public void setCredentials(String username, String password, String domain, String workstation)	{
 		if (username != null && password != null)
 		{
 			BasicCredentialsProvider basicCredentialsProvider = new BasicCredentialsProvider();
@@ -266,26 +318,13 @@ public class SardineImpl implements Sardine
 	 * Adds handling of GZIP compression to the client.
 	 */
 	@Override
-	public void enableCompression()
-	{
+	public void enableCompression()	{
 		builder.addInterceptorFirst(new RequestAcceptEncoding());
 		builder.addInterceptorFirst(new ResponseContentEncoding());
 	}
 
-	/**
-	 * Disable GZIP compression header.
-	 */
 	@Override
-	public void disableCompression()
-	{
-		//not sure how to remove interceptors in 4.3 
-	//	this.client.removeRequestInterceptorByClass(RequestAcceptEncoding.class);
-	//	this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
-	}
-
-	@Override
-	public void enablePreemptiveAuthentication(String hostname)
-	{
+	public void enablePreemptiveAuthentication(String hostname)	{
 		AuthCache authCache = new BasicAuthCache();
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
@@ -297,28 +336,32 @@ public class SardineImpl implements Sardine
 		this.context.setAttribute(HttpClientContext.AUTH_CACHE, authCache);
 	}
 	
-	private void populateAuthCache(String hostname, String scheme, int port, AuthCache authCache,BasicScheme basicAuth)
-	{
+	/***
+	 * 
+	 * @param hostname  name of host
+	 * @param scheme  http, https etc.
+	 * @param port    port
+	 * @param authCache  authorization cache
+	 * @param basicAuth  basic authorization scheme
+	 */
+	private void populateAuthCache(String hostname, String scheme, int port, AuthCache authCache, BasicScheme basicAuth)	{
 		authCache.put(new HttpHost(hostname), basicAuth);
 		authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
 		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
 	}
 
 	@Override
-	public void disablePreemptiveAuthentication()
-	{
+	public void disablePreemptiveAuthentication()	{
 		context.removeAttribute(HttpClientContext.AUTH_CACHE);
 	}
 
 	@Override
-	public List<DavResource> getResources(String url) throws IOException
-	{
+	public List<DavResource> getResources(String url) throws IOException	{
 		return this.list(url);
 	}
 
 	@Override
-	public List<DavResource> list(String url) throws IOException
-	{
+	public List<DavResource> list(String url) throws IOException	{
 		return this.list(url, 1);
 	}
 
@@ -873,8 +916,8 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void shutdown()
-	{
-		connectionManager.shutdown();
+	public void shutdown() 	{
+		if (connectionManager != null)
+		   connectionManager.shutdown();
 	}
 }
