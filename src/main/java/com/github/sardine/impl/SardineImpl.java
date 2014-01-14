@@ -19,31 +19,20 @@ package com.github.sardine.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -57,20 +46,12 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
@@ -85,39 +66,11 @@ import com.github.sardine.impl.handler.MultiStatusResponseHandler;
 import com.github.sardine.impl.handler.VoidResponseHandler;
 import com.github.sardine.impl.io.ConsumingInputStream;
 import com.github.sardine.impl.io.ContentLengthInputStream;
-import com.github.sardine.impl.methods.HttpAcl;
 import com.github.sardine.impl.methods.HttpCopy;
-import com.github.sardine.impl.methods.HttpLock;
 import com.github.sardine.impl.methods.HttpMkCol;
 import com.github.sardine.impl.methods.HttpMove;
 import com.github.sardine.impl.methods.HttpPropFind;
-import com.github.sardine.impl.methods.HttpPropPatch;
-import com.github.sardine.impl.methods.HttpUnlock;
-import com.github.sardine.model.Ace;
-import com.github.sardine.model.Acl;
-import com.github.sardine.model.Allprop;
-import com.github.sardine.model.Displayname;
-import com.github.sardine.model.Exclusive;
-import com.github.sardine.model.Group;
-import com.github.sardine.model.Lockinfo;
-import com.github.sardine.model.Lockscope;
-import com.github.sardine.model.Locktype;
 import com.github.sardine.model.Multistatus;
-import com.github.sardine.model.ObjectFactory;
-import com.github.sardine.model.Owner;
-import com.github.sardine.model.PrincipalCollectionSet;
-import com.github.sardine.model.PrincipalURL;
-import com.github.sardine.model.Prop;
-import com.github.sardine.model.Propertyupdate;
-import com.github.sardine.model.Propfind;
-import com.github.sardine.model.Propstat;
-import com.github.sardine.model.QuotaAvailableBytes;
-import com.github.sardine.model.QuotaUsedBytes;
-import com.github.sardine.model.Remove;
-import com.github.sardine.model.Resourcetype;
-import com.github.sardine.model.Response;
-import com.github.sardine.model.Set;
-import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
 
 /**
@@ -126,23 +79,12 @@ import com.github.sardine.util.SardineUtil;
  * @author jonstevens
  * @version $Id$
  */
-public class SardineImpl implements Sardine
+public class SardineImpl extends SardineImplBase implements Sardine
 {
-	private static Logger log = LoggerFactory.getLogger(DavResource.class);
-
-	private static final String UTF_8 = "UTF-8";
-
 	private HttpClientBuilder builder;
 	private HttpClient client;
 	private HttpClientConnectionManager connectionManager; 
-    private ProtocolVersion version = HttpVersion.HTTP_1_1;
 
-	/**
-	 * Local context with authentication cache. Make sure the same context is used to execute
-	 * logically related requests.
-	 */
-	private HttpContext context = new BasicHttpContext();
-	
 	/***
 	 * 
 	 * @param builder
@@ -176,9 +118,9 @@ public class SardineImpl implements Sardine
 	 * @param password Use in authentication header credentials
 	 * @param selector Proxy configuration
 	 */
-	public SardineImpl(String username, String password, ProxySelector selector)
+	public SardineImpl(String username, String password, ProxySelector selector, boolean enableCompression)
 	{
-		this.init(new SardineRedirectStrategy(), username, password);
+		this.init(new SardineRedirectStrategy(), username, password,enableCompression);
 	}
 
 	/**
@@ -186,7 +128,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl()
 	{
-		this.init(new SardineRedirectStrategy(), null, null);
+		this.init(new SardineRedirectStrategy(), null, null,false);
 	}
 
 	/**
@@ -195,7 +137,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(RedirectStrategy redirect)
 	{
-		this.init(redirect, null, null);
+		this.init(redirect, null, null, false);
 	}
 
 	/**
@@ -203,9 +145,9 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(String username, String password)
+	public SardineImpl(String username, String password, boolean enableCompression)
 	{
-		this.init(new SardineRedirectStrategy(), username, password);
+		this.init(new SardineRedirectStrategy(), username, password, enableCompression);
 	}
 
 	/***
@@ -214,7 +156,7 @@ public class SardineImpl implements Sardine
 	 * @param username
 	 * @param password
 	 */
-	private void init(RedirectStrategy redirect, String username, String password)
+	private void init(RedirectStrategy redirect, String username, String password, boolean enableCompression)
 	{
 		builder = HttpClientBuilder.create();
 		setConnectionManager();
@@ -222,6 +164,8 @@ public class SardineImpl implements Sardine
 		setUserAgent();
 		builder.setRedirectStrategy(redirect);
 		setCredentials(username, password);
+		if (enableCompression)
+			enableCompression();
 		buildClient();
 	}
 	
@@ -271,7 +215,7 @@ public class SardineImpl implements Sardine
 	 */
 	@Override
 	public void setProtocolVersion(ProtocolVersion version) {
-		this.version = version;
+		super.setProtocolVersion(version);
 	}
 
 	/**
@@ -291,33 +235,20 @@ public class SardineImpl implements Sardine
 	 * @param workstation NTLM authentication
 	 */
 	public void setCredentials(String username, String password, String domain, String workstation)	{
-		if (username != null && password != null)
-		{
-			BasicCredentialsProvider basicCredentialsProvider = new BasicCredentialsProvider();
-			 basicCredentialsProvider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.NTLM),
-					new NTCredentials(username, password, workstation, domain));
-			 basicCredentialsProvider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.BASIC),
-					new UsernamePasswordCredentials(username, password));
-			 basicCredentialsProvider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.DIGEST),
-					new UsernamePasswordCredentials(username, password));
-			 basicCredentialsProvider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.SPNEGO),
-					new UsernamePasswordCredentials(username, password));
-			 basicCredentialsProvider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.KERBEROS),
-					new UsernamePasswordCredentials(username, password));
-			 builder.setDefaultCredentialsProvider(basicCredentialsProvider);
-			
-		}
+		BasicCredentialsProvider basicCredentialsProvider = createCredentialsProvider(username, password, domain, workstation);
+		if (basicCredentialsProvider != null)
+			 builder.setDefaultCredentialsProvider(basicCredentialsProvider);		
 	}
 
 	/**
-	 * Adds handling of GZIP compression to the client.
+	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
+	 * will include "gzip" as an "Accept-Encoding" header.
+	 * <p/>
+	 * If the server also supports gzip compression, it should serve the
+	 * contents in compressed gzip format and include "gzip" as the
+	 * Content-Encoding. If the content encoding is present, Sardine will
+	 * automatically decompress the files upon reception.
 	 */
-	@Override
 	public void enableCompression()	{
 		builder.addInterceptorFirst(new RequestAcceptEncoding());
 		builder.addInterceptorFirst(new ResponseContentEncoding());
@@ -325,40 +256,15 @@ public class SardineImpl implements Sardine
 
 	@Override
 	public void enablePreemptiveAuthentication(String hostname)	{
-		AuthCache authCache = new BasicAuthCache();
-		// Generate Basic preemptive scheme object and stick it to the local execution context
-		BasicScheme basicAuth = new BasicScheme();
-
-		populateAuthCache(hostname, "http", 80, authCache, basicAuth);
-		populateAuthCache(hostname, "https", 443, authCache, basicAuth);		
-
-		// Add AuthCache to the execution context
-		this.context.setAttribute(HttpClientContext.AUTH_CACHE, authCache);
+		super.enablePreemptiveAuthentication(hostname);
 	}
 	
-	/***
-	 * 
-	 * @param hostname  name of host
-	 * @param scheme  http, https etc.
-	 * @param port    port
-	 * @param authCache  authorization cache
-	 * @param basicAuth  basic authorization scheme
-	 */
-	private void populateAuthCache(String hostname, String scheme, int port, AuthCache authCache, BasicScheme basicAuth)	{
-		authCache.put(new HttpHost(hostname), basicAuth);
-		authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
-		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
-	}
 
 	@Override
 	public void disablePreemptiveAuthentication()	{
-		context.removeAttribute(HttpClientContext.AUTH_CACHE);
+		super.disablePreemptiveAuthentication();
 	}
 
-	@Override
-	public List<DavResource> getResources(String url) throws IOException	{
-		return this.list(url);
-	}
 
 	@Override
 	public List<DavResource> list(String url) throws IOException	{
@@ -374,73 +280,31 @@ public class SardineImpl implements Sardine
         @Override
 	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
 	{
-		if (allProp) {
-			Propfind body = new Propfind();
-			body.setAllprop(new Allprop());
-			return list(url, depth, body);
-		} else {
-			return list(url, depth, Collections.<QName>emptySet());
-		}
+		Multistatus multistatus = execute(generateListEntity(url, depth, allProp),
+				                          new MultiStatusResponseHandler());
+		return processListResponses( multistatus.getResponse());
+
 	}
 
 	@Override
 	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
 	{
-		Propfind body = new Propfind();
-                
-		Prop prop = new Prop();
-		ObjectFactory objectFactory = new ObjectFactory();
-		prop.setGetcontentlength(objectFactory.createGetcontentlength());
-		prop.setGetlastmodified(objectFactory.createGetlastmodified());
-		prop.setCreationdate(objectFactory.createCreationdate());
-		prop.setDisplayname(objectFactory.createDisplayname());
-		prop.setGetcontenttype(objectFactory.createGetcontenttype());
-		prop.setResourcetype(objectFactory.createResourcetype());
-		prop.setGetetag(objectFactory.createGetetag());
-                
-		List<Element> any = prop.getAny();
-		for (QName entry : props) {
-			Element element = SardineUtil.createElement(entry);
-			any.add(element);
-		}
+		return patch(url, setProps, Collections.<QName>emptyList());
+	}
 
-		body.setProp(prop);
-                
-		return list(url, depth, body);
-		}
+
 
 	protected List<DavResource> list(String url, int depth, Propfind body) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
-		for (Response response : responses)
-		{
-			try
-			{
-				resources.add(new DavResource(response));
-			}
-			catch (URISyntaxException e)
-			{
-				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
-			}
-		}
-		return resources;
         }
 
-	@Override
-	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
-	{
-		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
-	}
 
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps) throws IOException
 	{
-		return this.patch(url, setProps, Collections.<QName>emptyList());
+		return patch(url, setProps, Collections.<QName>emptyList());
 	}
 
 	/**
@@ -451,241 +315,75 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
-		HttpPropPatch entity = new HttpPropPatch(url);
-		// Build WebDAV <code>PROPPATCH</code> entity.
-		Propertyupdate body = new Propertyupdate();
-		// Add properties
-		{
-			Set set = new Set();
-			body.getRemoveOrSet().add(set);
-			Prop prop = new Prop();
-			// Returns a reference to the live list
-			List<Element> any = prop.getAny();
-			for (Map.Entry<QName, String> entry : setProps.entrySet())
-			{
-				Element element = SardineUtil.createElement(entry.getKey());
-				element.setTextContent(entry.getValue());
-				any.add(element);
-			}
-			set.setProp(prop);
-		}
-		// Remove properties
-		{
-			Remove remove = new Remove();
-			body.getRemoveOrSet().add(remove);
-			Prop prop = new Prop();
-			// Returns a reference to the live list
-			List<Element> any = prop.getAny();
-			for (QName entry : removeProps)
-			{
-				Element element = SardineUtil.createElement(entry);
-				any.add(element);
-			}
-			remove.setProp(prop);
-		}
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
-		for (Response response : responses)
-		{
-			try
-			{
-				resources.add(new DavResource(response));
-			}
-			catch (URISyntaxException e)
-			{
-				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
-			}
-		}
-		return resources;
+
+		Multistatus multistatus = this.execute( generatePatchEntity(url, setProps, removeProps), 
+				                                new MultiStatusResponseHandler());
+		return processListResponses(multistatus.getResponse());
 	}
+
 
 	@Override
 	public String lock(String url) throws IOException
 	{
-		HttpLock entity = new HttpLock(url);
-		Lockinfo body = new Lockinfo();
-		Lockscope scopeType = new Lockscope();
-		scopeType.setExclusive(new Exclusive());
-		body.setLockscope(scopeType);
-		Locktype lockType = new Locktype();
-		lockType.setWrite(new Write());
-		body.setLocktype(lockType);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		// Return the lock token
-		return this.execute(entity, new LockResponseHandler());
+		return execute(generateLockEntity(url),
+				            new LockResponseHandler());
 	}
 
 	@Override
 	public String refreshLock(String url, String token, String file) throws IOException
 	{
-		HttpLock entity = new HttpLock(url);
-		entity.setHeader("If", "<" + file + "> (<" + token + ">)");
-		return this.execute(entity, new LockResponseHandler());
+		return this.execute( generateRefreshLockEntity(url, token, file), 
+				             new LockResponseHandler());
 	}
 
 	@Override
 	public void unlock(String url, String token) throws IOException
 	{
-		HttpUnlock entity = new HttpUnlock(url, token);
-		Lockinfo body = new Lockinfo();
-		Lockscope scopeType = new Lockscope();
-		scopeType.setExclusive(new Exclusive());
-		body.setLockscope(scopeType);
-		Locktype lockType = new Locktype();
-		lockType.setWrite(new Write());
-		body.setLocktype(lockType);
-		this.execute(entity, new VoidResponseHandler());
+		this.execute(generateUnlockEntity(url, token),
+				     new VoidResponseHandler());
 	}
 
 	@Override
 	public void setAcl(String url, List<DavAce> aces) throws IOException
 	{
-		HttpAcl entity = new HttpAcl(url);
-		// Build WebDAV <code>ACL</code> entity.
-		Acl body = new Acl();
-		body.setAce(new ArrayList<Ace>());
-		for (DavAce davAce : aces)
-		{
-			// protected and inherited acl must not be part of ACL http request
-			if (davAce.getInherited() != null || davAce.isProtected())
-			{
-				continue;
-			}
-			Ace ace = davAce.toModel();
-			body.getAce().add(ace);
-		}
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		this.execute(entity, new VoidResponseHandler());
+		this.execute(generateSetAclEntity(url, aces),
+				     new VoidResponseHandler());
 	}
 
 
 	@Override
 	public DavAcl getAcl(String url) throws IOException
 	{
-		HttpPropFind entity = new HttpPropFind(url);
-		entity.setDepth("0");
-		Propfind body = new Propfind();
-		Prop prop = new Prop();
-		prop.setOwner(new Owner());
-		prop.setGroup(new Group());
-		prop.setAcl(new Acl());
-		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		if (responses.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			return new DavAcl(responses.get(0));
-		}
+		Multistatus multistatus = this.execute(generateGetAclEntity(url),
+				                                new MultiStatusResponseHandler());
+		return processGetAclReponses(multistatus.getResponse());
+
 	}
 
 	@Override
 	public DavQuota getQuota(String url) throws IOException
 	{
-		HttpPropFind entity = new HttpPropFind(url);
-		entity.setDepth("0");
-		Propfind body = new Propfind();
-		Prop prop = new Prop();
-		prop.setQuotaAvailableBytes(new QuotaAvailableBytes());
-		prop.setQuotaUsedBytes(new QuotaUsedBytes());
-		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		if (responses.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			return new DavQuota(responses.get(0));
-		}
+		Multistatus multistatus = this.execute(generateGetQuotaEntity(url), 
+				                               new MultiStatusResponseHandler());
+		return processGetQuotaResponses(multistatus.getResponse());
+
 	}
 
 	@Override
 	public List<DavPrincipal> getPrincipals(String url) throws IOException
 	{
-		HttpPropFind entity = new HttpPropFind(url);
-		entity.setDepth("1");
-		Propfind body = new Propfind();
-		Prop prop = new Prop();
-		prop.setDisplayname(new Displayname());
-		prop.setResourcetype(new Resourcetype());
-		prop.setPrincipalURL(new PrincipalURL());
-		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		HttpPropFind entity = generateGetPrincipalsEntity(url);
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		if (responses.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			List<DavPrincipal> collections = new ArrayList<DavPrincipal>();
-			for (Response r : responses)
-			{
-				if (r.getPropstat() != null)
-				{
-					for (Propstat propstat : r.getPropstat())
-					{
-						if (propstat.getProp() != null
-								&& propstat.getProp().getResourcetype() != null
-								&& propstat.getProp().getResourcetype().getPrincipal() != null)
-						{
-							collections.add(new DavPrincipal(DavPrincipal.PrincipalType.HREF,
-									r.getHref().get(0),
-									propstat.getProp().getDisplayname().getContent().get(0)));
-						}
-					}
-				}
-			}
-			return collections;
-		}
+		return processGetPrincipalsResponses(multistatus.getResponse());
 	}
 
 	@Override
 	public List<String> getPrincipalCollectionSet(String url) throws IOException
 	{
-		HttpPropFind entity = new HttpPropFind(url);
-		entity.setDepth("0");
-		Propfind body = new Propfind();
-		Prop prop = new Prop();
-		prop.setPrincipalCollectionSet(new PrincipalCollectionSet());
-		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		HttpPropFind entity = generatePrincipalCollectionSetEntity(url);
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-		List<Response> responses = multistatus.getResponse();
-		if (responses.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			List<String> collections = new ArrayList<String>();
-			for (Response r : responses)
-			{
-				if (r.getPropstat() != null)
-				{
-					for (Propstat propstat : r.getPropstat())
-					{
-						if (propstat.getProp() != null
-								&& propstat.getProp().getPrincipalCollectionSet() != null
-								&& propstat.getProp().getPrincipalCollectionSet().getHref() != null)
-						{
-							collections.addAll(propstat.getProp().getPrincipalCollectionSet().getHref());
-						}
-					}
-				}
-			}
-			return collections;
-		}
+		return processGgetPrincipalCollectionSetResponses(multistatus.getResponse());
 	}
 
 	@Override
@@ -776,15 +474,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		Map<String, String> headers = new HashMap<String, String>();
-		if (contentType != null)
-		{
-			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
-		}
-		if (expectContinue)
-		{
-			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
-		}
+		Map<String, String> headers =  generatePutHeaders(url, entity, contentType, expectContinue);
 		this.put(url, entity, headers);
 	}
 
@@ -797,21 +487,12 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
 	{
-		this.put(url, entity, headers, new VoidResponseHandler());
-		  }
+		put(url, entity, headers, new VoidResponseHandler());
+	 }
 
 	public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
 	{
-		HttpPut put = new HttpPut(url);
-		put.setEntity(entity);
-		for (String header : headers.keySet())
-		{
-			put.addHeader(header, headers.get(header));
-		}
-		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
-		{
-			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
-		}
+		HttpPut put = generatePutEntity(url, entity, headers);
 		try
 		{
 			return this.execute(put, handler);
@@ -834,29 +515,29 @@ public class SardineImpl implements Sardine
 	@Override
 	public void delete(String url) throws IOException
 	{
-		HttpDelete delete = new HttpDelete(url);
-		this.execute(delete, new VoidResponseHandler());
+		this.execute(new HttpDelete(url),
+				     new VoidResponseHandler());
 	}
 
 	@Override
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
-		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
-		this.execute(move, new VoidResponseHandler());
+		this.execute(new HttpMove(sourceUrl, destinationUrl),
+					new VoidResponseHandler());
 	}
 
 	@Override
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
-		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
-		this.execute(copy, new VoidResponseHandler());
+		this.execute(new HttpCopy(sourceUrl, destinationUrl), 
+				     new VoidResponseHandler());
 	}
 
 	@Override
 	public void createDirectory(String url) throws IOException
 	{
-		HttpMkCol mkcol = new HttpMkCol(url);
-		this.execute(mkcol, new VoidResponseHandler());
+		this.execute( new HttpMkCol(url), 
+				      new VoidResponseHandler());
 	}
 
 	@Override
