@@ -16,68 +16,6 @@
 
 package com.github.sardine.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.params.AuthPolicy;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.client.protocol.RequestAcceptEncoding;
-import org.apache.http.client.protocol.ResponseContentEncoding;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoutePlanner;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.VersionInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
 import com.github.sardine.DavPrincipal;
@@ -117,14 +55,75 @@ import com.github.sardine.model.Prop;
 import com.github.sardine.model.Propertyupdate;
 import com.github.sardine.model.Propfind;
 import com.github.sardine.model.Propstat;
-import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.QuotaAvailableBytes;
+import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.protocol.RequestAcceptEncoding;
+import org.apache.http.client.protocol.ResponseContentEncoding;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.VersionInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -139,9 +138,14 @@ public class SardineImpl implements Sardine
 	private static final String UTF_8 = "UTF-8";
 
 	/**
-	 * HTTP Implementation
+	 * HTTP client implementation
 	 */
-	private AbstractHttpClient client;
+	private CloseableHttpClient client;
+
+	/**
+	 * HTTP client configuration
+	 */
+	private HttpClientBuilder builder;
 
 	/**
 	 * Local context with authentication cache. Make sure the same context is used to execute
@@ -154,7 +158,8 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl()
 	{
-		this.init(this.createDefaultClient(null), new SardineRedirectStrategy(), null, null);
+		this.builder = this.configure(null, null);
+		this.client = this.builder.build();
 	}
 
 	/**
@@ -165,7 +170,8 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password)
 	{
-		this.init(this.createDefaultClient(null), new SardineRedirectStrategy(), username, password);
+		this.builder = this.configure(null, this.getCredentialsProvider(username, password, null, null));
+		this.client = this.builder.build();
 	}
 
 	/**
@@ -175,40 +181,27 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-		this.init(this.createDefaultClient(selector), new SardineRedirectStrategy(), username, password);
+		this.builder = this.configure(selector, this.getCredentialsProvider(username, password, null, null));
+		this.client = this.builder.build();
 	}
 
 	/**
-	 * @param http Custom client configuration
+	 * @param builder Custom client configuration
 	 */
-	public SardineImpl(AbstractHttpClient http)
+	public SardineImpl(HttpClientBuilder builder)
 	{
-		this.init(http, new SardineRedirectStrategy(), null, null);
+		this.builder = builder;
+		this.client = this.builder.build();
 	}
 
 	/**
-	 * @param http Custom client configuration
-	 *             @param redirect Custom redirect strategy
-	 */
-	public SardineImpl(AbstractHttpClient http, RedirectStrategy redirect)
-	{
-		this.init(http, redirect, null, null);
-	}
-
-	/**
-	 * @param http	 Custom client configuration
+	 * @param builder  Custom client configuration
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(AbstractHttpClient http, String username, String password)
+	public SardineImpl(HttpClientBuilder builder, String username, String password)
 	{
-		this.init(http, new SardineRedirectStrategy(), username, password);
-	}
-
-	private void init(AbstractHttpClient http, RedirectStrategy redirect, String username, String password)
-	{
-		this.client = http;
-		this.client.setRedirectStrategy(redirect);
+		this.builder = builder;
 		this.setCredentials(username, password);
 	}
 
@@ -225,32 +218,40 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * @param username	Use in authentication header credentials
-	 * @param password	Use in authentication header credentialsn
-	 * @param domain	  NTLM authentication
+	 * @param username    Use in authentication header credentials
+	 * @param password    Use in authentication header credentials
+	 * @param domain      NTLM authentication
 	 * @param workstation NTLM authentication
 	 */
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
+		this.builder.setDefaultCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+		this.client = this.builder.build();
+	}
+
+	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
+	{
+		CredentialsProvider provider = new BasicCredentialsProvider();
 		if (username != null)
 		{
-			this.client.getCredentialsProvider().setCredentials(
+			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.NTLM),
 					new NTCredentials(username, password, workstation, domain));
-			this.client.getCredentialsProvider().setCredentials(
+			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.BASIC),
 					new UsernamePasswordCredentials(username, password));
-			this.client.getCredentialsProvider().setCredentials(
+			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.DIGEST),
 					new UsernamePasswordCredentials(username, password));
-			this.client.getCredentialsProvider().setCredentials(
+			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.SPNEGO),
 					new UsernamePasswordCredentials(username, password));
-			this.client.getCredentialsProvider().setCredentials(
+			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthPolicy.KERBEROS),
 					new UsernamePasswordCredentials(username, password));
 		}
+		return provider;
 	}
 
 	/**
@@ -259,8 +260,9 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enableCompression()
 	{
-		this.client.addRequestInterceptor(new RequestAcceptEncoding());
-		this.client.addResponseInterceptor(new ResponseContentEncoding());
+		this.builder.addInterceptorLast(new RequestAcceptEncoding());
+		this.builder.addInterceptorLast(new ResponseContentEncoding());
+		this.client = this.builder.build();
 	}
 
 	/**
@@ -269,33 +271,29 @@ public class SardineImpl implements Sardine
 	@Override
 	public void disableCompression()
 	{
-		this.client.removeRequestInterceptorByClass(RequestAcceptEncoding.class);
-		this.client.removeResponseInterceptorByClass(ResponseContentEncoding.class);
+		this.builder.disableContentCompression();
+		this.client = this.builder.build();
 	}
 
 	@Override
 	public void enablePreemptiveAuthentication(String hostname)
 	{
-		AuthCache authCache = new BasicAuthCache();
+		AuthCache cache = new BasicAuthCache();
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
-		SchemeRegistry registry = this.client.getConnectionManager().getSchemeRegistry();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		for (String scheme : registry.getSchemeNames())
+		for (String scheme : Arrays.asList("http", "https"))
 		{
-			int port = registry.getScheme(scheme).getDefaultPort();
-			authCache.put(new HttpHost(hostname), basicAuth);
-			authCache.put(new HttpHost(hostname, -1, scheme), basicAuth);
-			authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
+			cache.put(new HttpHost(hostname, -1, scheme), basicAuth);
 		}
 		// Add AuthCache to the execution context
-		this.context.setAttribute(ClientContext.AUTH_CACHE, authCache);
+		this.context.setAttribute(HttpClientContext.AUTH_CACHE, cache);
 	}
 
 	@Override
 	public void disablePreemptiveAuthentication()
 	{
-		this.context.removeAttribute(ClientContext.AUTH_CACHE);
+		this.context.removeAttribute(HttpClientContext.AUTH_CACHE);
 	}
 
 	@Override
@@ -315,6 +313,7 @@ public class SardineImpl implements Sardine
 	{
 		return list(url, depth, true);
 	}
+
 	@Override
 	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
 	{
@@ -322,8 +321,11 @@ public class SardineImpl implements Sardine
 		entity.setDepth(Integer.toString(depth));
 		Propfind body = new Propfind();
 		if (allProp)
+		{
 			body.setAllprop(new Allprop());
-		else {
+		}
+		else
+		{
 			Prop prop = new Prop();
 			ObjectFactory objectFactory = new ObjectFactory();
 			prop.setGetcontentlength(objectFactory.createGetcontentlength());
@@ -692,9 +694,9 @@ public class SardineImpl implements Sardine
 	/**
 	 * Upload the entity using <code>PUT</code>
 	 *
-	 * @param url			Resource
-	 * @param entity		 The entity to read from
-	 * @param contentType	Content Type header
+	 * @param url            Resource
+	 * @param entity         The entity to read from
+	 * @param contentType    Content Type header
 	 * @param expectContinue Add <code>Expect: continue</code> header
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
@@ -714,14 +716,14 @@ public class SardineImpl implements Sardine
 	/**
 	 * Upload the entity using <code>PUT</code>
 	 *
-	 * @param url	 Resource
+	 * @param url     Resource
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
 	 */
 	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
 	{
 		this.put(url, entity, headers, new VoidResponseHandler());
-		  }
+	}
 
 	public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
 	{
@@ -793,7 +795,7 @@ public class SardineImpl implements Sardine
 	 * Validate the response using the response handler. Aborts the request if there is an exception.
 	 *
 	 * @param <T>             Return type
-	 * @param request		 Request to execute
+	 * @param request         Request to execute
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
 	 */
@@ -803,7 +805,7 @@ public class SardineImpl implements Sardine
 		try
 		{
 			// Clear circular redirect cache
-			this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 			// Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
@@ -826,7 +828,7 @@ public class SardineImpl implements Sardine
 		try
 		{
 			// Clear circular redirect cache
-			this.context.removeAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
+			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 			// Execute with no response handler
 			return this.client.execute(request, this.context);
 		}
@@ -838,77 +840,72 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void shutdown()
+	public void shutdown() throws IOException
 	{
-		this.client.getConnectionManager().shutdown();
+		this.client.close();
 	}
 
 	/**
-	 * Creates an AbstractHttpClient with all of the defaults.
-	 */
-	protected AbstractHttpClient createDefaultClient(ProxySelector selector)
-	{
-		SchemeRegistry schemeRegistry = this.createDefaultSchemeRegistry();
-		ClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
-		HttpParams params = this.createDefaultHttpParams();
-		AbstractHttpClient c = new DefaultHttpClient(cm, params);
-		c.setRoutePlanner(this.createDefaultRoutePlanner(schemeRegistry, selector));
-		return c;
-	}
-
-	/**
-	 * Creates default params setting the user agent.
+	 * Creates a client with all of the defaults.
 	 *
-	 * @return Basic HTTP parameters with a custom user agent
+	 * @param selector    Proxy configuration or null
+	 * @param credentials Authentication credentials or null
 	 */
-	protected HttpParams createDefaultHttpParams()
+	protected HttpClientBuilder configure(ProxySelector selector, CredentialsProvider credentials)
 	{
-		HttpParams params = new BasicHttpParams();
-		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		Registry<ConnectionSocketFactory> schemeRegistry = this.createDefaultSchemeRegistry();
+		HttpClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
 		String version = Version.getSpecification();
 		if (version == null)
 		{
 			version = VersionInfo.UNAVAILABLE;
 		}
-		HttpProtocolParams.setUserAgent(params, "Sardine/" + version);
-		// Only selectively enable this for PUT but not all entity enclosing methods
-		HttpProtocolParams.setUseExpectContinue(params, false);
-		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-		HttpProtocolParams.setContentCharset(params, HTTP.DEF_CONTENT_CHARSET.name());
+		return HttpClients.custom()
+				.setUserAgent("Sardine/" + version)
+				.setDefaultCredentialsProvider(credentials)
+				.setRedirectStrategy(this.createDefaultRedirectStrategy())
+				.setDefaultRequestConfig(RequestConfig.custom()
+						// Only selectively enable this for PUT but not all entity enclosing methods
+						.setExpectContinueEnabled(false).build())
+				.setConnectionManager(cm)
+				.setRoutePlanner(this.createDefaultRoutePlanner(this.createDefaultSchemePortResolver(), selector));
+	}
 
-		HttpConnectionParams.setTcpNoDelay(params, true);
-		HttpConnectionParams.setSocketBufferSize(params, 8192);
-		return params;
+	protected DefaultSchemePortResolver createDefaultSchemePortResolver()
+	{
+		return new DefaultSchemePortResolver();
+	}
+
+	protected SardineRedirectStrategy createDefaultRedirectStrategy()
+	{
+		return new SardineRedirectStrategy();
 	}
 
 	/**
-	 * Creates a new {@link org.apache.http.conn.scheme.SchemeRegistry} for default ports
-	 * with socket factories.
-	 *
-	 * @return a new {@link org.apache.http.conn.scheme.SchemeRegistry}.
+	 * Creates a new registry for default ports with socket factories.
 	 */
-	protected SchemeRegistry createDefaultSchemeRegistry()
+	protected Registry<ConnectionSocketFactory> createDefaultSchemeRegistry()
 	{
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", 80, this.createDefaultSocketFactory()));
-		registry.register(new Scheme("https", 443, this.createDefaultSecureSocketFactory()));
-		return registry;
+		return RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("http", this.createDefaultSocketFactory())
+				.register("https", this.createDefaultSecureSocketFactory())
+				.build();
 	}
 
 	/**
 	 * @return Default socket factory
 	 */
-	protected PlainSocketFactory createDefaultSocketFactory()
+	protected ConnectionSocketFactory createDefaultSocketFactory()
 	{
-		return PlainSocketFactory.getSocketFactory();
+		return PlainConnectionSocketFactory.getSocketFactory();
 	}
 
 	/**
 	 * @return Default SSL socket factory
 	 */
-	protected SSLSocketFactory createDefaultSecureSocketFactory()
+	protected ConnectionSocketFactory createDefaultSecureSocketFactory()
 	{
-		return SSLSocketFactory.getSocketFactory();
+		return SSLConnectionSocketFactory.getSocketFactory();
 	}
 
 	/**
@@ -917,21 +914,20 @@ public class SardineImpl implements Sardine
 	 * @param schemeRegistry Protocol registry
 	 * @return Default connection manager
 	 */
-	protected ClientConnectionManager createDefaultConnectionManager(SchemeRegistry schemeRegistry)
+	protected HttpClientConnectionManager createDefaultConnectionManager(Registry<ConnectionSocketFactory> schemeRegistry)
 	{
-		return new PoolingClientConnectionManager(schemeRegistry);
+		return new PoolingHttpClientConnectionManager(schemeRegistry);
 	}
 
 	/**
 	 * Override to provide proxy configuration
 	 *
-	 * @param schemeRegistry Protocol registry
-	 * @param selector	   Proxy configuration
+	 * @param resolver Protocol registry
+	 * @param selector Proxy configuration
 	 * @return ProxySelectorRoutePlanner configured with schemeRegistry and selector
 	 */
-	protected HttpRoutePlanner createDefaultRoutePlanner(SchemeRegistry schemeRegistry, ProxySelector selector)
+	protected HttpRoutePlanner createDefaultRoutePlanner(SchemePortResolver resolver, ProxySelector selector)
 	{
-		return new ProxySelectorRoutePlanner(schemeRegistry, selector);
+		return new SystemDefaultRoutePlanner(resolver, selector);
 	}
-
 }
