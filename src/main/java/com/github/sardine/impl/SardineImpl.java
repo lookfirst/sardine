@@ -151,7 +151,7 @@ public class SardineImpl implements Sardine
 	 * Local context with authentication cache. Make sure the same context is used to execute
 	 * logically related requests.
 	 */
-	private HttpContext context = new BasicHttpContext();
+	private HttpClientContext context = HttpClientContext.create();
 
 	/**
 	 * Access resources with no authentication
