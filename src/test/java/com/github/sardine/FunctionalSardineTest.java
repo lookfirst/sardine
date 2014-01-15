@@ -28,6 +28,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -90,8 +91,8 @@ public class FunctionalSardineTest
 	@Test
 	public void testGetSingleFileGzip() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addResponseInterceptor(new HttpResponseInterceptor()
+		final HttpClientBuilder client = HttpClientBuilder.create();
+		client.addInterceptorFirst(new HttpResponseInterceptor()
 		{
 			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
 			{
@@ -99,7 +100,6 @@ public class FunctionalSardineTest
 				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_ENCODING));
 				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_ENCODING).length);
 				assertEquals("gzip", r.getHeaders(HttpHeaders.CONTENT_ENCODING)[0].getValue());
-				client.removeResponseInterceptorByClass(this.getClass());
 			}
 		});
 		Sardine sardine = new SardineImpl(client);
@@ -225,41 +225,37 @@ public class FunctionalSardineTest
 	@Test
 	public void testPutRange() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
-		Sardine sardine = new SardineImpl(client);
-		// mod_dav supports Range headers for PUT
-		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		client.addResponseInterceptor(new HttpResponseInterceptor()
+		final HttpClientBuilder client = HttpClientBuilder.create();
+		client.addInterceptorFirst(new HttpResponseInterceptor()
 		{
 			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
 			{
 				assertEquals(201, r.getStatusLine().getStatusCode());
-				client.removeResponseInterceptorByClass(this.getClass());
 			}
 		});
+		Sardine sardine = new SardineImpl(client);
+		// mod_dav supports Range headers for PUT
+		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
-
 		try
 		{
 			// Append to existing file
 			final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
 					"bytes " + 2 + "-" + 3 + "/" + 4);
 
-			client.addRequestInterceptor(new HttpRequestInterceptor()
+			client.addInterceptorFirst(new HttpRequestInterceptor()
 			{
 				public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
 				{
 					assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
 					assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
-					client.removeRequestInterceptorByClass(this.getClass());
 				}
 			});
-			client.addResponseInterceptor(new HttpResponseInterceptor()
+			client.addInterceptorFirst(new HttpResponseInterceptor()
 			{
 				public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
 				{
 					assertEquals(204, r.getStatusLine().getStatusCode());
-					client.removeResponseInterceptorByClass(this.getClass());
 				}
 			});
 			sardine.put(url, new ByteArrayInputStream("st".getBytes("UTF-8")), header);
@@ -275,8 +271,8 @@ public class FunctionalSardineTest
 	@Test
 	public void testGetRange() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addResponseInterceptor(new HttpResponseInterceptor()
+		final HttpClientBuilder client = HttpClientBuilder.create();
+		client.addInterceptorFirst(new HttpResponseInterceptor()
 		{
 			public void process(final HttpResponse r, final HttpContext context) throws HttpException, IOException
 			{
@@ -284,7 +280,6 @@ public class FunctionalSardineTest
 				assertEquals(206, r.getStatusLine().getStatusCode());
 				assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
 				assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
-				client.removeResponseInterceptorByClass(this.getClass());
 			}
 		});
 		Sardine sardine = new SardineImpl(client);

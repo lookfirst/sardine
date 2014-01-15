@@ -38,6 +38,7 @@ import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -148,9 +149,9 @@ public class AuthenticationTest
 	@Test
 	public void testBasicPreemptiveAuth() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
+		final HttpClientBuilder client = HttpClientBuilder.create();
 		final CountDownLatch count = new CountDownLatch(1);
-		client.setCredentialsProvider(new BasicCredentialsProvider()
+		client.setDefaultCredentialsProvider(new BasicCredentialsProvider()
 		{
 			@Override
 			public Credentials getCredentials(AuthScope authscope)
@@ -192,14 +193,13 @@ public class AuthenticationTest
 	@Test
 	public void testBasicPreemptiveAuthHeader() throws Exception
 	{
-		final DefaultHttpClient client = new DefaultHttpClient();
-		client.addRequestInterceptor(new HttpRequestInterceptor()
+		final HttpClientBuilder client = HttpClientBuilder.create();
+		client.addInterceptorFirst(new HttpRequestInterceptor()
 		{
 			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
 			{
 				assertNotNull(r.getHeaders(HttpHeaders.AUTHORIZATION));
 				assertEquals(1, r.getHeaders(HttpHeaders.AUTHORIZATION).length);
-				client.removeRequestInterceptorByClass(this.getClass());
 			}
 		});
 		Sardine sardine = new SardineImpl(client);
