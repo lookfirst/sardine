@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<antlib>
+  <taskdef name="sardine" classname="com.github.sardine.ant.SardineTask" />
+</antlib>
