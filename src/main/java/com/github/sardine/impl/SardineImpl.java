@@ -19,6 +19,8 @@ package com.github.sardine.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +48,14 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
+import org.w3c.dom.Element;
 
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
@@ -71,6 +75,10 @@ import com.github.sardine.impl.methods.HttpMkCol;
 import com.github.sardine.impl.methods.HttpMove;
 import com.github.sardine.impl.methods.HttpPropFind;
 import com.github.sardine.model.Multistatus;
+import com.github.sardine.model.ObjectFactory;
+import com.github.sardine.model.Prop;
+import com.github.sardine.model.Propfind;
+import com.github.sardine.model.Response;
 import com.github.sardine.util.SardineUtil;
 
 /**
@@ -289,7 +297,28 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	@Override
 	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
 	{
-		return patch(url, setProps, Collections.<QName>emptyList());
+		Propfind body = new Propfind();
+        
+		Prop prop = new Prop();
+		ObjectFactory objectFactory = new ObjectFactory();
+		prop.setGetcontentlength(objectFactory.createGetcontentlength());
+		prop.setGetlastmodified(objectFactory.createGetlastmodified());
+		prop.setCreationdate(objectFactory.createCreationdate());
+		prop.setDisplayname(objectFactory.createDisplayname());
+		prop.setGetcontenttype(objectFactory.createGetcontenttype());
+		prop.setResourcetype(objectFactory.createResourcetype());
+		prop.setGetetag(objectFactory.createGetetag());
+                
+		List<Element> any = prop.getAny();
+		for (QName entry : props) {
+			Element element = SardineUtil.createElement(entry);
+			any.add(element);
+		}
+
+		body.setProp(prop);
+                
+		return list(url, depth, body);
+
 	}
 
 
@@ -298,6 +327,22 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	{
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		for (Response response : responses)
+		{
+			try
+			{
+				resources.add(new DavResource(response));
+			}
+			catch (URISyntaxException e)
+			{
+				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+			}
+		}
+		return resources;
         }
 
 

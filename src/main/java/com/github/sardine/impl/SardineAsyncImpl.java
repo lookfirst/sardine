@@ -18,9 +18,11 @@ package com.github.sardine.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.nio.charset.CodingErrorAction;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
@@ -35,7 +37,12 @@ import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.concurrent.FutureCallback;
@@ -46,7 +53,9 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
@@ -83,6 +92,7 @@ import org.apache.http.util.VersionInfo;
 
 import com.github.sardine.SardineAsync;
 import com.github.sardine.Version;
+import com.github.sardine.impl.handler.VoidResponseHandler;
 
 
 /**
@@ -298,6 +308,7 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
             .setMalformedInputAction(CodingErrorAction.IGNORE)
             .setUnmappableInputAction(CodingErrorAction.IGNORE)
             .setCharset(HTTP.DEF_CONTENT_CHARSET)
+            .setBufferSize(4000)
             .setMessageConstraints(messageConstraints)
             .build();
         // Configure the connection manager to use connection configuration either
@@ -306,8 +317,8 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 
         // Configure total max or per route limits for persistent connections
         // that can be kept in the pool or leased by the connection manager.
-        connManager.setMaxTotal(5);
-        connManager.setDefaultMaxPerRoute(5);
+        connManager.setMaxTotal(100);
+        connManager.setDefaultMaxPerRoute(10);
 		
 		connectionManager = connManager;
 		builder.setConnectionManager(connectionManager);
@@ -397,9 +408,141 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	        			}
 	        			throw new SardineException("Unexpected response", statusLine.getStatusCode(), statusLine.getReasonPhrase());
 	        	    }
-        }, context, callback);
+        }, context, callback); 
 
 	}
+	
+
+	@Override
+	public Future<HttpResponse> put(String url, byte[] data,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		return put(url, data, null, callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, byte[] data, String contentType,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		ByteArrayEntity entity = new ByteArrayEntity(data);
+		return put(url, entity, contentType, true,callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, InputStream dataStream,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		return put(url, dataStream, (String) null,callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		return put(url, dataStream, contentType, true,callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		// A length of -1 means "go until end of stream"
+		return put(url, dataStream, contentType, expectContinue, -1, callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength);
+		return put(url, entity, contentType, expectContinue,callback);
+	}
+
+	@Override
+	public Future<HttpResponse> put(String url, InputStream dataStream, Map<String, String> headers,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		// A length of -1 means "go until end of stream"
+		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		return put(url, entity, headers,callback);
+	}
+
+	/**
+	 * Upload the entity using <code>PUT</code>
+	 *
+	 * @param url			Resource
+	 * @param entity		 The entity to read from
+	 * @param contentType	Content Type header
+	 * @param expectContinue Add <code>Expect: continue</code> header
+	 */
+	public Future<HttpResponse> put(String url, HttpEntity entity, String contentType, boolean expectContinue,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		Map<String, String> headers =  generatePutHeaders(url, entity, contentType, expectContinue);
+		return put(url, entity, headers,callback);
+	}
+
+	/**
+	 * Upload the entity using <code>PUT</code>
+	 *
+	 * @param url	 Resource
+	 * @param entity  The entity to read from
+	 * @param headers Headers to add to request
+	 */
+	public Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		return put(url, entity, headers, new VoidResponseHandler(),callback);
+	 }
+
+	public <T> Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler,  FutureCallback<HttpResponse> callback) throws IOException
+	{
+		HttpPut put = generatePutEntity(url, entity, headers);
+		try
+		{
+			return execute(put, handler, callback);
+		}
+		catch (HttpResponseException e)
+		{
+			if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
+			{
+				// Retry with the Expect header removed
+				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
+				if (entity.isRepeatable())
+				{
+					return execute(put, handler, callback);
+				}
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * Validate the response using the response handler. Aborts the request if there is an exception.
+	 *
+	 * @param <T>             Return type
+	 * @param request		 Request to execute
+	 * @param responseHandler Determines the return type.
+	 * @return parsed response
+	 */
+	protected <T> Future<HttpResponse> execute(HttpRequestBase request, ResponseHandler<T> responseHandler,  FutureCallback<HttpResponse> callback)
+			throws IOException
+	{
+
+		// Clear circular redirect cache
+		context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+		// Execute with response handler
+		return client.execute(request, context, callback);
+
+	}
+
+	/**
+	 * No validation of the response. Aborts the request if there is an exception.
+	 *
+	 * @param request Request to execute
+	 * @return The response to check the reply status code
+	 */
+	protected Future<HttpResponse> execute(HttpRequestBase request,  FutureCallback<HttpResponse> callback)
+			throws IOException
+	{
+		// Clear circular redirect cache
+		context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+		// Execute with no response handler
+		return client.execute(request, context,callback);
+
+	}
+
 	
 	@Override
 	public void shutdown() 	{
