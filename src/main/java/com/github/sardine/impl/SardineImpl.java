@@ -315,27 +315,49 @@ public class SardineImpl implements Sardine
 	{
 		return list(url, depth, true);
 	}
-	@Override
+
+        @Override
 	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
+	{
+		if (allProp) {
+			Propfind body = new Propfind();
+			body.setAllprop(new Allprop());
+			return list(url, depth, body);
+		} else {
+			return list(url, depth, Collections.<QName>emptySet());
+		}
+	}
+
+	@Override
+	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
+	{
+		Propfind body = new Propfind();
+                
+		Prop prop = new Prop();
+		ObjectFactory objectFactory = new ObjectFactory();
+		prop.setGetcontentlength(objectFactory.createGetcontentlength());
+		prop.setGetlastmodified(objectFactory.createGetlastmodified());
+		prop.setCreationdate(objectFactory.createCreationdate());
+		prop.setDisplayname(objectFactory.createDisplayname());
+		prop.setGetcontenttype(objectFactory.createGetcontenttype());
+		prop.setResourcetype(objectFactory.createResourcetype());
+		prop.setGetetag(objectFactory.createGetetag());
+                
+		List<Element> any = prop.getAny();
+		for (QName entry : props) {
+			Element element = SardineUtil.createElement(entry);
+			any.add(element);
+		}
+
+		body.setProp(prop);
+                
+		return list(url, depth, body);
+		}
+
+	protected List<DavResource> list(String url, int depth, Propfind body) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
-		Propfind body = new Propfind();
-		if (allProp)
-			body.setAllprop(new Allprop());
-		else {
-			Prop prop = new Prop();
-			ObjectFactory objectFactory = new ObjectFactory();
-			prop.setGetcontentlength(objectFactory.createGetcontentlength());
-			prop.setGetlastmodified(objectFactory.createGetlastmodified());
-			prop.setCreationdate(objectFactory.createCreationdate());
-			prop.setDisplayname(objectFactory.createDisplayname());
-			prop.setGetcontenttype(objectFactory.createGetcontenttype());
-			prop.setResourcetype(objectFactory.createResourcetype());
-			prop.setGetetag(objectFactory.createGetetag());
-
-			body.setProp(prop);
-		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
@@ -352,7 +374,7 @@ public class SardineImpl implements Sardine
 			}
 		}
 		return resources;
-	}
+        }
 
 	@Override
 	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
