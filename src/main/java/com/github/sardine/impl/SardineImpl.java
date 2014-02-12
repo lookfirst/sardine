@@ -324,7 +324,7 @@ public class SardineImpl implements Sardine
 			body.setAllprop(new Allprop());
 			return list(url, depth, body);
 		} else {
-			return list(url, depth, new HashMap());
+			return list(url, depth, Collections.<QName, String>emptyMap());
 		}
 	}
 

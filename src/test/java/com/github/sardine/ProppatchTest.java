@@ -86,7 +86,7 @@ public class ProppatchTest
 				assertTrue(resource.getCustomProps().containsKey("fish"));
 			}
 			{
-				List<DavResource> resources = sardine.list(url);
+				List<DavResource> resources = sardine.list(url, 0, patch);
 				assertNotNull(resources);
 				assertEquals(1, resources.size());
 				DavResource resource = resources.iterator().next();
