@@ -324,12 +324,12 @@ public class SardineImpl implements Sardine
 			body.setAllprop(new Allprop());
 			return list(url, depth, body);
 		} else {
-			return list(url, depth, Collections.<QName, String>emptyMap());
+			return list(url, depth, Collections.<QName>emptySet());
 		}
 	}
 
 	@Override
-	public List<DavResource> list(String url, int depth, Map<QName, String> props) throws IOException
+	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
 	{
 		Propfind body = new Propfind();
                 
@@ -344,15 +344,15 @@ public class SardineImpl implements Sardine
 		prop.setGetetag(objectFactory.createGetetag());
                 
 		List<Element> any = prop.getAny();
-		for (Map.Entry<QName, String> entry : props.entrySet()) {
-			Element element = SardineUtil.createElement(entry.getKey());
+		for (QName entry : props) {
+			Element element = SardineUtil.createElement(entry);
 			any.add(element);
 		}
 
 		body.setProp(prop);
                 
 		return list(url, depth, body);
-        }
+		}
 
 	protected List<DavResource> list(String url, int depth, Propfind body) throws IOException
 	{

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The main interface for Sardine operations.
@@ -65,6 +66,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<DavResource> list(String url, int depth, Map<QName, String> props) throws IOException;
+
+	/**
+	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
+	 *
+	 * @param url   Path to the resource including protocol and hostname
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @param props Additional properties which should be requested.
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> list(String url, int depth, Set<QName> props) throws IOException;
 
 	/**
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
