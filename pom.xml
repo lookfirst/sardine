@@ -6,7 +6,7 @@
 	<groupId>com.github.lookfirst</groupId>
 	<artifactId>sardine</artifactId>
 	<packaging>jar</packaging>
-	<version>5.0.3</version>
+	<version>5.1-SNAPSHOT</version>
 	<description>An easy to use webdav client for java</description>
 	<name>Sardine WEBDAV client</name>
 	<url>https://github.com/lookfirst/sardine</url>
@@ -138,7 +138,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.3.1</version>
+			<version>4.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>

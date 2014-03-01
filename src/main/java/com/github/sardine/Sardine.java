@@ -374,6 +374,6 @@ public interface Sardine
 	 * client has been shutdown, it should not be used to make any more
 	 * requests.
 	 */
-	public void shutdown();
+	public void shutdown() throws IOException;
 
 }
