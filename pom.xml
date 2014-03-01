@@ -10,6 +10,11 @@
 	<description>An easy to use webdav client for java</description>
 	<name>Sardine WEBDAV client</name>
 	<url>https://github.com/lookfirst/sardine</url>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<licenses>
 		<license>
 			<name>Apache 2.0</name>
@@ -34,7 +39,7 @@
 			<organization>iterate GmbH</organization>
 		</developer>
 	</developers>
-	<distributionManagement>
+  	<distributionManagement>
 		<repository>
 			<id>nexus-releases</id>
 			<name>Nexus Release Repository</name>
