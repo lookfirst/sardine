@@ -1,9 +1,8 @@
 package com.github.sardine;
 
-import javax.xml.namespace.QName;
-
 import org.apache.http.ProtocolVersion;
 
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -27,7 +26,6 @@ public interface Sardine
 	 * @param version
 	 */
 	void setProtocolVersion(ProtocolVersion version);
-	
 
 	/**
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.

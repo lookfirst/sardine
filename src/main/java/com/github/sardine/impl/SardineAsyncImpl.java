@@ -16,17 +16,9 @@
 
 package com.github.sardine.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.nio.charset.CodingErrorAction;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import javax.net.ssl.SSLContext;
-
+import com.github.sardine.SardineAsync;
+import com.github.sardine.Version;
+import com.github.sardine.impl.handler.VoidResponseHandler;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -90,15 +82,19 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.VersionInfo;
 
-import com.github.sardine.SardineAsync;
-import com.github.sardine.Version;
-import com.github.sardine.impl.handler.VoidResponseHandler;
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.nio.charset.CodingErrorAction;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
- *
- * @author jonstevens
  */
 public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 {
@@ -129,15 +125,13 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 				try {
 					setConnectionManager();
 				} catch (IOReactorException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 			buildClient();
-		}
-		else
+		} else {
 			log.warn("builder is null: unable to initialize");
-
+		}
 	}
 	
 	
@@ -152,7 +146,6 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	}
 
 	/**
-	 * @param http Custom client configuration
 	 */
 	public SardineAsyncImpl()
 	{
@@ -160,8 +153,7 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	}
 
 	/**
-	 * @param http Custom client configuration
-	 *             @param redirect Custom redirect strategy
+	 * @param redirect Custom redirect strategy
 	 */
 	public SardineAsyncImpl(RedirectStrategy redirect)
 	{
@@ -169,7 +161,6 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	}
 
 	/**
-	 * @param http	 Custom client configuration
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
@@ -200,7 +191,6 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 		try {
 			setConnectionManager();
 		} catch (IOReactorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		builder.setSchemePortResolver(DefaultSchemePortResolver.INSTANCE);
@@ -229,95 +219,96 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	protected void setConnectionManager() throws IOReactorException {
 		
 		 // Use custom message parser / writer to customize the way HTTP
-        // messages are parsed from and written out to the data stream.
-        NHttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
+		// messages are parsed from and written out to the data stream.
+		NHttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
 
-            @Override
-            public NHttpMessageParser<HttpResponse> create(
-                    final SessionInputBuffer buffer,
-                    final MessageConstraints constraints) {
-                LineParser lineParser = new BasicLineParser() {
+			@Override
+			public NHttpMessageParser<HttpResponse> create(
+					final SessionInputBuffer buffer,
+					final MessageConstraints constraints) {
+				LineParser lineParser = new BasicLineParser() {
 
-                    @Override
-                    public Header parseHeader(final CharArrayBuffer buffer) {
-                        try {
-                            return super.parseHeader(buffer);
-                        } catch (ParseException ex) {
-                            return new BasicHeader(buffer.toString(), null);
-                        }
-                    }
+					@Override
+					public Header parseHeader(final CharArrayBuffer buffer) {
+						try {
+							return super.parseHeader(buffer);
+						} catch (ParseException ex) {
+							return new BasicHeader(buffer.toString(), null);
+						}
+					}
 
-                };
-                return new DefaultHttpResponseParser(
-                        buffer, lineParser, DefaultHttpResponseFactory.INSTANCE, constraints);
-            }
+				};
+				return new DefaultHttpResponseParser(
+						buffer, lineParser, DefaultHttpResponseFactory.INSTANCE, constraints);
+			}
 
-        };
-        NHttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
+		};
+		NHttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
 
-        // Use a custom connection factory to customize the process of
-        // initialization of outgoing HTTP connections. Beside standard connection
-        // configuration parameters HTTP connection factory can define message
-        // parser / writer routines to be employed by individual connections.
-        NHttpConnectionFactory<ManagedNHttpClientConnection> connFactory =
-        									new ManagedNHttpClientConnectionFactory(requestWriterFactory, 
-        				                                responseParserFactory,
-        				                                HeapByteBufferAllocator.INSTANCE);
+		// Use a custom connection factory to customize the process of
+		// initialization of outgoing HTTP connections. Beside standard connection
+		// configuration parameters HTTP connection factory can define message
+		// parser / writer routines to be employed by individual connections.
+		NHttpConnectionFactory<ManagedNHttpClientConnection> connFactory =
+											new ManagedNHttpClientConnectionFactory(requestWriterFactory,
+														responseParserFactory,
+														HeapByteBufferAllocator.INSTANCE);
 
-        // Client HTTP connection objects when fully initialized can be bound to
-        // an arbitrary network socket. The process of network socket initialization,
-        // its connection to a remote address and binding to a local one is controlled
-        // by a connection socket factory.
+		// Client HTTP connection objects when fully initialized can be bound to
+		// an arbitrary network socket. The process of network socket initialization,
+		// its connection to a remote address and binding to a local one is controlled
+		// by a connection socket factory.
 
-        // SSL context for secure connections can be created either based on
-        // system or application specific properties.
-        SSLContext sslcontext = SSLContexts.createSystemDefault();
-        // Use custom hostname verifier to customize SSL hostname verification.
-        X509HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
+		// SSL context for secure connections can be created either based on
+		// system or application specific properties.
+		SSLContext sslcontext = SSLContexts.createSystemDefault();
+		// Use custom hostname verifier to customize SSL hostname verification.
+		X509HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
 
-        // Create a registry of custom connection session strategies for supported
-        // protocol schemes.
-        Registry<SchemeIOSessionStrategy> sessionStrategyRegistry = RegistryBuilder.<SchemeIOSessionStrategy>create()
-            .register("http", NoopIOSessionStrategy.INSTANCE)
-            .register("https", new SSLIOSessionStrategy(sslcontext, hostnameVerifier))
-            .build();
+		// Create a registry of custom connection session strategies for supported
+		// protocol schemes.
+		Registry<SchemeIOSessionStrategy> sessionStrategyRegistry = RegistryBuilder.<SchemeIOSessionStrategy>create()
+			.register("http", NoopIOSessionStrategy.INSTANCE)
+			.register("https", new SSLIOSessionStrategy(sslcontext, hostnameVerifier))
+			.build();
 
-        // Create I/O reactor configuration
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setIoThreadCount(Runtime.getRuntime().availableProcessors())
-                .setConnectTimeout(30000)
-                .setSoTimeout(30000)
-                .setTcpNoDelay(true)
-                .build();
+		// Create I/O reactor configuration
+		IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+				.setIoThreadCount(Runtime.getRuntime().availableProcessors())
+				.setConnectTimeout(30000)
+				.setSoTimeout(30000)
+				.setTcpNoDelay(true)
+				.build();
 
-        // Create a custom I/O reactort
-        ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(ioReactorConfig);
+		// Create a custom I/O reactort
+		ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(ioReactorConfig);
 
-        // Create a connection manager with custom configuration.
-        PoolingNHttpClientConnectionManager connManager = new PoolingNHttpClientConnectionManager(
-                ioReactor, connFactory, sessionStrategyRegistry);
+		// Create a connection manager with custom configuration.
+		PoolingNHttpClientConnectionManager connManager = new PoolingNHttpClientConnectionManager(
+				ioReactor, connFactory, sessionStrategyRegistry);
 
-        // Create message constraints
-        MessageConstraints messageConstraints = MessageConstraints.custom()
-            .setMaxHeaderCount(200)
-            .setMaxLineLength(2000)
-            .build();
-        // Create connection configuration
-        ConnectionConfig connectionConfig = ConnectionConfig.custom()
-            .setMalformedInputAction(CodingErrorAction.IGNORE)
-            .setUnmappableInputAction(CodingErrorAction.IGNORE)
-            .setCharset(HTTP.DEF_CONTENT_CHARSET)
-            .setBufferSize(4000)
-            .setMessageConstraints(messageConstraints)
-            .build();
-        // Configure the connection manager to use connection configuration either
-        // by default or for a specific host.
-        connManager.setDefaultConnectionConfig(connectionConfig);
+		// Create message constraints
+		MessageConstraints messageConstraints = MessageConstraints.custom()
+			.setMaxHeaderCount(200)
+			.setMaxLineLength(2000)
+			.build();
 
-        // Configure total max or per route limits for persistent connections
-        // that can be kept in the pool or leased by the connection manager.
-        connManager.setMaxTotal(100);
-        connManager.setDefaultMaxPerRoute(10);
+		// Create connection configuration
+		ConnectionConfig connectionConfig = ConnectionConfig.custom()
+			.setMalformedInputAction(CodingErrorAction.IGNORE)
+			.setUnmappableInputAction(CodingErrorAction.IGNORE)
+			.setCharset(HTTP.DEF_CONTENT_CHARSET)
+			.setBufferSize(4000)
+			.setMessageConstraints(messageConstraints)
+			.build();
+		// Configure the connection manager to use connection configuration either
+		// by default or for a specific host.
+		connManager.setDefaultConnectionConfig(connectionConfig);
+
+		// Configure total max or per route limits for persistent connections
+		// that can be kept in the pool or leased by the connection manager.
+		connManager.setMaxTotal(100);
+		connManager.setDefaultMaxPerRoute(10);
 		
 		connectionManager = connManager;
 		builder.setConnectionManager(connectionManager);
@@ -329,11 +320,11 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	@Override
 	public void buildClient() {
 		if (builder != null){
-		     client = builder.build();
-		     client.start();
-		}
-		else
+			 client = builder.build();
+			 client.start();
+		} else {
 			log.warn("builder is null: cannot build client");
+		}
 	}
 
 	/**
@@ -370,89 +361,85 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	public void enablePreemptiveAuthentication(String hostname)	{
 		super.enablePreemptiveAuthentication(hostname);
 	}
-	
 
 	@Override
-	public void disablePreemptiveAuthentication()	{
+	public void disablePreemptiveAuthentication() {
 		super.disablePreemptiveAuthentication();
 	}
 
 
 	@Override
-	public Future<HttpResponse>  put(String url, File file,  FutureCallback<HttpResponse> callback) throws IOException {
+	public Future<HttpResponse> put(String url, File file, FutureCallback<HttpResponse> callback) throws IOException {
 		ZeroCopyPut put = new ZeroCopyPut(
-		       url,
-		       file,
-		        ContentType.DEFAULT_BINARY) {
+			url,
+			file,
+			ContentType.DEFAULT_BINARY) {
 
-		    @Override
-		    protected HttpEntityEnclosingRequest createRequest(
-		            final URI requestURI, final HttpEntity entity) {
-		        HttpEntityEnclosingRequest request = super.createRequest(requestURI, entity);
-		        request.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
-		        return request;
-		    }
+			@Override
+			protected HttpEntityEnclosingRequest createRequest(
+					final URI requestURI, final HttpEntity entity) {
+				HttpEntityEnclosingRequest request = super.createRequest(requestURI, entity);
+				request.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
+				return request;
+			}
 		};
-        return client.execute(put,
-        		new BasicAsyncResponseConsumer() {
-     	
-	        	  @Override
-	        	    protected void onResponseReceived(final HttpResponse response) throws IOException {
-	        	        super.onResponseReceived(response);
-	        	    	StatusLine statusLine = response.getStatusLine();
-	        			int statusCode = statusLine.getStatusCode();
-	        			if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES)
-	        			{
-	        				return;
-	        			}
-	        			throw new SardineException("Unexpected response", statusLine.getStatusCode(), statusLine.getReasonPhrase());
-	        	    }
-        }, context, callback); 
 
+		return client.execute(put, new BasicAsyncResponseConsumer() {
+
+			@Override
+			protected void onResponseReceived(final HttpResponse response) throws IOException {
+				super.onResponseReceived(response);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode();
+				if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES) {
+					return;
+				}
+				throw new SardineException("Unexpected response", statusLine.getStatusCode(), statusLine.getReasonPhrase());
+			}
+		}, context, callback);
 	}
-	
 
 	@Override
-	public Future<HttpResponse> put(String url, byte[] data,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, byte[] data, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		return put(url, data, null, callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, byte[] data, String contentType,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, byte[] data, String contentType, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		ByteArrayEntity entity = new ByteArrayEntity(data);
 		return put(url, entity, contentType, true,callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, InputStream dataStream,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, InputStream dataStream, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		return put(url, dataStream, (String) null,callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		return put(url, dataStream, contentType, true,callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
 		return put(url, dataStream, contentType, expectContinue, -1, callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength);
 		return put(url, entity, contentType, expectContinue,callback);
 	}
 
 	@Override
-	public Future<HttpResponse> put(String url, InputStream dataStream, Map<String, String> headers,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, InputStream dataStream, Map<String, String> headers, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
@@ -467,7 +454,7 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	 * @param contentType	Content Type header
 	 * @param expectContinue Add <code>Expect: continue</code> header
 	 */
-	public Future<HttpResponse> put(String url, HttpEntity entity, String contentType, boolean expectContinue,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, HttpEntity entity, String contentType, boolean expectContinue, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		Map<String, String> headers =  generatePutHeaders(url, entity, contentType, expectContinue);
 		return put(url, entity, headers,callback);
@@ -480,12 +467,12 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
 	 */
-	public Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers,  FutureCallback<HttpResponse> callback) throws IOException
+	public Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		return put(url, entity, headers, new VoidResponseHandler(),callback);
 	 }
 
-	public <T> Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler,  FutureCallback<HttpResponse> callback) throws IOException
+	public <T> Future<HttpResponse> put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler, FutureCallback<HttpResponse> callback) throws IOException
 	{
 		HttpPut put = generatePutEntity(url, entity, headers);
 		try
@@ -515,15 +502,13 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
 	 */
-	protected <T> Future<HttpResponse> execute(HttpRequestBase request, ResponseHandler<T> responseHandler,  FutureCallback<HttpResponse> callback)
+	protected <T> Future<HttpResponse> execute(HttpRequestBase request, ResponseHandler<T> responseHandler, FutureCallback<HttpResponse> callback)
 			throws IOException
 	{
-
 		// Clear circular redirect cache
 		context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 		// Execute with response handler
 		return client.execute(request, context, callback);
-
 	}
 
 	/**
@@ -532,26 +517,23 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 	 * @param request Request to execute
 	 * @return The response to check the reply status code
 	 */
-	protected Future<HttpResponse> execute(HttpRequestBase request,  FutureCallback<HttpResponse> callback)
+	protected Future<HttpResponse> execute(HttpRequestBase request, FutureCallback<HttpResponse> callback)
 			throws IOException
 	{
 		// Clear circular redirect cache
 		context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 		// Execute with no response handler
 		return client.execute(request, context,callback);
-
 	}
-
 	
 	@Override
 	public void shutdown() 	{
-		if (connectionManager != null)
+		if (connectionManager != null) {
 			try {
 				connectionManager.shutdown();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
 	}
-
 }

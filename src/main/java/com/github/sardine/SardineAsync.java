@@ -1,14 +1,14 @@
 package com.github.sardine;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.concurrent.FutureCallback;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.concurrent.FutureCallback;
 
 /**
  * The main interface for Sardine asynchronous operations.
@@ -28,17 +28,15 @@ public interface SardineAsync
 	 */
 	void setProtocolVersion(ProtocolVersion version);
 
-
-
-    /***
-     * put File using zero copy
-     * @param url
-     * @param file
-     * @param callback
-     * @return
-     * @throws IOException
-     */
-	Future<HttpResponse>  put(String url, File file, FutureCallback<HttpResponse> callback) throws IOException;
+	/***
+	 * put File using zero copy
+	 * @param url
+	 * @param file
+	 * @param callback
+	 * @return
+	 * @throws IOException
+	 */
+	Future<HttpResponse> put(String url, File file, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses HTTP <code>PUT</code> to send data to a server. Repeatable on authentication failure.
@@ -47,7 +45,7 @@ public interface SardineAsync
 	 * @param data Input source
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, byte[] data,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, byte[] data, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server. Not repeatable on authentication failure.
@@ -57,7 +55,7 @@ public interface SardineAsync
 	 * @return 
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, InputStream dataStream,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, InputStream dataStream, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with a specific content type
@@ -69,7 +67,7 @@ public interface SardineAsync
 	 * @return
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, byte[] data, String contentType,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, byte[] data, String contentType, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with a specific content
@@ -81,7 +79,7 @@ public interface SardineAsync
 	 * @return
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, InputStream dataStream, String contentType,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, InputStream dataStream, String contentType, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with a specific content
@@ -94,7 +92,7 @@ public interface SardineAsync
 	 * @return
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, InputStream dataStream, String contentType, boolean expectContinue,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with a specific content
@@ -108,7 +106,7 @@ public interface SardineAsync
 	 * @return
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength,  FutureCallback<HttpResponse> callback) throws IOException;
+	Future<HttpResponse> put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength,  FutureCallback<HttpResponse> callback) throws IOException;
 
 	/**
 	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
@@ -120,7 +118,7 @@ public interface SardineAsync
 	 * @return
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	Future<HttpResponse>  put(String url, InputStream dataStream, Map<String, String> headers,  FutureCallback<HttpResponse> callback) throws IOException;	
+	Future<HttpResponse> put(String url, InputStream dataStream, Map<String, String> headers, FutureCallback<HttpResponse> callback) throws IOException;
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
 	 *

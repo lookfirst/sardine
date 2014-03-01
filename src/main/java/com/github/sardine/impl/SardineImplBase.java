@@ -1,37 +1,5 @@
 package com.github.sardine.impl;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-
 import com.github.sardine.DavAce;
 import com.github.sardine.DavAcl;
 import com.github.sardine.DavPrincipal;
@@ -67,13 +35,41 @@ import com.github.sardine.model.Response;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SardineImplBase {
 	
 	protected static Logger log = LoggerFactory.getLogger(DavResource.class);
 	protected static final String UTF_8 = "UTF-8";
-	
-
     protected ProtocolVersion version = HttpVersion.HTTP_1_1;
 
 	/**
@@ -81,9 +77,8 @@ public class SardineImplBase {
 	 * logically related requests.
 	 */
 	protected HttpContext context = new BasicHttpContext();
-	
-	
-	/*** 
+
+	/**
 	 * Set http protocol version
 	 * @param version
 	 */
@@ -120,11 +115,9 @@ public class SardineImplBase {
 			
 		}
 		return basicCredentialsProvider;
-	
 	}
 
-	/***
-	 * 
+	/**
 	 * @param hostname
 	 */
 	protected void enablePreemptiveAuthentication(String hostname)	{
@@ -139,9 +132,7 @@ public class SardineImplBase {
 		this.context.setAttribute(HttpClientContext.AUTH_CACHE, authCache);
 	}
 	
-
-	
-	/***
+	/**
 	 * 
 	 * @param hostname  name of host
 	 * @param scheme  http, https etc.
@@ -155,17 +146,16 @@ public class SardineImplBase {
 		authCache.put(new HttpHost(hostname, port, scheme), basicAuth);
 	}
 	
-	/***
+	/**
 	 * 
 	 */
 	protected void disablePreemptiveAuthentication()	{
 		context.removeAttribute(HttpClientContext.AUTH_CACHE);
 	}
 
-	/***
+	/**
 	 * 
 	 * @param url
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpLock generateLockEntity(String url) throws IOException
@@ -182,11 +172,10 @@ public class SardineImplBase {
 	    return entity;	
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
 	 * @param token
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpUnlock generateUnlockEntity(String url, String token) throws IOException
@@ -202,12 +191,11 @@ public class SardineImplBase {
 		return entity;
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
 	 * @param token
 	 * @param file
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpLock generateRefreshLockEntity(String url, String token, String file) throws IOException
@@ -217,10 +205,9 @@ public class SardineImplBase {
 	    return entity;	
 	}
 
-	/***
+	/**
 	 * 
 	 * @param url
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpPropFind generateGetQuotaEntity(String url) throws IOException
@@ -236,11 +223,10 @@ public class SardineImplBase {
 	    return entity;	
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
 	 * @param aces
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpAcl generateSetAclEntity(String url, List<DavAce> aces) throws IOException
@@ -263,10 +249,9 @@ public class SardineImplBase {
 		return entity;
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpPropFind generateGetAclEntity(String url) throws IOException
@@ -283,12 +268,11 @@ public class SardineImplBase {
 	    return entity;	
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
 	 * @param entity
 	 * @param headers
-	 * @return
 	 * @throws IOException
 	 */
 	protected HttpPut generatePutEntity(String url, HttpEntity entity, Map<String, String> headers) throws IOException
@@ -307,13 +291,12 @@ public class SardineImplBase {
 		
 	}
 	
-	/***
+	/**
 	 * 
 	 * @param url
 	 * @param entity
 	 * @param contentType
 	 * @param expectContinue
-	 * @return
 	 * @throws IOException
 	 */
 	protected Map<String, String> generatePutHeaders(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
@@ -329,8 +312,7 @@ public class SardineImplBase {
 		}
 	    return headers;	
 	}
-	
-	
+
 	protected HttpPropFind generatePrincipalCollectionSetEntity(String url) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -356,6 +338,7 @@ public class SardineImplBase {
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 	    return entity;	
 	}
+
 	protected HttpPropFind generateListEntity(String url, int depth, boolean allProp) throws IOException
 	{
 		HttpPropFind entity = new HttpPropFind(url);
@@ -500,7 +483,6 @@ public class SardineImplBase {
 		}
 	}
 
-	
 	protected List<DavResource> processListResponses(List<Response> responses) {
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 		for (Response response : responses)
@@ -516,6 +498,4 @@ public class SardineImplBase {
 		}
 		return resources;
 	}
-
-
 }

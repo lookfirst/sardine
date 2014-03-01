@@ -16,17 +16,29 @@
 
 package com.github.sardine.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
+import com.github.sardine.DavAce;
+import com.github.sardine.DavAcl;
+import com.github.sardine.DavPrincipal;
+import com.github.sardine.DavQuota;
+import com.github.sardine.DavResource;
+import com.github.sardine.Sardine;
+import com.github.sardine.Version;
+import com.github.sardine.impl.handler.ExistsResponseHandler;
+import com.github.sardine.impl.handler.LockResponseHandler;
+import com.github.sardine.impl.handler.MultiStatusResponseHandler;
+import com.github.sardine.impl.handler.VoidResponseHandler;
+import com.github.sardine.impl.io.ConsumingInputStream;
+import com.github.sardine.impl.io.ContentLengthInputStream;
+import com.github.sardine.impl.methods.HttpCopy;
+import com.github.sardine.impl.methods.HttpMkCol;
+import com.github.sardine.impl.methods.HttpMove;
+import com.github.sardine.impl.methods.HttpPropFind;
+import com.github.sardine.model.Multistatus;
+import com.github.sardine.model.ObjectFactory;
+import com.github.sardine.model.Prop;
+import com.github.sardine.model.Propfind;
+import com.github.sardine.model.Response;
+import com.github.sardine.util.SardineUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -57,29 +69,15 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
-import com.github.sardine.DavAce;
-import com.github.sardine.DavAcl;
-import com.github.sardine.DavPrincipal;
-import com.github.sardine.DavQuota;
-import com.github.sardine.DavResource;
-import com.github.sardine.Sardine;
-import com.github.sardine.Version;
-import com.github.sardine.impl.handler.ExistsResponseHandler;
-import com.github.sardine.impl.handler.LockResponseHandler;
-import com.github.sardine.impl.handler.MultiStatusResponseHandler;
-import com.github.sardine.impl.handler.VoidResponseHandler;
-import com.github.sardine.impl.io.ConsumingInputStream;
-import com.github.sardine.impl.io.ContentLengthInputStream;
-import com.github.sardine.impl.methods.HttpCopy;
-import com.github.sardine.impl.methods.HttpMkCol;
-import com.github.sardine.impl.methods.HttpMove;
-import com.github.sardine.impl.methods.HttpPropFind;
-import com.github.sardine.model.Multistatus;
-import com.github.sardine.model.ObjectFactory;
-import com.github.sardine.model.Prop;
-import com.github.sardine.model.Propfind;
-import com.github.sardine.model.Response;
-import com.github.sardine.util.SardineUtil;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProxySelector;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -113,13 +111,11 @@ public class SardineImpl extends SardineImplBase implements Sardine
 			if (connectionManager == null)
 				setConnectionManager();
 			buildClient();
-		}
-		else
+		} else {
 			log.warn("builder is null: unable to initialize");
-
+		}
 	}
-	
-	
+
 	/**
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
@@ -131,7 +127,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	}
 
 	/**
-	 * @param http Custom client configuration
+	 *
 	 */
 	public SardineImpl()
 	{
@@ -139,8 +135,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	}
 
 	/**
-	 * @param http Custom client configuration
-	 *             @param redirect Custom redirect strategy
+	 * @param redirect Custom redirect strategy
 	 */
 	public SardineImpl(RedirectStrategy redirect)
 	{
@@ -177,7 +172,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	}
 	
 	/***
-	 * Set use agent
+	 * Set user agent
 	 */
 	protected void setUserAgent() {
 		String version = Version.getSpecification();
@@ -194,12 +189,12 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	protected void setConnectionManager() {
 		BasicHttpClientConnectionManager cm  = new BasicHttpClientConnectionManager();
 		cm.setConnectionConfig(	ConnectionConfig.custom()
-				                                .setCharset(HTTP.DEF_CONTENT_CHARSET)
+												.setCharset(HTTP.DEF_CONTENT_CHARSET)
 												.setBufferSize(8192)
 												.build() );
 		cm.setSocketConfig(SocketConfig.custom()
-				                       .setTcpNoDelay(true)
-				                       .build());
+									   .setTcpNoDelay(true)
+									   .build());
 		
 		connectionManager = cm;
 		builder.setConnectionManager(connectionManager);
@@ -210,10 +205,11 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 */
 	@Override
 	public void buildClient() {
-		if (builder != null)
-		     client = builder.build();
-		else
+		if (builder != null) {
+			client = builder.build();
+		} else {
 			log.warn("builder is null: cannot build client");
+		}
 	}
 	
 	/***
@@ -265,13 +261,11 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	public void enablePreemptiveAuthentication(String hostname)	{
 		super.enablePreemptiveAuthentication(hostname);
 	}
-	
 
 	@Override
 	public void disablePreemptiveAuthentication()	{
 		super.disablePreemptiveAuthentication();
 	}
-
 
 	@Override
 	public List<DavResource> list(String url) throws IOException	{
@@ -284,11 +278,11 @@ public class SardineImpl extends SardineImplBase implements Sardine
 		return list(url, depth, true);
 	}
 
-        @Override
+	@Override
 	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
 	{
 		Multistatus multistatus = execute(generateListEntity(url, depth, allProp),
-				                          new MultiStatusResponseHandler());
+										  new MultiStatusResponseHandler());
 		return processListResponses( multistatus.getResponse());
 
 	}
@@ -297,7 +291,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
 	{
 		Propfind body = new Propfind();
-        
+
 		Prop prop = new Prop();
 		ObjectFactory objectFactory = new ObjectFactory();
 		prop.setGetcontentlength(objectFactory.createGetcontentlength());
@@ -307,7 +301,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 		prop.setGetcontenttype(objectFactory.createGetcontenttype());
 		prop.setResourcetype(objectFactory.createResourcetype());
 		prop.setGetetag(objectFactory.createGetetag());
-                
+
 		List<Element> any = prop.getAny();
 		for (QName entry : props) {
 			Element element = SardineUtil.createElement(entry);
@@ -315,12 +309,10 @@ public class SardineImpl extends SardineImplBase implements Sardine
 		}
 
 		body.setProp(prop);
-                
+
 		return list(url, depth, body);
 
 	}
-
-
 
 	protected List<DavResource> list(String url, int depth, Propfind body) throws IOException
 	{
@@ -342,7 +334,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 			}
 		}
 		return resources;
-        }
+		}
 
 
 	@Override
@@ -361,57 +353,53 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	{
 
 		Multistatus multistatus = this.execute( generatePatchEntity(url, setProps, removeProps), 
-				                                new MultiStatusResponseHandler());
+												new MultiStatusResponseHandler());
 		return processListResponses(multistatus.getResponse());
 	}
-
 
 	@Override
 	public String lock(String url) throws IOException
 	{
 		// Return the lock token
 		return execute(generateLockEntity(url),
-				            new LockResponseHandler());
+				new LockResponseHandler());
 	}
 
 	@Override
 	public String refreshLock(String url, String token, String file) throws IOException
 	{
 		return this.execute( generateRefreshLockEntity(url, token, file), 
-				             new LockResponseHandler());
+							 new LockResponseHandler());
 	}
 
 	@Override
 	public void unlock(String url, String token) throws IOException
 	{
 		this.execute(generateUnlockEntity(url, token),
-				     new VoidResponseHandler());
+					 new VoidResponseHandler());
 	}
 
 	@Override
 	public void setAcl(String url, List<DavAce> aces) throws IOException
 	{
 		this.execute(generateSetAclEntity(url, aces),
-				     new VoidResponseHandler());
+					 new VoidResponseHandler());
 	}
-
 
 	@Override
 	public DavAcl getAcl(String url) throws IOException
 	{
 		Multistatus multistatus = this.execute(generateGetAclEntity(url),
-				                                new MultiStatusResponseHandler());
+												new MultiStatusResponseHandler());
 		return processGetAclReponses(multistatus.getResponse());
-
 	}
 
 	@Override
 	public DavQuota getQuota(String url) throws IOException
 	{
 		Multistatus multistatus = this.execute(generateGetQuotaEntity(url), 
-				                               new MultiStatusResponseHandler());
+											   new MultiStatusResponseHandler());
 		return processGetQuotaResponses(multistatus.getResponse());
-
 	}
 
 	@Override
@@ -560,7 +548,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	public void delete(String url) throws IOException
 	{
 		this.execute(new HttpDelete(url),
-				     new VoidResponseHandler());
+					 new VoidResponseHandler());
 	}
 
 	@Override
@@ -574,14 +562,14 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
 		this.execute(new HttpCopy(sourceUrl, destinationUrl), 
-				     new VoidResponseHandler());
+					 new VoidResponseHandler());
 	}
 
 	@Override
 	public void createDirectory(String url) throws IOException
 	{
 		this.execute( new HttpMkCol(url), 
-				      new VoidResponseHandler());
+					  new VoidResponseHandler());
 	}
 
 	@Override
