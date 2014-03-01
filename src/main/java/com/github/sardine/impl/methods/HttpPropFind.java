@@ -24,7 +24,6 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 /**
  * Simple class for making WebDAV <code>PROPFIND</code> requests.
  *
- * @version $Id$
  */
 public class HttpPropFind extends HttpEntityEnclosingRequestBase
 {

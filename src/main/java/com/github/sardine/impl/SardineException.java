@@ -23,7 +23,6 @@ import org.apache.http.client.HttpResponseException;
  * that it is easy to get the error information from it.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class SardineException extends HttpResponseException
 {

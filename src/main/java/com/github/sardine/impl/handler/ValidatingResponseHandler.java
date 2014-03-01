@@ -27,7 +27,6 @@ import org.apache.http.client.ResponseHandler;
  *
  * @param <T> return type of {@link ResponseHandler#handleResponse(HttpResponse)}.
  * @author mirko
- * @version $Id$
  */
 public abstract class ValidatingResponseHandler<T> implements ResponseHandler<T>
 {

@@ -14,7 +14,6 @@ import java.util.Set;
  * The main interface for Sardine operations.
  *
  * @author jonstevens
- * @version $Id$
  */
 public interface Sardine
 {

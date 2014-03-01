@@ -25,7 +25,6 @@ import java.io.IOException;
  * in the valid range of {@link ValidatingResponseHandler#validateResponse(org.apache.http.HttpResponse)}.
  *
  * @author mirko
- * @version $Id$
  */
 public class VoidResponseHandler extends ValidatingResponseHandler<Void>
 {

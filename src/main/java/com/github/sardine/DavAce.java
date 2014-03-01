@@ -12,7 +12,6 @@ import com.github.sardine.util.SardineUtil;
  * abstract) privileges for a particular principal.
  *
  * @author David Delbecq
- * @version $Id$
  */
 public class DavAce
 {

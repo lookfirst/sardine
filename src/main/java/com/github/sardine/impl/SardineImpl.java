@@ -85,7 +85,6 @@ import com.github.sardine.util.SardineUtil;
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class SardineImpl extends SardineImplBase implements Sardine
 {

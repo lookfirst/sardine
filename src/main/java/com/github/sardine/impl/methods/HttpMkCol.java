@@ -23,7 +23,6 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 /**
  * Simple class for making <code>MKCOL</code> requests.
  *
- * @version $Id$
  */
 public class HttpMkCol extends HttpEntityEnclosingRequestBase
 {

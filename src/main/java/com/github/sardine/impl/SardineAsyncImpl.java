@@ -99,7 +99,6 @@ import com.github.sardine.impl.handler.VoidResponseHandler;
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 {

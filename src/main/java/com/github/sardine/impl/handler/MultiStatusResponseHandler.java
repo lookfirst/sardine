@@ -31,7 +31,6 @@ import java.io.InputStream;
  * a {@link com.github.sardine.impl.methods.HttpPropFind} request.
  *
  * @author mirko
- * @version $Id$
  */
 public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
 {

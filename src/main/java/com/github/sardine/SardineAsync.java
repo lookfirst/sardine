@@ -14,7 +14,6 @@ import org.apache.http.concurrent.FutureCallback;
  * The main interface for Sardine asynchronous operations.
  *
  * @author jonstevens
- * @version $Id$
  */
 public interface SardineAsync
 {
