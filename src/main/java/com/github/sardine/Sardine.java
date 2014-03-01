@@ -1,6 +1,9 @@
 package com.github.sardine;
 
 import javax.xml.namespace.QName;
+
+import org.apache.http.ProtocolVersion;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -15,27 +18,17 @@ import java.util.Set;
  */
 public interface Sardine
 {
-	/**
-	 * Add credentials to any scope.
-	 *
-	 * @param username Use in authentication header credentials
-	 * @param password Use in authentication header credentials
+	/***
+	 * build client using client builder
 	 */
-	void setCredentials(String username, String password);
-
-	/**
-	 * @param username	Use in authentication header credentials
-	 * @param password	Use in authentication header credentials
-	 * @param domain	  NTLM authentication
-	 * @param workstation NTLM authentication
+	void buildClient();
+	
+	/***
+	 * Set http protocol version: default version is http/1.1
+	 * @param version
 	 */
-	void setCredentials(String username, String password, String domain, String workstation);
-
-	/**
-	 * @see #list(String)
-	 */
-	@Deprecated
-	List<DavResource> getResources(String url) throws IOException;
+	void setProtocolVersion(ProtocolVersion version);
+	
 
 	/**
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
@@ -79,12 +72,6 @@ public interface Sardine
 	 */
 	List<DavResource> list(String url, int depth, boolean allProp)
 			throws IOException;
-
-	/**
-	 * @see #patch(String, java.util.Map, java.util.List)
-	 */
-	@Deprecated
-	void setCustomProps(String url, Map<String, String> addProps, List<String> removeProps) throws IOException;
 
 	/**
 	 * Add custom properties for a url WebDAV <code>PROPPATCH</code>.
@@ -336,24 +323,6 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<String> getPrincipalCollectionSet(String url) throws IOException;
-
-	/**
-	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
-	 * will include "gzip" as an "Accept-Encoding" header.
-	 * <p/>
-	 * If the server also supports gzip compression, it should serve the
-	 * contents in compressed gzip format and include "gzip" as the
-	 * Content-Encoding. If the content encoding is present, Sardine will
-	 * automatically decompress the files upon reception.
-	 */
-	void enableCompression();
-
-	/**
-	 * Disables support for HTTP compression.
-	 *
-	 * @see Sardine#enableCompression()
-	 */
-	void disableCompression();
 
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
