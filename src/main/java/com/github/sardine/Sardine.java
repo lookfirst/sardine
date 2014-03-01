@@ -334,6 +334,11 @@ public interface Sardine
 	void disablePreemptiveAuthentication();
 
 	/**
+	 * enable gzip compression
+	 */
+	void enableCompression();
+
+	/**
 	 * Releasing any resources that might be held
 	 * open. This is an optional method, and callers are not expected to call
 	 * it, but can if they want to explicitly release any open resources. Once a

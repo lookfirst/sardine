@@ -349,14 +349,6 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 			 builder.setDefaultCredentialsProvider(basicCredentialsProvider);		
 	}
 
-	/**
-	 * Adds handling of GZIP compression to the client.
-	 */
-	public void enableCompression()	{
-		builder.addInterceptorFirst(new RequestAcceptEncoding());
-		builder.addInterceptorFirst(new ResponseContentEncoding());
-	}
-
 	@Override
 	public void enablePreemptiveAuthentication(String hostname)	{
 		super.enablePreemptiveAuthentication(hostname);
@@ -367,6 +359,14 @@ public class SardineAsyncImpl extends SardineImplBase implements SardineAsync
 		super.disablePreemptiveAuthentication();
 	}
 
+	/**
+	 * Adds handling of GZIP compression to the client.
+	 */
+	@Override
+	public void enableCompression()	{
+		builder.addInterceptorFirst(new RequestAcceptEncoding());
+		builder.addInterceptorFirst(new ResponseContentEncoding());
+	}
 
 	@Override
 	public Future<HttpResponse> put(String url, File file, FutureCallback<HttpResponse> callback) throws IOException {

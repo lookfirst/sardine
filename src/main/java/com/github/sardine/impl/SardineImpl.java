@@ -121,9 +121,9 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 * @param password Use in authentication header credentials
 	 * @param selector Proxy configuration
 	 */
-	public SardineImpl(String username, String password, ProxySelector selector, boolean enableCompression)
+	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-		this.init(new SardineRedirectStrategy(), username, password,enableCompression);
+		this.init(new SardineRedirectStrategy(), username, password);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 */
 	public SardineImpl()
 	{
-		this.init(new SardineRedirectStrategy(), null, null,false);
+		this.init(new SardineRedirectStrategy(), null, null);
 	}
 
 	/**
@@ -139,17 +139,16 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 */
 	public SardineImpl(RedirectStrategy redirect)
 	{
-		this.init(redirect, null, null, false);
+		this.init(redirect, null, null);
 	}
 
 	/**
-	 * @param http	 Custom client configuration
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(String username, String password, boolean enableCompression)
+	public SardineImpl(String username, String password)
 	{
-		this.init(new SardineRedirectStrategy(), username, password, enableCompression);
+		this.init(new SardineRedirectStrategy(), username, password);
 	}
 
 	/***
@@ -158,7 +157,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 * @param username
 	 * @param password
 	 */
-	private void init(RedirectStrategy redirect, String username, String password, boolean enableCompression)
+	private void init(RedirectStrategy redirect, String username, String password)
 	{
 		builder = HttpClientBuilder.create();
 		setConnectionManager();
@@ -166,8 +165,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 		setUserAgent();
 		builder.setRedirectStrategy(redirect);
 		setCredentials(username, password);
-		if (enableCompression)
-			enableCompression();
+
 		buildClient();
 	}
 	
@@ -252,6 +250,7 @@ public class SardineImpl extends SardineImplBase implements Sardine
 	 * Content-Encoding. If the content encoding is present, Sardine will
 	 * automatically decompress the files upon reception.
 	 */
+	@Override
 	public void enableCompression()	{
 		builder.addInterceptorFirst(new RequestAcceptEncoding());
 		builder.addInterceptorFirst(new ResponseContentEncoding());

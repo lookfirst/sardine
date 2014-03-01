@@ -32,21 +32,18 @@ public final class SardineFactory
 	 */
 	public static Sardine begin(String username, String password)
 	{
-		return begin(username, password, null,false);
+		return begin(username, password, null);
 	}
 
 	/**
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 * @param proxy	Proxy configuration
-	 * @param enableCompression true if compression is used 
 	 */
-	public static Sardine begin(String username, String password, ProxySelector proxy, boolean enableCompression)
+	public static Sardine begin(String username, String password, ProxySelector proxy)
 	{
-		return new SardineImpl(username, password, proxy, enableCompression);
+		return new SardineImpl(username, password, proxy);
 	}
-	
-	
 
 	/**
 	 * Default begin() for when you don't need anything but no authentication

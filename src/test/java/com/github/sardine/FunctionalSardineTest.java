@@ -336,7 +336,7 @@ public class FunctionalSardineTest
 	@Test
 	public void testProxyConfiguration() throws Exception
 	{
-		Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault(),false);
+		Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault());
 		try
 		{
 			final List<DavResource> resources = sardine.list("http://sardine.googlecode.com/svn/trunk/");
