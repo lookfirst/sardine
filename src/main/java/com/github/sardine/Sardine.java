@@ -127,6 +127,44 @@ public interface Sardine
 	InputStream get(String url, Map<String, String> headers) throws IOException;
 
 	/**
+	 * Uses HTTP <code>POST</code> to submit data to a server.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param dataStream Input source
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void post(String url, InputStream dataStream) throws IOException;
+
+	/**
+	 * Uses HTTP <code>POST</code> to submit data to a server.
+	 *
+	 * @param url	 Path to the resource including protocol and hostname
+	 * @param dataStream Input source
+	 * @param headers Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void post(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
+
+	/**
+	 * Uses HTTP <code>POST</code> to submit data to a server.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param data Input source
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void post(String url, byte[] data) throws IOException;
+
+	/**
+	 * Uses HTTP <code>POST</code> to submit data to a server.
+	 *
+	 * @param url	 Path to the resource including protocol and hostname
+	 * @param data Input source
+	 * @param headers Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void post(String url, byte[] data, Map<String, String> headers) throws IOException;
+
+	/**
 	 * Uses HTTP <code>PUT</code> to send data to a server. Repeatable on authentication failure.
 	 *
 	 * @param url  Path to the resource including protocol and hostname

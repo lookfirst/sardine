@@ -44,6 +44,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.AuthPolicy;
@@ -663,6 +664,68 @@ public class SardineImpl implements Sardine
 			throw ex;
 		}
 	}
+
+    @Override
+    public void post(String url, InputStream dataStream) throws IOException
+    {
+        this.post(url, dataStream, Collections.<String, String>emptyMap());
+    }
+
+    @Override
+    public void post(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+    {
+        InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+        this.post(url, entity, headers);
+    }
+
+    @Override
+    public void post(String url, byte[] data) throws IOException
+    {
+        this.post(url, data, Collections.<String, String>emptyMap());
+    }
+
+    @Override
+    public void post(String url, byte[] data, Map<String, String> headers) throws IOException
+    {
+        ByteArrayEntity entity = new ByteArrayEntity(data);
+        this.post(url, entity, headers);
+    }
+
+    public void post(String url, HttpEntity entity, Map<String, String> headers) throws IOException
+    {
+        this.post(url, entity, headers, new VoidResponseHandler());
+    }
+
+    public <T> T post(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
+    {
+        HttpPost post = new HttpPost(url);
+        post.setEntity(entity);
+        for (String header : headers.keySet())
+        {
+            post.addHeader(header, headers.get(header));
+        }
+        if (entity.getContentType() == null && !post.containsHeader(HttpHeaders.CONTENT_TYPE))
+        {
+            post.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
+        }
+        try
+        {
+            return this.execute(post, handler);
+        }
+        catch (HttpResponseException e)
+        {
+            if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
+            {
+                // Retry with the Expect header removed
+                post.removeHeaders(HTTP.EXPECT_DIRECTIVE);
+                if (entity.isRepeatable())
+                {
+                    return this.execute(post, handler);
+                }
+            }
+            throw e;
+        }
+    }
 
 	@Override
 	public void put(String url, byte[] data) throws IOException
