@@ -129,7 +129,6 @@ import java.util.Map;
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class SardineImpl implements Sardine
 {

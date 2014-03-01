@@ -4,7 +4,6 @@ package com.github.sardine;
  * Provides version information from the manifest.
  *
  * @author Jeff Schnitzer
- * @version $Id$
  */
 public final class Version
 {

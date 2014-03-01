@@ -31,7 +31,6 @@ import java.util.List;
  * abstract) privileges for a particular principal.
  *
  * @author David Delbecq
- * @version $Id$
  */
 public class DavAce
 {

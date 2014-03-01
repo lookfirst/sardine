@@ -27,7 +27,6 @@ import org.junit.Test;
 import com.github.sardine.impl.SardineException;
 
 /**
- * @version $Id$
  */
 public class LockTest
 {

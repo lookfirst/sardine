@@ -28,7 +28,6 @@ import com.github.sardine.model.Propfind;
 import com.github.sardine.util.SardineUtil;
 
 /**
- * @version $Id$
  */
 public class SardineUtilTest
 {

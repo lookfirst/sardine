@@ -24,7 +24,6 @@ import java.net.URI;
 /**
  * Simple class for making WebDAV <code>MOVE</code> requests.
  *
- * @version $Id$
  */
 public class HttpMove extends HttpRequestBase
 {

@@ -16,7 +16,6 @@ import java.util.List;
  * control to a particular resource.
  *
  * @author David Delbecq
- * @version $Id$
  */
 public class DavAcl
 {
