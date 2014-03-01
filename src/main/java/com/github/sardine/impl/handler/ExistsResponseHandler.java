@@ -26,7 +26,6 @@ import com.github.sardine.impl.SardineException;
  * {@link org.apache.http.client.ResponseHandler} which checks wether a given resource exists.
  *
  * @author mirko
- * @version $Id$
  */
 public class ExistsResponseHandler extends ValidatingResponseHandler<Boolean>
 {

@@ -22,7 +22,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpRequestBase;
 
 /**
- * @version $Id$
  */
 public class HttpUnlock extends HttpRequestBase
 {
