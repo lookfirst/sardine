@@ -63,6 +63,7 @@ import com.github.sardine.model.Response;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+import java.io.File;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -105,9 +106,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +123,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.entity.FileEntity;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -768,7 +768,12 @@ public class SardineImpl implements Sardine
 			throw e;
 		}
 	}
-
+        @Override
+        public void put(String url, File localFile, String contentType) throws IOException {
+                FileEntity content = new FileEntity(localFile);
+                //don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
+                this.put(url, content, contentType, false);
+        }
 	@Override
 	public void delete(String url) throws IOException
 	{
