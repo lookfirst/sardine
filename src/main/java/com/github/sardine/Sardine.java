@@ -1,5 +1,6 @@
 package com.github.sardine;
 
+import java.io.File;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
@@ -200,7 +201,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
-
+        
+	/**
+	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
+         * Repeatable on authentication failure.
+	 *
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param localFile local file to send
+	 * @param contentType	MIME type to add to the HTTP request header
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, File localFile, String contentType) throws IOException;
 	/**
 	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
