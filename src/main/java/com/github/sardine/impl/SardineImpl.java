@@ -69,6 +69,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
@@ -105,9 +106,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,8 +225,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-		this.builder.setDefaultCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
-		this.client = this.builder.build();
+        this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+        this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
 	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
