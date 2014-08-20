@@ -2,3 +2,5 @@ target
 .settings
 .idea
 sardine.iml
+.classpath
+.project
