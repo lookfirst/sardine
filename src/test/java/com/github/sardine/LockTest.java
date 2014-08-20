@@ -16,15 +16,13 @@
 
 package com.github.sardine;
 
+import com.github.sardine.impl.SardineException;
+import org.junit.Ignore;
+import org.junit.Test;
+import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.UUID;
-
-import org.junit.Test;
-
-import com.github.sardine.impl.SardineException;
 
 /**
  */
@@ -74,6 +72,7 @@ public class LockTest
 	}
 
 	@Test
+	@Ignore // the file is locked on the server. we should rewrite this test to be more resilient to failures.
 	public void lockRefreshUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
