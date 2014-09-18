@@ -40,7 +40,6 @@ import java.util.TimeZone;
  * parsing dates.
  *
  * @author jonstevens
- * @version $Id$
  */
 public final class SardineUtil
 {

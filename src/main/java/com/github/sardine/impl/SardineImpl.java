@@ -63,6 +63,7 @@ import com.github.sardine.model.Response;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+import java.io.File;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -117,18 +118,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.entity.FileEntity;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class SardineImpl implements Sardine
 {
@@ -277,14 +279,43 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname)
 	{
+		enablePreemptiveAuthentication(hostname, -1, -1);
+	}
+
+	@Override
+	public void enablePreemptiveAuthentication(URL url)
+	{
+		final String host = url.getHost();
+		final int port = url.getPort();
+		final String protocol = url.getProtocol();
+		final int httpPort;
+		final int httpsPort;
+		if ("https".equals(protocol))
+		{
+			httpsPort = port;
+			httpPort = -1;
+		}
+		else if ("http".equals(protocol))
+		{
+			httpPort = port;
+			httpsPort = -1;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unsupported protocol " + protocol);
+		}
+		enablePreemptiveAuthentication(host, httpPort, httpsPort);
+	}
+
+	@Override
+	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
+	{
 		AuthCache cache = new BasicAuthCache();
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		for (String scheme : Arrays.asList("http", "https"))
-		{
-			cache.put(new HttpHost(hostname, -1, scheme), basicAuth);
-		}
+		cache.put(new HttpHost(hostname, httpPort, "http"), basicAuth);
+		cache.put(new HttpHost(hostname, httpsPort, "https"), basicAuth);
 		// Add AuthCache to the execution context
 		this.context.setAttribute(HttpClientContext.AUTH_CACHE, cache);
 	}
@@ -768,7 +799,12 @@ public class SardineImpl implements Sardine
 			throw e;
 		}
 	}
-
+        @Override
+        public void put(String url, File localFile, String contentType) throws IOException {
+                FileEntity content = new FileEntity(localFile);
+                //don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
+                this.put(url, content, contentType, false);
+        }
 	@Override
 	public void delete(String url) throws IOException
 	{

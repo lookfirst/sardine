@@ -22,7 +22,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 /**
- * @version $Id$
  */
 public class HttpLock extends HttpEntityEnclosingRequestBase
 {

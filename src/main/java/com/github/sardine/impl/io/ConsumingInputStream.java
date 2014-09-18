@@ -25,7 +25,6 @@ import java.io.IOException;
  * Wrapper for the input stream, will consume the rest of the response on {@link ConsumingInputStream#close()}.
  *
  * @author mirko
- * @version $Id$
  */
 public class ConsumingInputStream extends ContentLengthInputStream
 {

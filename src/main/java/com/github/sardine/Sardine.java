@@ -1,8 +1,10 @@
 package com.github.sardine;
 
+import java.io.File;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +13,6 @@ import java.util.Set;
  * The main interface for Sardine operations.
  *
  * @author jonstevens
- * @version $Id$
  */
 public interface Sardine
 {
@@ -201,7 +202,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
-
+        
+	/**
+	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
+         * Repeatable on authentication failure.
+	 *
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param localFile local file to send
+	 * @param contentType	MIME type to add to the HTTP request header
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, File localFile, String contentType) throws IOException;
 	/**
 	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
@@ -357,10 +368,27 @@ public interface Sardine
 
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
+	 * Uses default ports: 80 for http and 443 for https
 	 *
 	 * @param hostname The hostname to enable preemptive authentication for.
 	 */
 	void enablePreemptiveAuthentication(String hostname);
+
+	/**
+	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
+	 *
+	 * @param url The hostname, protocol and port to enable preemptive authentication for.
+	 */
+	void enablePreemptiveAuthentication(URL url);
+
+	/**
+	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
+	 *
+	 * @param hostname The hostname to enable preemptive authentication for.
+	 * @param httpPort The http port to enable preemptive authentication for. -1 for default value.
+	 * @param httpsPort The https port to enable preemptive authentication for. -1 for default value.
+	 */
+	void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort);
 
 	/**
 	 * Disable preemptive authentication.

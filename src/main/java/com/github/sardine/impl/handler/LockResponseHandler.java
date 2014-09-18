@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @version $Id$
  */
 public class LockResponseHandler extends ValidatingResponseHandler<String>
 {

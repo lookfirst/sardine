@@ -8,7 +8,6 @@ import java.net.ProxySelector;
  * The perfect name for a class. Provides the static methods for working with the Sardine interface.
  *
  * @author jonstevens
- * @version $Id$
  */
 public final class SardineFactory
 {

@@ -31,7 +31,6 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 /**
- * @version $Id$
  */
 public class MultiStatusResponseHandlerTest
 {

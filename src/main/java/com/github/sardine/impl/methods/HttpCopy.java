@@ -23,7 +23,6 @@ import java.net.URI;
 /**
  * Simple class for making WebDAV <code>COPY</code> requests. Assumes Overwrite = T.
  *
- * @version $Id$
  */
 public class HttpCopy extends HttpRequestBase
 {

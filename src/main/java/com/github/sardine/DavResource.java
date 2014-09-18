@@ -34,7 +34,6 @@ import java.util.Map;
  * Describes a resource on a remote server. This could be a directory or an actual file.
  *
  * @author jonstevens
- * @version $Id$
  */
 public class DavResource
 {
