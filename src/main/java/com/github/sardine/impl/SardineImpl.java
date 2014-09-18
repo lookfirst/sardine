@@ -64,12 +64,15 @@ import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
 import java.io.File;
+
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
@@ -106,6 +109,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
@@ -119,9 +123,7 @@ import java.net.ProxySelector;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.entity.FileEntity;
@@ -226,8 +228,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-		this.builder.setDefaultCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
-		this.client = this.builder.build();
+        this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+        this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
 	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
@@ -663,12 +665,19 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
-	{
+	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException {
+        List<Header> list = new ArrayList<Header>();
+        for(Map.Entry<String, String> h: headers.entrySet()) {
+            list.add(new BasicHeader(h.getKey(), h.getValue()));
+        }
+        return this.get(url, list);
+    }
+
+   	public ContentLengthInputStream get(String url, List<Header> headers) throws IOException {
 		HttpGet get = new HttpGet(url);
-		for (String header : headers.keySet())
+		for (Header header : headers)
 		{
-			get.addHeader(header, headers.get(header));
+			get.addHeader(header);
 		}
 		// Must use #execute without handler, otherwise the entity is consumed
 		// already after the handler exits.
@@ -727,7 +736,15 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException {
+        List<Header> list = new ArrayList<Header>();
+        for(Map.Entry<String, String> h: headers.entrySet()) {
+            list.add(new BasicHeader(h.getKey(), h.getValue()));
+        }
+        this.put(url, dataStream, list);
+    }
+
+	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
@@ -744,14 +761,14 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		Map<String, String> headers = new HashMap<String, String>();
+        List<Header> headers = new ArrayList<Header>();
 		if (contentType != null)
 		{
-			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+			headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType));
 		}
 		if (expectContinue)
 		{
-			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+			headers.add(new BasicHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE));
 		}
 		this.put(url, entity, headers);
 	}
@@ -763,18 +780,18 @@ public class SardineImpl implements Sardine
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
 	 */
-	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
+	public void put(String url, HttpEntity entity, List<Header> headers) throws IOException
 	{
 		this.put(url, entity, headers, new VoidResponseHandler());
 	}
 
-	public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
+	public <T> T put(String url, HttpEntity entity, List<Header> headers, ResponseHandler<T> handler) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
-		for (String header : headers.keySet())
+		for (Header header : headers)
 		{
-			put.addHeader(header, headers.get(header));
+			put.addHeader(header);
 		}
 		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
 		{
