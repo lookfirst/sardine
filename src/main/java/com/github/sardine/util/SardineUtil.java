@@ -26,7 +26,6 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,7 +42,16 @@ import java.util.TimeZone;
  */
 public final class SardineUtil
 {
-    private SardineUtil() {}
+	private SardineUtil() {}
+	
+	private final static String[] SUPPORTED_DATE_FORMATS = new String[]{
+	  "yyyy-MM-dd'T'HH:mm:ss'Z'",
+	  "EEE, dd MMM yyyy HH:mm:ss zzz",
+	  "yyyy-MM-dd'T'HH:mm:ss.sss'Z'",
+	  "yyyy-MM-dd'T'HH:mm:ssZ",
+	  "EEE MMM dd HH:mm:ss zzz yyyy",
+	  "EEEEEE, dd-MMM-yy HH:mm:ss zzz",
+	  "EEE MMMM d HH:mm:ss yyyy"};
 
 	/**
 	 * Default namespace prefix
@@ -85,80 +93,16 @@ public final class SardineUtil
 	/**
 	 * Date formats using for Date parsing.
 	 */
-    @SuppressWarnings("unchecked")
-	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS = Arrays.asList(
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			},
-			new ThreadLocal<SimpleDateFormat>()
-			{
-				@Override
-				protected SimpleDateFormat initialValue()
-				{
-					SimpleDateFormat format = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
-					format.setTimeZone(TimeZone.getTimeZone("UTC"));
-					return format;
-				}
-			}
-	);
-
+	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS;
+	
+	static {
+		List<ThreadLocal<SimpleDateFormat>> l = new ArrayList<ThreadLocal<SimpleDateFormat>>(SUPPORTED_DATE_FORMATS.length);
+		for (int i = 0; i<SUPPORTED_DATE_FORMATS.length; i++){
+			l.add(new ThreadLocal<SimpleDateFormat>());
+		}
+		DATETIME_FORMATS = Collections.unmodifiableList(l);
+	}
+	
 	/**
 	 * Loops over all the possible date formats and tries to find the right one.
 	 *
@@ -172,11 +116,18 @@ public final class SardineUtil
 			return null;
 		}
 		Date date = null;
-		for (ThreadLocal<SimpleDateFormat> format : DATETIME_FORMATS)
+		for (int i = 0; i<DATETIME_FORMATS.size(); i++)
 		{
+			ThreadLocal<SimpleDateFormat> format = DATETIME_FORMATS.get(i);
+			SimpleDateFormat sdf = format.get();
+			if (sdf == null){
+				sdf = new SimpleDateFormat(SUPPORTED_DATE_FORMATS[i], Locale.US);
+				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+				format.set(sdf);
+			}
 			try
 			{
-				date = format.get().parse(value);
+				date = sdf.parse(value);
 				break;
 			}
 			catch (ParseException e)
