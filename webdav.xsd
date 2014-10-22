@@ -360,6 +360,12 @@
         </complexType>
     </element>
 
+    <element name="searchrequest">
+        <complexType>
+            <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+        </complexType>
+    </element>
+
     <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
     <!--
     <element name="contentclass" type="xsd:string"/>

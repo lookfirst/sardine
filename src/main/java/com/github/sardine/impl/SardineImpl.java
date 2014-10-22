@@ -36,6 +36,7 @@ import com.github.sardine.impl.methods.HttpMkCol;
 import com.github.sardine.impl.methods.HttpMove;
 import com.github.sardine.impl.methods.HttpPropFind;
 import com.github.sardine.impl.methods.HttpPropPatch;
+import com.github.sardine.impl.methods.HttpSearch;
 import com.github.sardine.impl.methods.HttpUnlock;
 import com.github.sardine.model.Ace;
 import com.github.sardine.model.Acl;
@@ -60,9 +61,11 @@ import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
+import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+
 import java.io.File;
 
 import org.apache.http.Header;
@@ -81,6 +84,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
@@ -117,6 +121,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
@@ -126,6 +131,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.http.entity.FileEntity;
 
 /**
@@ -401,7 +407,30 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
-	@Override
+	public List<DavResource> search(String url, String language, String query) throws IOException
+	{
+		HttpEntityEnclosingRequestBase search = new HttpSearch(url);
+		SearchRequest searchBody = new SearchRequest(language, query);
+		String body = SardineUtil.toXml(searchBody);
+		search.setEntity(new StringEntity(body, UTF_8));
+		Multistatus multistatus = this.execute(search, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		for (Response response : responses)
+		{
+			try
+			{
+				resources.add(new DavResource(response));
+			}
+			catch (URISyntaxException e)
+			{
+				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+			}
+		}
+		return resources;
+	}
+
+    @Override
 	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
 	{
 		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
