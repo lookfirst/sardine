@@ -36,6 +36,7 @@ import com.github.sardine.impl.methods.HttpMkCol;
 import com.github.sardine.impl.methods.HttpMove;
 import com.github.sardine.impl.methods.HttpPropFind;
 import com.github.sardine.impl.methods.HttpPropPatch;
+import com.github.sardine.impl.methods.HttpSearch;
 import com.github.sardine.impl.methods.HttpUnlock;
 import com.github.sardine.model.Ace;
 import com.github.sardine.model.Acl;
@@ -60,16 +61,21 @@ import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
+import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
+
 import java.io.File;
+
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
@@ -78,6 +84,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
@@ -106,6 +113,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
@@ -113,16 +121,17 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.http.entity.FileEntity;
 
 /**
@@ -225,8 +234,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-		this.builder.setDefaultCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
-		this.client = this.builder.build();
+        this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+        this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
 	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
@@ -277,14 +286,43 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname)
 	{
+		enablePreemptiveAuthentication(hostname, -1, -1);
+	}
+
+	@Override
+	public void enablePreemptiveAuthentication(URL url)
+	{
+		final String host = url.getHost();
+		final int port = url.getPort();
+		final String protocol = url.getProtocol();
+		final int httpPort;
+		final int httpsPort;
+		if ("https".equals(protocol))
+		{
+			httpsPort = port;
+			httpPort = -1;
+		}
+		else if ("http".equals(protocol))
+		{
+			httpPort = port;
+			httpsPort = -1;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unsupported protocol " + protocol);
+		}
+		enablePreemptiveAuthentication(host, httpPort, httpsPort);
+	}
+
+	@Override
+	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
+	{
 		AuthCache cache = new BasicAuthCache();
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		for (String scheme : Arrays.asList("http", "https"))
-		{
-			cache.put(new HttpHost(hostname, -1, scheme), basicAuth);
-		}
+		cache.put(new HttpHost(hostname, httpPort, "http"), basicAuth);
+		cache.put(new HttpHost(hostname, httpsPort, "https"), basicAuth);
 		// Add AuthCache to the execution context
 		this.context.setAttribute(HttpClientContext.AUTH_CACHE, cache);
 	}
@@ -369,7 +407,30 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
-	@Override
+	public List<DavResource> search(String url, String language, String query) throws IOException
+	{
+		HttpEntityEnclosingRequestBase search = new HttpSearch(url);
+		SearchRequest searchBody = new SearchRequest(language, query);
+		String body = SardineUtil.toXml(searchBody);
+		search.setEntity(new StringEntity(body, UTF_8));
+		Multistatus multistatus = this.execute(search, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		for (Response response : responses)
+		{
+			try
+			{
+				resources.add(new DavResource(response));
+			}
+			catch (URISyntaxException e)
+			{
+				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+			}
+		}
+		return resources;
+	}
+
+    @Override
 	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
 	{
 		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
@@ -633,12 +694,19 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
-	{
+	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException {
+        List<Header> list = new ArrayList<Header>();
+        for(Map.Entry<String, String> h: headers.entrySet()) {
+            list.add(new BasicHeader(h.getKey(), h.getValue()));
+        }
+        return this.get(url, list);
+    }
+
+   	public ContentLengthInputStream get(String url, List<Header> headers) throws IOException {
 		HttpGet get = new HttpGet(url);
-		for (String header : headers.keySet())
+		for (Header header : headers)
 		{
-			get.addHeader(header, headers.get(header));
+			get.addHeader(header);
 		}
 		// Must use #execute without handler, otherwise the entity is consumed
 		// already after the handler exits.
@@ -697,7 +765,15 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException {
+        List<Header> list = new ArrayList<Header>();
+        for(Map.Entry<String, String> h: headers.entrySet()) {
+            list.add(new BasicHeader(h.getKey(), h.getValue()));
+        }
+        this.put(url, dataStream, list);
+    }
+
+	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
@@ -714,14 +790,14 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		Map<String, String> headers = new HashMap<String, String>();
+        List<Header> headers = new ArrayList<Header>();
 		if (contentType != null)
 		{
-			headers.put(HttpHeaders.CONTENT_TYPE, contentType);
+			headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType));
 		}
 		if (expectContinue)
 		{
-			headers.put(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+			headers.add(new BasicHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE));
 		}
 		this.put(url, entity, headers);
 	}
@@ -733,18 +809,18 @@ public class SardineImpl implements Sardine
 	 * @param entity  The entity to read from
 	 * @param headers Headers to add to request
 	 */
-	public void put(String url, HttpEntity entity, Map<String, String> headers) throws IOException
+	public void put(String url, HttpEntity entity, List<Header> headers) throws IOException
 	{
 		this.put(url, entity, headers, new VoidResponseHandler());
 	}
 
-	public <T> T put(String url, HttpEntity entity, Map<String, String> headers, ResponseHandler<T> handler) throws IOException
+	public <T> T put(String url, HttpEntity entity, List<Header> headers, ResponseHandler<T> handler) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
-		for (String header : headers.keySet())
+		for (Header header : headers)
 		{
-			put.addHeader(header, headers.get(header));
+			put.addHeader(header);
 		}
 		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
 		{
