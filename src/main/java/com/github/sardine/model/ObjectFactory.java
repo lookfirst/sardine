@@ -403,6 +403,14 @@ public class ObjectFactory
 	}
 
 	/**
+	 * Create an instance of {@link SearchRequest }
+	 */
+	public SearchRequest createSearch()
+	{
+	    return new SearchRequest();
+	}
+
+	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
 	 */
 	@XmlElementDecl(namespace = "DAV:", name = "status")

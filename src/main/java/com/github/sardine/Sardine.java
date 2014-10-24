@@ -1,7 +1,9 @@
 package com.github.sardine;
 
 import java.io.File;
+
 import javax.xml.namespace.QName;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -80,6 +82,16 @@ public interface Sardine
 	 */
 	List<DavResource> list(String url, int depth, boolean allProp)
 			throws IOException;
+
+	/**
+	 * Perform a search of the Webdav repository.
+	 * @param url The base resource to search from.
+	 * @param language The language the query is formed in.
+	 * @param query The query string to be processed by the webdav server.
+	 * @return A list of matching resources.
+	 * @throws IOException I/O error or HTTP response validation failure.
+	 */
+	List<DavResource> search(String url, String language, String query) throws IOException;
 
 	/**
 	 * @see #patch(String, java.util.Map, java.util.List)
