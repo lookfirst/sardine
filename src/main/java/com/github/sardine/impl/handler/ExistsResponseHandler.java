@@ -23,7 +23,7 @@ import org.apache.http.StatusLine;
 import com.github.sardine.impl.SardineException;
 
 /**
- * {@link org.apache.http.client.ResponseHandler} which checks wether a given resource exists.
+ * {@link org.apache.http.client.ResponseHandler} which checks whether a given resource exists.
  *
  * @author mirko
  */
