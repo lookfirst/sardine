@@ -273,7 +273,7 @@ public interface Sardine
 	 * the lock from successfully executing a PUT, POST, PROPPATCH, LOCK, UNLOCK, MOVE, DELETE, or MKCOL
 	 * on the locked resource. All other current methods, GET in particular, function
 	 * independently of the lock.
-	 * <p/>
+	 * <p></p>
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support
 	 * locking it may choose to support any combination of exclusive and shared locks for any access types.
 	 *
@@ -304,7 +304,7 @@ public interface Sardine
 
 	/**
 	 * Unlock the resource.
-	 * <p/>
+	 * <p></p>
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support
 	 * locking it may choose to support any combination of exclusive and shared locks for any access types.
 	 *
@@ -363,7 +363,7 @@ public interface Sardine
 	/**
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
 	 * will include "gzip" as an "Accept-Encoding" header.
-	 * <p/>
+	 * <p></p>
 	 * If the server also supports gzip compression, it should serve the
 	 * contents in compressed gzip format and include "gzip" as the
 	 * Content-Encoding. If the content encoding is present, Sardine will

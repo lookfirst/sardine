@@ -15,19 +15,19 @@ public class DavPrincipal
 	 * A "principal" is a distinct human or computational actor that
 	 * initiates access to network resources.  In this protocol, a
 	 * principal is an HTTP resource that represents such an actor.
-	 * <p/>
+	 * <p></p>
 	 * The DAV:principal element identifies the principal to which this ACE
 	 * applies.
-	 * <p/>
-	 * <!ELEMENT principal (href | all | authenticated | unauthenticated
-	 * | property | self)>
-	 * <p/>
+	 * <p></p>
+	 * &lt;!ELEMENT principal (href | all | authenticated | unauthenticated
+	 * | property | self)&gt;
+	 * <p></p>
 	 * The current user matches DAV:href only if that user is authenticated
 	 * as being (or being a member of) the principal identified by the URL
 	 * contained by that DAV:href.
-	 * <p/>
+	 * <p></p>
 	 * Either a href or one of all,authenticated,unauthenticated,property,self.
-	 * <p/>
+	 * <p></p>
 	 * DAV:property not supported.
 	 */
 	public static enum PrincipalType
