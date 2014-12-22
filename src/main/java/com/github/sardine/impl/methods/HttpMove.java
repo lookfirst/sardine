@@ -31,7 +31,7 @@ public class HttpMove extends HttpRequestBase
 
 	public HttpMove(URI sourceUrl, URI destinationUrl)
 	{
-		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toString());
+		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toASCIIString());
 		this.setHeader(HttpHeaders.OVERWRITE, "T");
 		this.setURI(sourceUrl);
 	}
