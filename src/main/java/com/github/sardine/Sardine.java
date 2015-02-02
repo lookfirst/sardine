@@ -158,6 +158,15 @@ public interface Sardine
 	void put(String url, InputStream dataStream) throws IOException;
 
 	/**
+	 * Uses <code>PUT</code> to send data to a server. Not repeatable on authentication failure.
+	 *
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param writeLogic a callback executed executed to perform the write to the resource
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, WriteLogic writeLogic) throws IOException;
+
+	/**
 	 * Uses <code>PUT</code> to send data to a server with a specific content type
 	 * header. Repeatable on authentication failure.
 	 *
@@ -214,6 +223,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
+
+	/**
+	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
+	 * on authentication failure.
+	 *
+	 * @param url		Path to the resource including protocol and hostname
+	 * @param writeLogic a callback executed executed to perform the write to the resource
+	 * @param headers	Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, WriteLogic writeLogic, Map<String, String> headers) throws IOException;
         
 	/**
 	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 

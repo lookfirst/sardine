@@ -23,6 +23,7 @@ import com.github.sardine.DavQuota;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.Version;
+import com.github.sardine.WriteLogic;
 import com.github.sardine.impl.handler.ExistsResponseHandler;
 import com.github.sardine.impl.handler.LockResponseHandler;
 import com.github.sardine.impl.handler.MultiStatusResponseHandler;
@@ -745,6 +746,13 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
+	public void put(String url, WriteLogic writeLogic) throws IOException
+	{
+		WriteLogicEntity entity = new WriteLogicEntity(writeLogic);
+		this.put(url, entity, (String) null, true);
+	}
+
+	@Override
 	public void put(String url, InputStream dataStream, String contentType) throws IOException
 	{
 		this.put(url, dataStream, contentType, true);
@@ -765,18 +773,36 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException {
+	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	{
+        this.put(url, dataStream, headerMapToList(headers));
+    }
+
+    @Override
+	public void put(String url, WriteLogic writeLogic, Map<String, String> headers) throws IOException
+	{
+        this.put(url, writeLogic, headerMapToList(headers));
+	}
+
+	private List<Header> headerMapToList(Map<String, String> map)
+	{
         List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: headers.entrySet()) {
+        for(Map.Entry<String, String> h: map.entrySet()) {
             list.add(new BasicHeader(h.getKey(), h.getValue()));
         }
-        this.put(url, dataStream, list);
-    }
+        return list;
+	}
 
 	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
 		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		this.put(url, entity, headers);
+	}
+
+	public void put(String url, WriteLogic writeLogic, List<Header> headers) throws IOException
+	{
+		WriteLogicEntity entity = new WriteLogicEntity(writeLogic);
 		this.put(url, entity, headers);
 	}
 
