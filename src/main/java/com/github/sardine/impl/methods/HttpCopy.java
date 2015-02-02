@@ -29,16 +29,16 @@ public class HttpCopy extends HttpRequestBase
 {
 	public static final String METHOD_NAME = "COPY";
 
-	public HttpCopy(URI sourceUrl, URI destinationUrl)
+	public HttpCopy(URI sourceUrl, URI destinationUrl, boolean overwrite)
 	{
 		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toASCIIString());
-		this.setHeader(HttpHeaders.OVERWRITE, "T");
+		this.setHeader(HttpHeaders.OVERWRITE, overwrite ? "T" : "F");
 		this.setURI(sourceUrl);
 	}
 
-	public HttpCopy(String sourceUrl, String destinationUrl)
+	public HttpCopy(String sourceUrl, String destinationUrl, boolean overwrite)
 	{
-		this(URI.create(sourceUrl), URI.create(destinationUrl));
+		this(URI.create(sourceUrl), URI.create(destinationUrl), overwrite);
 	}
 
 	@Override

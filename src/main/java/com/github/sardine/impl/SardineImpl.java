@@ -860,14 +860,26 @@ public class SardineImpl implements Sardine
 	@Override
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
-		HttpMove move = new HttpMove(sourceUrl, destinationUrl);
+		move(sourceUrl, destinationUrl, true);
+	}
+
+	@Override
+	public void move(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
+	{
+		HttpMove move = new HttpMove(sourceUrl, destinationUrl, overwrite);
 		this.execute(move, new VoidResponseHandler());
 	}
 
 	@Override
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
-		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl);
+		copy(sourceUrl, destinationUrl, true);
+	}
+
+	@Override
+	public void copy(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
+	{
+		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl, overwrite);
 		this.execute(copy, new VoidResponseHandler());
 	}
 
