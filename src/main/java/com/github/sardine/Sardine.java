@@ -251,6 +251,16 @@ public interface Sardine
 	void move(String sourceUrl, String destinationUrl) throws IOException;
 
 	/**
+	 * Move a url to from source to destination using WebDAV <code>MOVE</code>.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void move(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException;
+
+	/**
 	 * Copy a url from source to destination using WebDAV <code>COPY</code>. Assumes overwrite.
 	 *
 	 * @param sourceUrl	  Path to the resource including protocol and hostname
@@ -258,6 +268,16 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void copy(String sourceUrl, String destinationUrl) throws IOException;
+
+	/**
+	 * Copy a url from source to destination using WebDAV <code>COPY</code>.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void copy(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException;
 
 	/**
 	 * Performs a HTTP <code>HEAD</code> request to see if a resource exists or not.
