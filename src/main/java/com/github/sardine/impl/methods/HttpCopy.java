@@ -16,6 +16,7 @@
 
 package com.github.sardine.impl.methods;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpRequestBase;
 
 import java.net.URI;
@@ -28,16 +29,16 @@ public class HttpCopy extends HttpRequestBase
 {
 	public static final String METHOD_NAME = "COPY";
 
-	public HttpCopy(URI sourceUrl, URI destinationUrl)
+	public HttpCopy(URI sourceUrl, URI destinationUrl, boolean overwrite)
 	{
-		this.setHeader("Destination", destinationUrl.toString());
-		this.setHeader("Overwrite", "T");
+		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toASCIIString());
+		this.setHeader(HttpHeaders.OVERWRITE, overwrite ? "T" : "F");
 		this.setURI(sourceUrl);
 	}
 
-	public HttpCopy(String sourceUrl, String destinationUrl)
+	public HttpCopy(String sourceUrl, String destinationUrl, boolean overwrite)
 	{
-		this(URI.create(sourceUrl), URI.create(destinationUrl));
+		this(URI.create(sourceUrl), URI.create(destinationUrl), overwrite);
 	}
 
 	@Override

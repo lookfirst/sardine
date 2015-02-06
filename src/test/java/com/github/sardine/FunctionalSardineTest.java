@@ -390,9 +390,50 @@ public class FunctionalSardineTest
 		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
 		assertTrue(sardine.exists(source));
-		sardine.move(source, destination);
+		sardine.move(source, destination); // implicitly overwrite
 		assertFalse(sardine.exists(source));
 		assertTrue(sardine.exists(destination));
+		sardine.delete(destination);
+	}
+
+	@Test
+	public void testMoveOverwriting() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
+		assertTrue(sardine.exists(source));
+		sardine.put(destination, new ByteArrayInputStream("Target".getBytes()));
+		assertTrue(sardine.exists(destination));
+		sardine.move(source, destination, true);
+		assertFalse(sardine.exists(source));
+		assertTrue(sardine.exists(destination));
+		sardine.delete(destination);
+	}
+
+	@Test
+	public void testMoveFailOnExisting() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
+		assertTrue(sardine.exists(source));
+		sardine.put(destination, new ByteArrayInputStream("Safe".getBytes()));
+		assertTrue(sardine.exists(destination));
+		try
+		{
+			sardine.move(source, destination, false);
+			fail("Expected SardineException");
+		}
+		catch (SardineException e)
+		{
+			assertEquals(412, e.getStatusCode());
+		}
+		assertTrue(sardine.exists(source));
+		assertTrue(sardine.exists(destination));
+		sardine.delete(source);
 		sardine.delete(destination);
 	}
 
