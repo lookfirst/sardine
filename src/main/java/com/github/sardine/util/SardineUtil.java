@@ -252,7 +252,7 @@ public final class SardineUtil
 	/**
 	 * @param jaxbElement An object from the model
 	 * @return The XML string for the WebDAV request
-	 * @throws IOException When there is a JAXB error
+	 * @throws RuntimeException When there is a JAXB error
 	 */
 	public static String toXml(Object jaxbElement)
 	{
