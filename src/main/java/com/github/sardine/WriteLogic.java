@@ -10,5 +10,5 @@ import java.io.OutputStream;
  */
 public interface WriteLogic
 {
-    void withOutputStream(OutputStream stream) throws IOException;
+	void withOutputStream(OutputStream stream) throws IOException;
 }

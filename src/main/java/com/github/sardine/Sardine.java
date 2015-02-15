@@ -234,10 +234,10 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, WriteLogic writeLogic, Map<String, String> headers) throws IOException;
-        
+
 	/**
 	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
-         * Repeatable on authentication failure.
+	 * Repeatable on authentication failure.
 	 *
 	 * @param url		Path to the resource including protocol and hostname
 	 * @param localFile local file to send

@@ -18,54 +18,54 @@ import com.github.sardine.WriteLogic;
  */
 class WriteLogicEntity extends AbstractHttpEntity
 {
-    private final WriteLogic writeLogic;
+	private final WriteLogic writeLogic;
 
-    WriteLogicEntity(WriteLogic writeLogic)
-    {
-        this(writeLogic, null);
-    }
+	WriteLogicEntity(WriteLogic writeLogic)
+	{
+		this(writeLogic, null);
+	}
 
-    WriteLogicEntity(WriteLogic writeLogic, ContentType contentType)
-    {
-        this.writeLogic = writeLogic;
-        if (contentType != null)
-        {
-            this.setContentType(contentType.toString());
-        }
-    }
+	WriteLogicEntity(WriteLogic writeLogic, ContentType contentType)
+	{
+		this.writeLogic = writeLogic;
+		if (contentType != null)
+		{
+			this.setContentType(contentType.toString());
+		}
+	}
 
-    @Override
-    public boolean isRepeatable()
-    {
-    	// Playing it safe.
-        return false;
-    }
+	@Override
+	public boolean isRepeatable()
+	{
+		// Playing it safe.
+		return false;
+	}
 
-    @Override
-    public long getContentLength()
-    {
-    	// Because we can't possibly know.
-        return -1L;
-    }
+	@Override
+	public long getContentLength()
+	{
+		// Because we can't possibly know.
+		return -1L;
+	}
 
-    @Override
-    public InputStream getContent() throws IOException
-    {
-    	// Supposedly this is OK, but the API hasn't formalised it yet:
-    	// http://stackoverflow.com/questions/10146692/how-do-i-write-to-an-outputstream-using-defaulthttpclient
-        throw new UnsupportedOperationException("getContent() not supported, use writeTo(OutputStream) instead");
-    }
+	@Override
+	public InputStream getContent() throws IOException
+	{
+		// Supposedly this is OK, but the API hasn't formalised it yet:
+		// http://stackoverflow.com/questions/10146692/how-do-i-write-to-an-outputstream-using-defaulthttpclient
+		throw new UnsupportedOperationException("getContent() not supported, use writeTo(OutputStream) instead");
+	}
 
-    @Override
-    public void writeTo(OutputStream outputStream) throws IOException
-    {
-    	writeLogic.withOutputStream(outputStream);
-    }
+	@Override
+	public void writeTo(OutputStream outputStream) throws IOException
+	{
+		writeLogic.withOutputStream(outputStream);
+	}
 
-    @Override
-    public boolean isStreaming()
-    {
-    	// Still not sure what the right value is here.
-        return false;
-    }
+	@Override
+	public boolean isStreaming()
+	{
+		// Still not sure what the right value is here.
+		return false;
+	}
 }

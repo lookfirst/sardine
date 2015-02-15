@@ -235,8 +235,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-        this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
-        this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
+		this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
 	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
@@ -775,22 +775,22 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
 	{
-        this.put(url, dataStream, headerMapToList(headers));
-    }
+		this.put(url, dataStream, headerMapToList(headers));
+	}
 
-    @Override
+	@Override
 	public void put(String url, WriteLogic writeLogic, Map<String, String> headers) throws IOException
 	{
-        this.put(url, writeLogic, headerMapToList(headers));
+		this.put(url, writeLogic, headerMapToList(headers));
 	}
 
 	private List<Header> headerMapToList(Map<String, String> map)
 	{
-        List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: map.entrySet()) {
-            list.add(new BasicHeader(h.getKey(), h.getValue()));
-        }
-        return list;
+		List<Header> list = new ArrayList<Header>();
+		for(Map.Entry<String, String> h: map.entrySet()) {
+			list.add(new BasicHeader(h.getKey(), h.getValue()));
+		}
+		return list;
 	}
 
 	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
@@ -870,12 +870,15 @@ public class SardineImpl implements Sardine
 			throw e;
 		}
 	}
-        @Override
-        public void put(String url, File localFile, String contentType) throws IOException {
-                FileEntity content = new FileEntity(localFile);
-                //don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
-                this.put(url, content, contentType, false);
-        }
+
+	@Override
+	public void put(String url, File localFile, String contentType) throws IOException
+	{
+		FileEntity content = new FileEntity(localFile);
+		//don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
+		this.put(url, content, contentType, false);
+	}
+
 	@Override
 	public void delete(String url) throws IOException
 	{
