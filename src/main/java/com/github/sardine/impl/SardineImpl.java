@@ -211,6 +211,7 @@ public class SardineImpl implements Sardine
 	{
 		this.builder = builder;
 		this.setCredentials(username, password);
+		this.client = this.builder.build();
 	}
 
 	/**
