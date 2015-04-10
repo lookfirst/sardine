@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 public class LockTest
 {
 	@Test
+	@Ignore
 	public void testLockUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();

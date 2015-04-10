@@ -17,8 +17,8 @@
 package com.github.sardine;
 
 import com.github.sardine.util.SardineUtil;
+import org.junit.Ignore;
 import org.junit.Test;
-
 import javax.xml.namespace.QName;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,8 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @version $Id:$
@@ -39,6 +42,7 @@ public class ProppatchTest
 	 * Try to patch property in WebDAV namespace.
 	 */
 	@Test
+	@Ignore
 	public void testAddPropertyDefaultNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
@@ -69,6 +73,7 @@ public class ProppatchTest
 	 * Try to patch property in Sardine namespace
 	 */
 	@Test
+	@Ignore
 	public void testAddPropertyCustomNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
@@ -103,6 +108,7 @@ public class ProppatchTest
 	 * Try to patch property in Sardine namespace
 	 */
 	@Test
+	@Ignore
 	public void testRemovePropertyCustomNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
