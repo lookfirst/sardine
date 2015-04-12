@@ -29,12 +29,11 @@ import static org.junit.Assert.fail;
 public class LockTest
 {
 	@Test
-	@Ignore
 	public void testLockUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
 		// mod_dav supports Range headers for PUT
-		String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new byte[]{});
 		try
 		{
@@ -73,13 +72,12 @@ public class LockTest
 	}
 
 	@Test
-	@Ignore // the file is locked on the server. we should rewrite this test to be more resilient to failures.
 	public void lockRefreshUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
 
 		String existingFile = "0be720f6-2013-46f2-a369-a7e2df047ef8";
-		String existingFileUrl = "http://sudo.ch/dav/anon/sardine/" + existingFile;
+		String existingFileUrl = "http://test.cyberduck.ch/dav/anon/sardine/" + existingFile;
 
 		String lockToken = sardine.lock(existingFileUrl);
 		String result = sardine.refreshLock(existingFileUrl, lockToken, existingFile);
