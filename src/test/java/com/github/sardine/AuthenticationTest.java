@@ -16,19 +16,6 @@
 
 package com.github.sardine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.net.URI;
-import java.security.Principal;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -37,7 +24,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
@@ -46,8 +32,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
+import java.net.URI;
+import java.security.Principal;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+
 import com.github.sardine.impl.SardineException;
 import com.github.sardine.impl.SardineImpl;
+
+import static org.junit.Assert.*;
 
 /**
  * @version $Id:$
@@ -74,7 +69,7 @@ public class AuthenticationTest
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
 		try
 		{
-			URI url = URI.create("http://sudo.ch/dav/basic/");
+			URI url = URI.create("http://test.cyberduck.ch/dav/basic/");
 			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
@@ -91,7 +86,7 @@ public class AuthenticationTest
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
 		try
 		{
-			URI url = URI.create("http://sudo.ch/dav/digest/");
+			URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
 			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
@@ -106,7 +101,7 @@ public class AuthenticationTest
 	public void testDigestAuthWithBasicPreemptive() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		URI url = URI.create("http://sudo.ch/dav/digest/");
+		URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		try
 		{
@@ -126,7 +121,7 @@ public class AuthenticationTest
 		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
 		try
 		{
-			URI url = URI.create("http://sudo.ch/dav/digest/");
+			URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
 			sardine.enablePreemptiveAuthentication(url.getHost());
 			sardine.list(url.toString());
 			fail("Expected authentication to fail becuase of preemptive credential cache");
@@ -173,7 +168,7 @@ public class AuthenticationTest
 			}
 		});
 		SardineImpl sardine = new SardineImpl(client);
-		URI url = URI.create("http://sudo.ch/dav/basic/");
+		URI url = URI.create("http://test.cyberduck.ch/dav/basic/");
 		//Send basic authentication header in initial request
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		try

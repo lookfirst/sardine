@@ -17,17 +17,12 @@
 package com.github.sardine;
 
 
-import com.github.sardine.DavPrincipal.PrincipalType;
-import com.github.sardine.impl.SardineException;
-import com.github.sardine.impl.SardineImpl;
-import com.github.sardine.util.SardineUtil;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
@@ -55,6 +50,11 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import com.github.sardine.DavPrincipal.PrincipalType;
+import com.github.sardine.impl.SardineException;
+import com.github.sardine.impl.SardineImpl;
+import com.github.sardine.util.SardineUtil;
 
 import static org.junit.Assert.*;
 
@@ -104,7 +104,7 @@ public class FunctionalSardineTest
 		Sardine sardine = new SardineImpl(client);
 		sardine.enableCompression();
 //		final String url = "http://sardine.googlecode.com/svn/trunk/README.html";
-		final String url = "http://sudo.ch/dav/anon/sardine/single/file";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/single/file";
 		final InputStream in = sardine.get(url);
 		assertNotNull(in);
 		assertNotNull(in.read());
@@ -234,7 +234,7 @@ public class FunctionalSardineTest
 		});
 		Sardine sardine = new SardineImpl(client);
 		// mod_dav supports Range headers for PUT
-		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new ByteArrayInputStream("Te".getBytes("UTF-8")));
 		try
 		{
@@ -283,7 +283,7 @@ public class FunctionalSardineTest
 		});
 		Sardine sardine = new SardineImpl(client);
 		// mod_dav supports Range headers for GET
-		final String url = "http://sudo.ch/dav/anon/sardine/single/file";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/single/file";
 		// Resume
 		final Map<String, String> header = Collections.singletonMap(HttpHeaders.RANGE, "bytes=" + 1 + "-");
 		final InputStream in = sardine.get(url, header);
@@ -295,7 +295,7 @@ public class FunctionalSardineTest
 	{
 		// Anonymous PUT to restricted resource
 		Sardine sardine = SardineFactory.begin();
-		final String url = "http://sudo.ch/dav/basic/sardine/" + UUID.randomUUID().toString();
+		final String url = "http://test.cyberduck.ch/dav/basic/sardine/" + UUID.randomUUID().toString();
 		try
 		{
 			sardine.put(url, new InputStream()
@@ -348,7 +348,7 @@ public class FunctionalSardineTest
 	public void testPut() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
 		try
 		{
@@ -365,7 +365,7 @@ public class FunctionalSardineTest
 	public void testDepth() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String url = "http://sudo.ch/dav/anon/sardine/";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/";
 		List<DavResource> resources = sardine.list(url, 0);
 		assertNotNull(resources);
 		assertEquals(1, resources.size());
@@ -376,7 +376,7 @@ public class FunctionalSardineTest
 	{
 		Sardine sardine = SardineFactory.begin();
 		String filename = UUID.randomUUID().toString();
-		final String url = "http://sudo.ch/dav/anon/sardine/" + filename;
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/" + filename;
 		sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
 		sardine.delete(url);
 		assertFalse(sardine.exists(url));
@@ -386,8 +386,8 @@ public class FunctionalSardineTest
 	public void testMove() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String source = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String destination = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
 		assertTrue(sardine.exists(source));
 		sardine.move(source, destination); // implicitly overwrite
@@ -400,8 +400,8 @@ public class FunctionalSardineTest
 	public void testMoveOverwriting() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String source = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String destination = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
 		assertTrue(sardine.exists(source));
 		sardine.put(destination, new ByteArrayInputStream("Target".getBytes()));
@@ -416,8 +416,8 @@ public class FunctionalSardineTest
 	public void testMoveFailOnExisting() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String source = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		final String destination = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String source = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		final String destination = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
 		sardine.put(source, new ByteArrayInputStream("Test".getBytes()));
 		assertTrue(sardine.exists(source));
 		sardine.put(destination, new ByteArrayInputStream("Safe".getBytes()));
@@ -441,7 +441,7 @@ public class FunctionalSardineTest
 	public void testMkdir() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String url = "http://sudo.ch/dav/anon/sardine/" + UUID.randomUUID().toString() + "/";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString() + "/";
 		sardine.createDirectory(url);
 		assertTrue(sardine.exists(url));
 		final List<DavResource> resources = sardine.list(url);
@@ -487,7 +487,7 @@ public class FunctionalSardineTest
 	public void testRedirectPermanently() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		final String url = "http://sudo.ch/dav/anon/sardine";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine";
 		try
 		{
 			// Test extended redirect handler for PROPFIND
@@ -537,7 +537,7 @@ public class FunctionalSardineTest
 	public void testMetadata() throws Exception
 	{
 		// 1 prepare dav test ressource
-		final String url = "http://sudo.ch/dav/anon/sardine/metadata.txt";
+		final String url = "http://test.cyberduck.ch/dav/anon/sardine/metadata.txt";
 		Sardine sardine = SardineFactory.begin();
 		if (sardine.exists(url))
 		{
