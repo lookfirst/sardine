@@ -845,12 +845,19 @@ public class SardineImpl implements Sardine
 			throw e;
 		}
 	}
-        @Override
-        public void put(String url, File localFile, String contentType) throws IOException {
-                FileEntity content = new FileEntity(localFile);
-                //don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
-                this.put(url, content, contentType, false);
-        }
+
+	@Override
+	public void put(String url, File localFile, String contentType) throws IOException {
+		//don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
+		put(url, localFile, contentType, false);
+	}
+
+	@Override
+	public void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException {
+		FileEntity content = new FileEntity(localFile);
+		this.put(url, content, contentType, expectContinue);
+	}
+
 	@Override
 	public void delete(String url) throws IOException
 	{
