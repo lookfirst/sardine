@@ -34,6 +34,12 @@ public class SardineTask extends Task
 	/** Attribute password. */
 	private String fPassword = null;
 
+	/** Attribute domain for NTLM authentication. */
+	private String fDomain = null;
+
+	/** Attribute workstation for NTLM authentication. */
+	private String fWorkstation = null;
+
 	/** Attribute preemptiveAuthenticationHost. */
 	private String fPreemptiveAuthenticationHost;
 
@@ -82,7 +88,13 @@ public class SardineTask extends Task
 	@Override
 	public void execute() throws BuildException {
 		try {
-			fSardine = SardineFactory.begin(fUsername, fPassword);
+			if ( fDomain==null && fWorkstation==null ) {
+				fSardine = SardineFactory.begin(fUsername, fPassword);
+			} else {
+				fSardine = SardineFactory.begin();
+				fSardine.setCredentials(fUsername, fPassword, fDomain, fWorkstation);
+			}
+
 			if (fPreemptiveAuthenticationHost != null && !fPreemptiveAuthenticationHost.isEmpty()) {
 				fSardine.enablePreemptiveAuthentication(fPreemptiveAuthenticationHost);
 			}
@@ -131,6 +143,24 @@ public class SardineTask extends Task
 	 */
 	public void setPassword(String password) {
 		fPassword = password;
+	}
+	
+	/**
+	 * Setter for attribute domain for NTLM authentication.
+	 *
+	 * @param domain used for NTLM authentication
+	 */
+	public void setDomain(String domain) {
+		fDomain = domain;
+	}
+
+	/**
+	 * Setter for attribute workstation for NTLM authentication.
+	 *
+	 * @param workstation used for NTLM authentication
+	 */
+	public void setWorkstation(String workstation) {
+		fWorkstation = workstation;
 	}
 
 	/**
