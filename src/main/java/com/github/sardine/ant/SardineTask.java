@@ -40,6 +40,9 @@ public class SardineTask extends Task
 	/** Attribute workstation for NTLM authentication. */
 	private String fWorkstation = null;
 
+	/** Attribute ignoreCookies. */
+	private boolean fIgnoreCookies = false;
+
 	/** Attribute preemptiveAuthenticationHost. */
 	private String fPreemptiveAuthenticationHost;
 
@@ -93,6 +96,10 @@ public class SardineTask extends Task
 			} else {
 				fSardine = SardineFactory.begin();
 				fSardine.setCredentials(fUsername, fPassword, fDomain, fWorkstation);
+			}
+
+			if (fIgnoreCookies) {
+				fSardine.ignoreCookies();
 			}
 
 			if (fPreemptiveAuthenticationHost != null && !fPreemptiveAuthenticationHost.isEmpty()) {
@@ -161,6 +168,15 @@ public class SardineTask extends Task
 	 */
 	public void setWorkstation(String workstation) {
 		fWorkstation = workstation;
+	}
+
+	/**
+	 * Setter for attribute ignoreCookies.
+	 *
+	 * @param Whether to ignore cookies.
+	 */
+	public void setIgnoreCookies(boolean ignoreCookies) {
+		fIgnoreCookies = ignoreCookies;
 	}
 
 	/**

@@ -412,6 +412,11 @@ public interface Sardine
 	void disableCompression();
 
 	/**
+	 * Ignores cookies.
+	 */
+	public void ignoreCookies();
+
+	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
 	 * Uses default ports: 80 for http and 443 for https
 	 *

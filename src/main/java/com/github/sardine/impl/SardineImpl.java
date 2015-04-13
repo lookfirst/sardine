@@ -93,6 +93,7 @@ import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.protocol.ResponseContentEncoding;
+import org.apache.http.config.Lookup;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
@@ -101,6 +102,7 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -113,6 +115,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.impl.cookie.IgnoreSpecFactory;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
@@ -281,6 +284,21 @@ public class SardineImpl implements Sardine
 	public void disableCompression()
 	{
 		this.builder.disableContentCompression();
+		this.client = this.builder.build();
+	}
+
+	/**
+	 * Ignores cookies by always returning the IgnoreSpecFactory regardless of the cookieSpec value being looked up.
+	 */
+	@Override
+	public void ignoreCookies()
+	{
+		this.builder.setDefaultCookieSpecRegistry(new Lookup<CookieSpecProvider>() {
+			@Override
+			public CookieSpecProvider lookup(String name) {
+				return new IgnoreSpecFactory();
+			}
+		});
 		this.client = this.builder.build();
 	}
 
