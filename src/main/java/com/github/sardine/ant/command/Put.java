@@ -111,7 +111,7 @@ public class Put extends Command {
 	 */
 	private void process(File file, URL dest, boolean expectContinue) throws Exception {
 		log("putting " + file + " to " + dest + " with expectContinue=" + expectContinue, Project.MSG_VERBOSE);
-		getSardine().put(dest.toString(), new FileInputStream(file), fContentType, expectContinue);
+		getSardine().put(dest.toString(), file, fContentType, expectContinue);
 	}
 
 	/**

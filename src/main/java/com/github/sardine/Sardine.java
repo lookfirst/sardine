@@ -214,10 +214,10 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
-        
+
 	/**
 	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
-         * Repeatable on authentication failure.
+	 * Repeatable on authentication failure.
 	 *
 	 * @param url		Path to the resource including protocol and hostname
 	 * @param localFile local file to send
@@ -225,6 +225,19 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void put(String url, File localFile, String contentType) throws IOException;
+
+	/**
+	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
+	 * Repeatable on authentication failure.
+	 *
+	 * @param url       Path to the resource including protocol and hostname
+	 * @param localFile local file to send
+	 * @param contentType   MIME type to add to the HTTP request header
+	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException;
+
 	/**
 	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
@@ -397,6 +410,11 @@ public interface Sardine
 	 * @see Sardine#enableCompression()
 	 */
 	void disableCompression();
+
+	/**
+	 * Ignores cookies.
+	 */
+	public void ignoreCookies();
 
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
