@@ -23,31 +23,31 @@ import com.github.sardine.ant.command.Put;
 public class SardineTask extends Task
 {
 	/** Commands. */
-	private List<Command> fCommands = new ArrayList<Command>();
+	private List<Command> commands = new ArrayList<Command>();
 
 	/** Attribute failOnError. */
-	private boolean fFailOnError = false;
+	private boolean failOnError = false;
 
 	/** Attribute username. */
-	private String fUsername = null;
+	private String username = null;
 
 	/** Attribute password. */
-	private String fPassword = null;
+	private String password = null;
 
 	/** Attribute domain for NTLM authentication. */
-	private String fDomain = null;
+	private String domain = null;
 
 	/** Attribute workstation for NTLM authentication. */
-	private String fWorkstation = null;
+	private String workstation = null;
 
 	/** Attribute ignoreCookies. */
-	private boolean fIgnoreCookies = false;
+	private boolean ignoreCookies = false;
 
 	/** Attribute preemptiveAuthenticationHost. */
-	private String fPreemptiveAuthenticationHost;
+	private String preemptiveAuthenticationHost;
 
 	/** Reference to sardine impl. */
-	private Sardine fSardine = null;
+	private Sardine sardine = null;
 
 	/** Add a copy command. */
 	public void addCopy(Copy copy) {
@@ -82,7 +82,7 @@ public class SardineTask extends Task
 	/** Internal addCommand implementation. */
 	private void addCommand(Command command) {
 		command.setTask(this);
-		fCommands.add(command);
+		commands.add(command);
 	}
 
 	/**
@@ -91,22 +91,22 @@ public class SardineTask extends Task
 	@Override
 	public void execute() throws BuildException {
 		try {
-			if ( fDomain==null && fWorkstation==null ) {
-				fSardine = SardineFactory.begin(fUsername, fPassword);
+			if (domain == null && workstation == null) {
+				sardine = SardineFactory.begin(username, password);
 			} else {
-				fSardine = SardineFactory.begin();
-				fSardine.setCredentials(fUsername, fPassword, fDomain, fWorkstation);
+				sardine = SardineFactory.begin();
+				sardine.setCredentials(username, password, domain, workstation);
 			}
 
-			if (fIgnoreCookies) {
-				fSardine.ignoreCookies();
+			if (ignoreCookies) {
+				sardine.ignoreCookies();
 			}
 
-			if (fPreemptiveAuthenticationHost != null && !fPreemptiveAuthenticationHost.isEmpty()) {
-				fSardine.enablePreemptiveAuthentication(fPreemptiveAuthenticationHost);
+			if (preemptiveAuthenticationHost != null && !preemptiveAuthenticationHost.isEmpty()) {
+				sardine.enablePreemptiveAuthentication(preemptiveAuthenticationHost);
 			}
 
-			for (Command command: fCommands) {
+			for (Command command: commands) {
 				command.executeCommand();
 			}
 		} catch (Exception e) {
@@ -121,7 +121,7 @@ public class SardineTask extends Task
 	 *        and continue
 	 */
 	public void setFailonerror(boolean failonerror) {
-		fFailOnError = failonerror;
+		this.failOnError = failonerror;
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class SardineTask extends Task
 	 *         continue
 	 */
 	public boolean isFailonerror() {
-		return fFailOnError;
+		return failOnError;
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class SardineTask extends Task
 	 * @param username used for authentication
 	 */
 	public void setUsername(String username) {
-		fUsername = username;
+		this.username = username;
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class SardineTask extends Task
 	 * @param password used for authentication
 	 */
 	public void setPassword(String password) {
-		fPassword = password;
+		this.password = password;
 	}
 	
 	/**
@@ -158,7 +158,7 @@ public class SardineTask extends Task
 	 * @param domain used for NTLM authentication
 	 */
 	public void setDomain(String domain) {
-		fDomain = domain;
+		this.domain = domain;
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class SardineTask extends Task
 	 * @param workstation used for NTLM authentication
 	 */
 	public void setWorkstation(String workstation) {
-		fWorkstation = workstation;
+		this.workstation = workstation;
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class SardineTask extends Task
 	 * @param Whether to ignore cookies.
 	 */
 	public void setIgnoreCookies(boolean ignoreCookies) {
-		fIgnoreCookies = ignoreCookies;
+		this.ignoreCookies = ignoreCookies;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class SardineTask extends Task
 	 * @param host name of the host to acivate the preemptive authentication for
 	 */
 	public void setPreemptiveAuthenticationHost(String host) {
-		fPreemptiveAuthenticationHost = host;
+		this.preemptiveAuthenticationHost = host;
 	}
 
 	/**
@@ -194,6 +194,6 @@ public class SardineTask extends Task
 	 * @return the sardine impl
 	 */
 	public Sardine getSardine() {
-		return fSardine;
+		return sardine;
 	}
 }
