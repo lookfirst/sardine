@@ -162,7 +162,7 @@ public class SardineImpl implements Sardine
 	 * Local context with authentication cache. Make sure the same context is used to execute
 	 * logically related requests.
 	 */
-	private HttpClientContext context = HttpClientContext.create();
+	protected HttpClientContext context = HttpClientContext.create();
 
 	/**
 	 * Access resources with no authentication
@@ -336,14 +336,19 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
 	{
-		AuthCache cache = new BasicAuthCache();
+		AuthCache cache = this.context.getAuthCache();
+		if (cache == null)
+		{
+			// Add AuthCache to the execution context
+			cache = new BasicAuthCache();
+			this.context.setAuthCache(cache);
+
+		}
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
 		cache.put(new HttpHost(hostname, httpPort, "http"), basicAuth);
 		cache.put(new HttpHost(hostname, httpsPort, "https"), basicAuth);
-		// Add AuthCache to the execution context
-		this.context.setAttribute(HttpClientContext.AUTH_CACHE, cache);
 	}
 
 	@Override
