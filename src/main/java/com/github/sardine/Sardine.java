@@ -4,6 +4,8 @@ import java.io.File;
 
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Element;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -119,6 +121,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<DavResource> patch(String url, Map<QName, String> addProps, List<QName> removeProps) throws IOException;
+
+	/**
+	 * Add or remove custom properties for a url using WebDAV <code>PROPPATCH</code>.
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param addProps	Properties to add to resource. If a property already exists then its value is replaced.
+	 * @param removeProps Properties to remove from resource. Specifying the removal of a property that does not exist is not an error.
+	 * @return The patched resources from the response
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> patch(String url, List<Element> addProps, List<QName> removeProps) throws IOException;
 
 	/**
 	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
