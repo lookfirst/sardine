@@ -322,4 +322,12 @@ public final class SardineUtil
 	{
 		return createDocument().createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());
 	}
+
+	/**
+	 * @param key Fully qualified element name.
+	 */
+	public static Element createElement(Element parent, QName key)
+	{
+		return parent.getOwnerDocument().createElementNS(key.getNamespaceURI(), key.getPrefix() + ":" + key.getLocalPart());
+	}
 }

@@ -76,7 +76,7 @@ public class LockTest
 	{
 		Sardine sardine = SardineFactory.begin();
 
-		String existingFile = "0be720f6-2013-46f2-a369-a7e2df047ef8";
+		String existingFile = "5bac62e9-d233-438b-8d45-4c8ceb8d3069";
 		String existingFileUrl = "http://test.cyberduck.ch/dav/anon/sardine/" + existingFile;
 
 		String lockToken = sardine.lock(existingFileUrl);

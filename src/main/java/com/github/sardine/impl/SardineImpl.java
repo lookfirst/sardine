@@ -122,6 +122,7 @@ import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
 
@@ -134,6 +135,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.entity.FileEntity;
 
@@ -474,6 +476,23 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
+		List<Element> setPropsElements = new ArrayList<Element>();
+		for (Entry<QName, String> entry : setProps.entrySet()) {
+			Element element = SardineUtil.createElement(entry.getKey());
+			element.setTextContent(entry.getValue());
+			setPropsElements.add(element);
+		}
+		return this.patch(url, setPropsElements, removeProps);
+	}
+
+	/**
+	 * Creates a {@link com.github.sardine.model.Propertyupdate} element containing all properties to set from setProps and all properties to
+	 * remove from removeProps. Note this method will use a {@link com.github.sardine.util.SardineUtil#CUSTOM_NAMESPACE_URI} as
+	 * namespace and {@link com.github.sardine.util.SardineUtil#CUSTOM_NAMESPACE_PREFIX} as prefix.
+	 */
+	@Override
+	public List<DavResource> patch(String url, List<Element> setProps, List<QName> removeProps) throws IOException
+	{
 		HttpPropPatch entity = new HttpPropPatch(url);
 		// Build WebDAV <code>PROPPATCH</code> entity.
 		Propertyupdate body = new Propertyupdate();
@@ -484,10 +503,8 @@ public class SardineImpl implements Sardine
 			Prop prop = new Prop();
 			// Returns a reference to the live list
 			List<Element> any = prop.getAny();
-			for (Map.Entry<QName, String> entry : setProps.entrySet())
+			for (Element element : setProps)
 			{
-				Element element = SardineUtil.createElement(entry.getKey());
-				element.setTextContent(entry.getValue());
 				any.add(element);
 			}
 			set.setProp(prop);

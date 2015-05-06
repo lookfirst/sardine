@@ -17,14 +17,19 @@
 package com.github.sardine;
 
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import com.github.sardine.util.SardineUtil;
@@ -88,6 +93,64 @@ public class ProppatchTest
 			}
 			{
 				List<DavResource> resources = sardine.list(url, 0, patch.keySet());
+				assertNotNull(resources);
+				assertEquals(1, resources.size());
+				DavResource resource = resources.iterator().next();
+				assertEquals("sardine", resource.getCustomProps().get("fish"));
+			}
+		}
+		finally
+		{
+			sardine.delete(url);
+		}
+	}
+
+	/**
+	 * Try to add new custom complex properties.
+	 * 
+	 * The example comes from <a href="http://www.webdav.org/specs/rfc4918.html#rfc.section.9.2.2">
+	 * http://www.webdav.org/specs/rfc4918.html#rfc.section.9.2.2</a>.
+	 */
+	@Test
+	public void testAddCustomComplexProperties() throws Exception
+	{
+		Sardine sardine = SardineFactory.begin();
+		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		sardine.put(url, new byte[]{});
+		try
+		{
+			QName authorsName = new QName("http://ns.example.com/standards/z39.50/:", "Authors", "Z");
+			QName authorName = new QName("http://ns.example.com/standards/z39.50/:", "Author", "Z");
+
+			Element authorsElement = SardineUtil.createElement(authorsName);
+			Element author1 = SardineUtil.createElement(authorsElement, authorName);
+			author1.setTextContent("Jim Whitehead");
+			authorsElement.appendChild(author1);
+			Element author2 = SardineUtil.createElement(authorsElement, authorName);
+			author2.setTextContent("Roy Fielding");
+			authorsElement.appendChild(author2);
+			
+			QName fishName = SardineUtil.createQNameWithCustomNamespace("fish");
+			Element fish = SardineUtil.createElement(fishName);
+			fish.setTextContent("sardine");
+
+			List<Element> addProps = new ArrayList<Element>();
+			addProps.add(authorsElement);
+			addProps.add(fish);
+			
+			Set<QName> qnames = new HashSet<QName>();
+			qnames.add(authorsName);
+			qnames.add(fishName);
+			{
+				List<DavResource> resources = sardine.patch(url, addProps, Collections.<QName>emptyList());
+				assertNotNull(resources);
+				assertEquals(1, resources.size());
+				DavResource resource = resources.iterator().next();
+				assertTrue(resource.getCustomProps().containsKey("Authors"));
+				assertTrue(resource.getCustomProps().containsKey("fish"));
+			}
+			{
+				List<DavResource> resources = sardine.list(url, 0, qnames);
 				assertNotNull(resources);
 				assertEquals(1, resources.size());
 				DavResource resource = resources.iterator().next();
