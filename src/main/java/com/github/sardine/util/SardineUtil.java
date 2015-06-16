@@ -78,6 +78,8 @@ public final class SardineUtil
 	 */
 	private static final JAXBContext JAXB_CONTEXT;
 
+	private static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
 	static
 	{
 		try
@@ -236,7 +238,6 @@ public final class SardineUtil
 	 */
 	private static Document createDocument()
 	{
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
 		try
 		{
