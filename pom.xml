@@ -3,7 +3,7 @@
 	<groupId>com.github.lookfirst</groupId>
 	<artifactId>sardine</artifactId>
 	<packaging>jar</packaging>
-	<version>5.5-SNAPSHOT</version>
+	<version>5.5-Comcast-SNAPSHOT</version>
 	<description>An easy to use webdav client for java</description>
 	<name>Sardine WEBDAV client</name>
 	<url>https://github.com/lookfirst/sardine</url>
@@ -19,11 +19,16 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:lookfirst/sardine.git</connection>
-		<developerConnection>scm:git:git@github.com:lookfirst/sardine.git</developerConnection>
-		<url>git@github.com:lookfirst/sardine.git</url>
+		<connection>scm:git:git@github.com:chadlyon/sardine.git</connection>
+		<developerConnection>scm:git:git@github.com:chadlyon/sardine.git</developerConnection>
+		<url>git@github.com:chadlyon/sardine.git</url>
 	</scm>
 	<developers>
+		<developer>
+			<name>Chad Lyon</name>
+			<id>chadlyon</id>
+			<email>chad.lyon@gmail.com</email>
+		</developer>
 		<developer>
 			<name>Jon Stevens</name>
 			<id>lookfirst</id>
@@ -37,16 +42,16 @@
 		</developer>
 	</developers>
   	<distributionManagement>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus Release Repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-		</repository>
-		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Sonatype Nexus snapshot repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
+	  <repository>
+	    <id>compass-thirdparty-forks</id>
+	    <name>compass-thirdparty-forks-releases</name>
+	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-releases</url>
+	  </repository>
+	  <snapshotRepository>
+	    <id>compass-thirdparty-forks</id>
+	    <name>compass-thirdparty-forks-snapshots</name>
+	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-snapshots</url>
+	  </snapshotRepository>
 	</distributionManagement>
 	<build>
 		<plugins>
@@ -74,30 +79,44 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-source-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+		  <plugins>
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-source-plugin</artifactId>
+		      <version>2.2.1</version>
+		      <executions>
+			<execution>
+			  <id>attach-sources</id>
+			  <goals>
+			    <goal>jar</goal>
+			  </goals>
+			</execution>
+		      </executions>
+		    </plugin>
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-javadoc-plugin</artifactId>
+		      <version>2.9.1</version>
+		      <executions>
+			<execution>
+			  <id>attach-javadocs</id>
+			  <goals>
+			    <goal>jar</goal>
+			  </goals>
+			</execution>
+		      </executions>
+		    </plugin>
+		  </plugins>
+		</pluginManagement>
 	</build>
 	<profiles>
 		<profile>
