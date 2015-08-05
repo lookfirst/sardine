@@ -869,7 +869,8 @@ public class SardineImpl implements Sardine
 		}
 		try
 		{
-			return this.execute(put, handler);
+			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+			return this.client.execute(put, handler, this.context);
 		}
 		catch (HttpResponseException e)
 		{
