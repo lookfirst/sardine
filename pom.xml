@@ -19,11 +19,16 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:lookfirst/sardine.git</connection>
-		<developerConnection>scm:git:git@github.com:lookfirst/sardine.git</developerConnection>
-		<url>git@github.com:lookfirst/sardine.git</url>
+		<connection>scm:git:git@github.com:chadlyon/sardine.git</connection>
+		<developerConnection>scm:git:git@github.com:chadlyon/sardine.git</developerConnection>
+		<url>git@github.com:chadlyon/sardine.git</url>
 	</scm>
 	<developers>
+		<developer>
+			<name>Chad Lyon</name>
+			<id>chadlyon</id>
+			<email>chad.lyon@gmail.com</email>
+		</developer>
 		<developer>
 			<name>Jon Stevens</name>
 			<id>lookfirst</id>
