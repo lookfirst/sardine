@@ -42,16 +42,16 @@
 		</developer>
 	</developers>
   	<distributionManagement>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus Release Repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-		</repository>
-		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Sonatype Nexus snapshot repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
+	  <repository>
+	    <id>opala-2014</id>
+	    <name>opala-2014-releases</name>
+	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-releases</url>
+	  </repository>
+	  <snapshotRepository>
+	    <id>opala-2014</id>
+	    <name>opala-2014-snapshots</name>
+	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-snapshots</url>
+	  </snapshotRepository>
 	</distributionManagement>
 	<build>
 		<plugins>
