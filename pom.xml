@@ -43,13 +43,13 @@
 	</developers>
   	<distributionManagement>
 	  <repository>
-	    <id>opala-2014</id>
-	    <name>opala-2014-releases</name>
+	    <id>compass-thirdparty-forks</id>
+	    <name>compass-thirdparty-forks-releases</name>
 	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-releases</url>
 	  </repository>
 	  <snapshotRepository>
-	    <id>opala-2014</id>
-	    <name>opala-2014-snapshots</name>
+	    <id>compass-thirdparty-forks</id>
+	    <name>compass-thirdparty-forks-snapshots</name>
 	    <url>http://maven.compass.chalybs.net:8081/artifactory/compass-thirdparty-forks-snapshots</url>
 	  </snapshotRepository>
 	</distributionManagement>
