@@ -869,8 +869,7 @@ public class SardineImpl implements Sardine
 		}
 		try
 		{
-			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
-			return this.client.execute(put, handler, this.context);
+			return this.execute(put, handler);
 		}
 		catch (HttpResponseException e)
 		{
@@ -964,6 +963,10 @@ public class SardineImpl implements Sardine
 			// Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
+		catch (HttpResponseException e)
+        {
+		    throw e;
+        }
 		catch (IOException e)
 		{
 			request.abort();
@@ -987,6 +990,10 @@ public class SardineImpl implements Sardine
 			// Execute with no response handler
 			return this.client.execute(request, this.context);
 		}
+		catch (HttpResponseException e)
+        {
+            throw e;
+        }
 		catch (IOException e)
 		{
 			request.abort();
