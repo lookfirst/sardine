@@ -965,6 +965,7 @@ public class SardineImpl implements Sardine
 		}
 		catch (HttpResponseException e)
         {
+		    // Don't abort if we get this exception, caller may want to repeat request.
 		    throw e;
         }
 		catch (IOException e)
@@ -992,6 +993,7 @@ public class SardineImpl implements Sardine
 		}
 		catch (HttpResponseException e)
         {
+		    // Don't abort if we get this exception, caller may want to repeat request.
             throw e;
         }
 		catch (IOException e)
