@@ -963,6 +963,10 @@ public class SardineImpl implements Sardine
 			// Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
+		catch (HttpResponseException e) {
+			// Don't abort if we get this exception, caller may want to repeat request.
+			throw e;
+		}
 		catch (IOException e)
 		{
 			request.abort();
@@ -985,6 +989,11 @@ public class SardineImpl implements Sardine
 			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 			// Execute with no response handler
 			return this.client.execute(request, this.context);
+		}
+		catch (HttpResponseException e)
+		{
+			// Don't abort if we get this exception, caller may want to repeat request.
+			throw e;
 		}
 		catch (IOException e)
 		{
