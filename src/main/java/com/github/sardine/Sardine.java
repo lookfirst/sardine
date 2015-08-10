@@ -1,11 +1,8 @@
 package com.github.sardine;
 
-import java.io.File;
-
-import javax.xml.namespace.QName;
-
 import org.w3c.dom.Element;
-
+import javax.xml.namespace.QName;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -315,11 +312,12 @@ public interface Sardine
 	boolean exists(String url) throws IOException;
 
 	/**
+	 * <p>
 	 * Put an exclusive write lock on this resource. A write lock must prevent a principal without
 	 * the lock from successfully executing a PUT, POST, PROPPATCH, LOCK, UNLOCK, MOVE, DELETE, or MKCOL
 	 * on the locked resource. All other current methods, GET in particular, function
 	 * independently of the lock.
-	 * <p/>
+	 * </p>
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support
 	 * locking it may choose to support any combination of exclusive and shared locks for any access types.
 	 *
@@ -349,8 +347,9 @@ public interface Sardine
 	String refreshLock(String url, String token, String file) throws IOException;
 
 	/**
+	 * <p>
 	 * Unlock the resource.
-	 * <p/>
+	 * </p>
 	 * A WebDAV compliant server is not required to support locking in any form. If the server does support
 	 * locking it may choose to support any combination of exclusive and shared locks for any access types.
 	 *
@@ -407,9 +406,10 @@ public interface Sardine
 	List<String> getPrincipalCollectionSet(String url) throws IOException;
 
 	/**
+	 * <p>
 	 * Enables HTTP GZIP compression. If enabled, requests originating from Sardine
 	 * will include "gzip" as an "Accept-Encoding" header.
-	 * <p/>
+	 * </p>
 	 * If the server also supports gzip compression, it should serve the
 	 * contents in compressed gzip format and include "gzip" as the
 	 * Content-Encoding. If the content encoding is present, Sardine will

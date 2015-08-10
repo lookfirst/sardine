@@ -18,30 +18,30 @@ import java.util.List;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * <p>Java class for anonymous complex type.</p>
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.</p>
+ * 
  * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element ref="{DAV:}href" maxOccurs="unbounded"/>
- *         &lt;choice>
- *           &lt;sequence>
- *             &lt;element ref="{DAV:}status"/>
- *           &lt;/sequence>
- *           &lt;sequence>
- *             &lt;element ref="{DAV:}propstat" maxOccurs="unbounded"/>
- *           &lt;/sequence>
- *         &lt;/choice>
- *         &lt;element ref="{DAV:}error" minOccurs="0"/>
- *         &lt;element ref="{DAV:}responsedescription" minOccurs="0"/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{DAV:}href" maxOccurs="unbounded"/&gt;
+ *         &lt;choice&gt;
+ *           &lt;sequence&gt;
+ *             &lt;element ref="{DAV:}status"/&gt;
+ *           &lt;/sequence&gt;
+ *           &lt;sequence&gt;
+ *             &lt;element ref="{DAV:}propstat" maxOccurs="unbounded"/&gt;
+ *           &lt;/sequence&gt;
+ *         &lt;/choice&gt;
+ *         &lt;element ref="{DAV:}error" minOccurs="0"/&gt;
+ *         &lt;element ref="{DAV:}responsedescription" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -63,23 +63,24 @@ public class Response {
     private String responsedescription;
 
     /**
+	 * <p>
      * Gets the value of the href property.
-     * <p/>
-     * <p/>
+     * </p>
+	 * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the href property.
-     * <p/>
-     * <p/>
+     * </p>
+     * <p>
      * For example, to add a new item, do as follows:
+	 * </p>
      * <pre>
      *    getHref().add(newItem);
      * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
+     * <p>
      * Objects of the following type(s) are allowed in the list
+	 * </p>
      * {@link String }
      */
     public List<String> getHref() {
@@ -110,23 +111,24 @@ public class Response {
     }
 
     /**
+	 * <p>
      * Gets the value of the propstat property.
-     * <p/>
-     * <p/>
+     * </p>
+	 * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the propstat property.
-     * <p/>
-     * <p/>
+     * </p>
+     * <p>
      * For example, to add a new item, do as follows:
+	 * </p>
      * <pre>
      *    getPropstat().add(newItem);
      * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
+     * <p>
      * Objects of the following type(s) are allowed in the list
+	 * </p>
      * {@link Propstat }
      */
     public List<Propstat> getPropstat() {
