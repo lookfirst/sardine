@@ -137,11 +137,6 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.4.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.12</version>
-		</dependency>
 		<!-- ant and junit must be defined as provided for a successful compile. -->
 		<dependency>
 			<groupId>org.apache.ant</groupId>
@@ -160,12 +155,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.7.12</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -119,10 +119,7 @@ import org.apache.http.impl.cookie.IgnoreSpecFactory;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.VersionInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
 
@@ -136,6 +133,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import org.apache.http.entity.FileEntity;
 
@@ -146,7 +144,7 @@ import org.apache.http.entity.FileEntity;
  */
 public class SardineImpl implements Sardine
 {
-	private static Logger log = LoggerFactory.getLogger(DavResource.class);
+	private static final Logger log = Logger.getLogger(DavResource.class.getName());
 
 	private static final String UTF_8 = "UTF-8";
 
@@ -427,7 +425,7 @@ public class SardineImpl implements Sardine
 			}
 			catch (URISyntaxException e)
 			{
-				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+				log.warning(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
@@ -450,7 +448,7 @@ public class SardineImpl implements Sardine
 			}
 			catch (URISyntaxException e)
 			{
-				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+				log.warning(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
@@ -535,7 +533,7 @@ public class SardineImpl implements Sardine
 			}
 			catch (URISyntaxException e)
 			{
-				log.warn(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+				log.warning(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}
 		}
 		return resources;
