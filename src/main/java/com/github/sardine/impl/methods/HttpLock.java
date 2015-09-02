@@ -16,10 +16,9 @@
 
 package com.github.sardine.impl.methods;
 
-import java.net.URI;
-
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import java.net.URI;
 
 /**
  */
@@ -45,13 +44,15 @@ public class HttpLock extends HttpEntityEnclosingRequestBase
 	}
 
 	/**
+	 * <p>
 	 * The Depth header may be used with the <code>LOCK</code> method. Values other than <code>0</code> or <code>infinity</code> must not
 	 * be used with the Depth header on a <code>LOCK</code> method. All resources that support the <code>LOCK</code>
 	 * method must support the Depth header.
-	 * <p/>
+	 * </p>
+	 * <p>
 	 * If no Depth header is submitted on a <code>LOCK</code> request then the request must act as if
 	 * a <code>Depth:infinity</code> had been submitted.
-	 *
+	 * </p>
 	 * @param depth <code>"0"</code> or <code>"infinity"</code>.
 	 */
 	public void setDepth(String depth)

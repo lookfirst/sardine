@@ -11,18 +11,16 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 /**
- * <p>
- * Java class for anonymous complex type.
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
+ * <p>Java class for anonymous complex type.</p>
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.</p>
  * 
  * <pre>
-    &lt;element name="searchrequest">
-        &lt;complexType>
-            &lt;any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
-        &lt;/complexType>
-    &lt;/element>
+    &lt;element name="searchrequest"&gt;
+        &lt;complexType&gt;
+            &lt;any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" /&gt;
+        &lt;/complexType&gt;
+    &lt;/element&gt;
  * </pre>
  */
 @XmlType(name = "")
