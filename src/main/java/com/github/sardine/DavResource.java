@@ -23,10 +23,7 @@ import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -66,6 +63,7 @@ public class DavResource
 	private final String contentType;
 	private final String etag;
 	private final String displayName;
+	private final List<QName> resourceTypes;
 	private final String contentLanguage;
 	private final Long contentLength;
 	private final Map<QName, String> customProps;
@@ -77,8 +75,8 @@ public class DavResource
 	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
-						  Long contentLength, String etag, String displayName, String contentLanguage,
-						  Map<QName, String> customProps) throws URISyntaxException
+						  Long contentLength, String etag, String displayName, List<QName> resourceTypes,
+						  String contentLanguage, Map<QName, String> customProps) throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -87,6 +85,7 @@ public class DavResource
 		this.contentLength = contentLength;
 		this.etag = etag;
 		this.displayName = displayName;
+		this.resourceTypes = resourceTypes;
 		this.contentLanguage = contentLanguage;
 		this.customProps = customProps;
 	}
@@ -106,6 +105,7 @@ public class DavResource
 		this.contentLength = this.getContentLength(response);
 		this.etag = this.getEtag(response);
 		this.displayName = this.getDisplayName(response);
+		this.resourceTypes = this.getResourceTypes(response);
 		this.contentLanguage = this.getContentLanguage(response);
 		this.customProps = this.getCustomProps(response);
 	}
@@ -321,6 +321,44 @@ public class DavResource
 	}
 
 	/**
+	 * Retrieves resourceType from props.
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return the list of resource types; {@code Collections.emptyList()} if it is not provided
+	 */
+	private List<QName> getResourceTypes(Response response)
+	{
+		List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return Collections.emptyList();
+		}
+		List<QName> resourceTypes = new ArrayList<QName>();
+		for (Propstat propstat : list)
+		{
+			if (propstat.getProp() != null) {
+				Resourcetype rt = propstat.getProp().getResourcetype();
+				if (rt != null)
+				{
+					if (rt.getCollection() != null)
+					{
+						resourceTypes.add(SardineUtil.createQNameWithDefaultNamespace("collection"));
+					}
+					if (rt.getPrincipal() != null)
+					{
+						resourceTypes.add(SardineUtil.createQNameWithDefaultNamespace("principal"));
+					}
+					for (Element element : rt.getAny())
+					{
+						resourceTypes.add(new QName(element.getNamespaceURI(), element.getTagName()));
+					}
+				}
+			}
+		}
+		return resourceTypes;
+	}
+
+	/**
 	 * Creates a simple complex Map from the given custom properties of a response.
 	 * This implementation does take namespaces into account.
 	 *
@@ -426,6 +464,14 @@ public class DavResource
 	public String getDisplayName()
 	{
 		return this.displayName;
+	}
+
+	/**
+	 * @return Display name
+	 */
+	public List<QName> getResourceTypes()
+	{
+		return this.resourceTypes;
 	}
 
 	/**
