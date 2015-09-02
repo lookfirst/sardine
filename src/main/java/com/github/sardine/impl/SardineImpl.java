@@ -16,64 +16,17 @@
 
 package com.github.sardine.impl;
 
-import com.github.sardine.DavAce;
-import com.github.sardine.DavAcl;
-import com.github.sardine.DavPrincipal;
-import com.github.sardine.DavQuota;
-import com.github.sardine.DavResource;
-import com.github.sardine.Sardine;
-import com.github.sardine.Version;
+import com.github.sardine.*;
 import com.github.sardine.impl.handler.ExistsResponseHandler;
 import com.github.sardine.impl.handler.LockResponseHandler;
 import com.github.sardine.impl.handler.MultiStatusResponseHandler;
 import com.github.sardine.impl.handler.VoidResponseHandler;
 import com.github.sardine.impl.io.ConsumingInputStream;
 import com.github.sardine.impl.io.ContentLengthInputStream;
-import com.github.sardine.impl.methods.HttpAcl;
-import com.github.sardine.impl.methods.HttpCopy;
-import com.github.sardine.impl.methods.HttpLock;
-import com.github.sardine.impl.methods.HttpMkCol;
-import com.github.sardine.impl.methods.HttpMove;
-import com.github.sardine.impl.methods.HttpPropFind;
-import com.github.sardine.impl.methods.HttpPropPatch;
-import com.github.sardine.impl.methods.HttpSearch;
-import com.github.sardine.impl.methods.HttpUnlock;
-import com.github.sardine.model.Ace;
-import com.github.sardine.model.Acl;
-import com.github.sardine.model.Allprop;
-import com.github.sardine.model.Displayname;
-import com.github.sardine.model.Exclusive;
-import com.github.sardine.model.Group;
-import com.github.sardine.model.Lockinfo;
-import com.github.sardine.model.Lockscope;
-import com.github.sardine.model.Locktype;
-import com.github.sardine.model.Multistatus;
-import com.github.sardine.model.ObjectFactory;
-import com.github.sardine.model.Owner;
-import com.github.sardine.model.PrincipalCollectionSet;
-import com.github.sardine.model.PrincipalURL;
-import com.github.sardine.model.Prop;
-import com.github.sardine.model.Propertyupdate;
-import com.github.sardine.model.Propfind;
-import com.github.sardine.model.Propstat;
-import com.github.sardine.model.QuotaAvailableBytes;
-import com.github.sardine.model.QuotaUsedBytes;
-import com.github.sardine.model.Remove;
-import com.github.sardine.model.Resourcetype;
-import com.github.sardine.model.Response;
-import com.github.sardine.model.SearchRequest;
-import com.github.sardine.model.Set;
-import com.github.sardine.model.Write;
+import com.github.sardine.impl.methods.*;
+import com.github.sardine.model.*;
 import com.github.sardine.util.SardineUtil;
-
-import java.io.File;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.AuthState;
 import org.apache.http.auth.NTCredentials;
@@ -83,12 +36,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -104,14 +52,11 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
@@ -122,7 +67,7 @@ import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
@@ -134,8 +79,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
-import org.apache.http.entity.FileEntity;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -170,6 +113,16 @@ public class SardineImpl implements Sardine
 	public SardineImpl()
 	{
 		this.builder = this.configure(null, null);
+		this.client = this.builder.build();
+	}
+
+	/**
+	 * Access resources with Bearer authorization
+	 */
+	public SardineImpl(String bearerAuth)
+	{
+		Header bearerHeader = new BasicHeader("Authorization", "Bearer " + bearerAuth);
+		this.builder = this.configure(null, null).setDefaultHeaders(Collections.singletonList(bearerHeader));
 		this.client = this.builder.build();
 	}
 
