@@ -173,7 +173,7 @@ public class SardineTask extends Task
 	/**
 	 * Setter for attribute ignoreCookies.
 	 *
-	 * @param Whether to ignore cookies.
+	 * @param ignoreCookies Whether to ignore cookies.
 	 */
 	public void setIgnoreCookies(boolean ignoreCookies) {
 		this.ignoreCookies = ignoreCookies;
