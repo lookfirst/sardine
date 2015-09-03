@@ -23,7 +23,12 @@ import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -350,7 +355,7 @@ public class DavResource
 					}
 					for (Element element : rt.getAny())
 					{
-						resourceTypes.add(new QName(element.getNamespaceURI(), element.getTagName()));
+						resourceTypes.add(new QName(element.getNamespaceURI(), element.getLocalName()));
 					}
 				}
 			}
@@ -467,7 +472,7 @@ public class DavResource
 	}
 
 	/**
-	 * @return Display name
+	 * @return Resource types
 	 */
 	public List<QName> getResourceTypes()
 	{

@@ -52,7 +52,8 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 *              -1 for infinite recursion)
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -62,7 +63,8 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 *              -1 for infinite recursion)
 	 * @param props Additional properties which should be requested.
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -73,14 +75,27 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing)
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 *              -1 for infinite recursion)
 	 * @param allProp If allprop should be used, which can be inefficient sometimes;
 	 * warning: no allprop does not retrieve custom props, just the basic ones
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	List<DavResource> list(String url, int depth, boolean allProp)
-			throws IOException;
+	List<DavResource> list(String url, int depth, boolean allProp) throws IOException;
+
+	/**
+	 * Fetches a resource using WebDAV <code>PROPFIND</code>. Only the specified properties
+	 * are retrieved.
+	 *
+	 * @param url   Path to the resource including protocol and hostname
+	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 *              -1 for infinite recursion)
+	 * @param props Set of properties to be requested.
+	 * @return List of resources for this URI including the parent resource itself
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> propfind(String url, int depth, Set<QName> props) throws IOException;
 
 	/**
 	 * Perform a search of the Webdav repository.
@@ -226,7 +241,7 @@ public interface Sardine
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
 
 	/**
-	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
+	 * Uses <code>PUT</code> to upload file to a server with specific contentType.
 	 * Repeatable on authentication failure.
 	 *
 	 * @param url		Path to the resource including protocol and hostname
@@ -237,7 +252,7 @@ public interface Sardine
 	void put(String url, File localFile, String contentType) throws IOException;
 
 	/**
-	 * Uses <code>PUT</code> to upload file to a server with specific contentType. 
+	 * Uses <code>PUT</code> to upload file to a server with specific contentType.
 	 * Repeatable on authentication failure.
 	 *
 	 * @param url       Path to the resource including protocol and hostname
