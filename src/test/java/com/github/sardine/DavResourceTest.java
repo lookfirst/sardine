@@ -35,7 +35,8 @@ public class DavResourceTest
 	{
 		final Date creation = new Date();
 		DavResource folder = new DavResource("/test/path/", creation, null, null, -1L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals(creation, folder.getCreation());
 	}
 
@@ -44,15 +45,17 @@ public class DavResourceTest
 	{
 		final Date modified = new Date();
 		DavResource folder = new DavResource("/test/path/", null, modified, null, -1L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals(modified, folder.getModified());
 	}
 
 	@Test
 	public void testGetContentType() throws Exception
 	{
-		DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", new Long(-1), null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+		DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", -1L, null,
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("httpd/unix-directory", folder.getContentType());
 	}
 
@@ -60,7 +63,8 @@ public class DavResourceTest
 	public void testGetContentLength() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, 3423L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals(new Long(3423), folder.getContentLength());
 	}
 
@@ -68,7 +72,8 @@ public class DavResourceTest
 	public void testGetContentLanguage() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
-				null, Collections.<QName>emptyList(), "en_us", Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), "en_us", Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("en_us", folder.getContentLanguage());
 	}
 
@@ -76,7 +81,8 @@ public class DavResourceTest
 	public void testDisplayname() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
-				"My path", Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				"My path", Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("My path", folder.getDisplayName());
 	}
 
@@ -85,7 +91,7 @@ public class DavResourceTest
 	{
 		List<QName> types = Arrays.asList(new QName("namespace", "tag"), new QName("namespace", "othertag"));
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
-				null, types, null, Collections.<QName, String>emptyMap());
+				null, types, null, Collections.<QName>emptyList(), Collections.<QName, String>emptyMap());
 		assertEquals(types, folder.getResourceTypes());
 	}
 
@@ -93,7 +99,8 @@ public class DavResourceTest
 	public void testIsDirectory() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", new Long(-1), null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertTrue(folder.isDirectory());
 	}
 
@@ -102,12 +109,14 @@ public class DavResourceTest
 	{
         {
             DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
-                    null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+                    null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>emptyMap());
             assertNotNull(file.getCustomProps());
         }
         {
             DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
-          				null, Collections.<QName>emptyList(), null, Collections.<QName, String>singletonMap(
+					null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>singletonMap(
                                   new QName("http://mynamespace", "property", "my"), "custom"));
             assertNotNull(file.getCustomProps());
             assertEquals(file.getCustomProps(), Collections.singletonMap("property", "custom"));
@@ -120,10 +129,12 @@ public class DavResourceTest
 	public void testGetName() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("path", folder.getName());
 		DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("file.html", file.getName());
 	}
 
@@ -131,10 +142,12 @@ public class DavResourceTest
 	public void testGetPath() throws Exception
 	{
 		DavResource folder = new DavResource("/test/path/", null, null, null, -1L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("/test/path/", folder.getPath());
 		DavResource file = new DavResource("/test/path/file.html", null, null, null, 6587L, null,
-				null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+				null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+				Collections.<QName, String>emptyMap());
 		assertEquals("/test/path/file.html", file.getPath());
 	}
 
@@ -143,13 +156,15 @@ public class DavResourceTest
 	{
 		{
 			DavResource folder = new DavResource("/test/path/", null, null, "httpd/unix-directory", 3423L, null,
-					null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+					null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>emptyMap());
 			assertEquals("/test/path/", folder.getPath());
 		}
 		{
 			DavResource folder = new DavResource("http://example.net/test/path/", null, null,
 					"httpd/unix-directory", 3423L, null,
-					null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+					null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>emptyMap());
 			assertEquals("/test/path/", folder.getPath());
 		}
 	}
@@ -160,13 +175,15 @@ public class DavResourceTest
 		{
 			DavResource resource = new DavResource("http://example.net/path/%C3%A4%C3%B6%C3%BC/", null, null,
 					"httpd/unix-directory", 3423L, null,
-					null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+					null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>emptyMap());
 			assertEquals("/path/äöü/", resource.getPath());
 			assertEquals("/path/%C3%A4%C3%B6%C3%BC/", resource.getHref().getRawPath());
 		}
 		{
 			DavResource resource = new DavResource("/Meine%20Anlagen", null, null, "httpd/unix-directory", 0L, null,
-					null, Collections.<QName>emptyList(), null, Collections.<QName, String>emptyMap());
+					null, Collections.<QName>emptyList(), null, Collections.<QName>emptyList(),
+					Collections.<QName, String>emptyMap());
 			assertEquals("/Meine Anlagen", resource.getPath());
 			assertEquals("/Meine%20Anlagen", resource.getHref().getRawPath());
 		}

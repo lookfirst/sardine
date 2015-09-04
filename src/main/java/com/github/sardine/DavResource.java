@@ -15,8 +15,11 @@ import com.github.sardine.model.Getcontenttype;
 import com.github.sardine.model.Getetag;
 import com.github.sardine.model.Getlastmodified;
 import com.github.sardine.model.Propstat;
+import com.github.sardine.model.Report;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
+import com.github.sardine.model.SupportedReport;
+import com.github.sardine.model.SupportedReportSet;
 import com.github.sardine.util.SardineUtil;
 import org.w3c.dom.Element;
 
@@ -71,6 +74,7 @@ public class DavResource
 	private final List<QName> resourceTypes;
 	private final String contentLanguage;
 	private final Long contentLength;
+	private final List<QName> supportedReports;
 	private final Map<QName, String> customProps;
 
 	/**
@@ -81,7 +85,8 @@ public class DavResource
 	 */
 	protected DavResource(String href, Date creation, Date modified, String contentType,
 						  Long contentLength, String etag, String displayName, List<QName> resourceTypes,
-						  String contentLanguage, Map<QName, String> customProps) throws URISyntaxException
+						  String contentLanguage, List<QName> supportedReports, Map<QName, String> customProps)
+			throws URISyntaxException
 	{
 		this.href = new URI(href);
 		this.creation = creation;
@@ -92,6 +97,7 @@ public class DavResource
 		this.displayName = displayName;
 		this.resourceTypes = resourceTypes;
 		this.contentLanguage = contentLanguage;
+		this.supportedReports = supportedReports;
 		this.customProps = customProps;
 	}
 
@@ -112,6 +118,7 @@ public class DavResource
 		this.displayName = this.getDisplayName(response);
 		this.resourceTypes = this.getResourceTypes(response);
 		this.contentLanguage = this.getContentLanguage(response);
+		this.supportedReports = this.getSupportedReports(response);
 		this.customProps = this.getCustomProps(response);
 	}
 
@@ -355,12 +362,46 @@ public class DavResource
 					}
 					for (Element element : rt.getAny())
 					{
-						resourceTypes.add(new QName(element.getNamespaceURI(), element.getLocalName()));
+						resourceTypes.add(SardineUtil.toQName(element));
 					}
 				}
 			}
 		}
 		return resourceTypes;
+	}
+
+	/**
+	 * Retrieves resourceType from props.
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return the list of resource types; {@code Collections.emptyList()} if it is not provided
+	 */
+	private List<QName> getSupportedReports(Response response)
+	{
+		List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return Collections.emptyList();
+		}
+		List<QName> supportedReports = new ArrayList<QName>();
+		for (Propstat propstat : list)
+		{
+			if (propstat.getProp() != null) {
+				SupportedReportSet srs = propstat.getProp().getSupportedReportSet();
+				if (srs != null)
+				{
+					for (SupportedReport sr : srs.getSupportedReport())
+					{
+						Report report = sr.getReport();
+						if (report != null && report.getAny() != null)
+						{
+							supportedReports.add(SardineUtil.toQName(report.getAny()));
+						}
+					}
+				}
+			}
+		}
+		return supportedReports;
 	}
 
 	/**
@@ -384,31 +425,7 @@ public class DavResource
 				List<Element> props = propstat.getProp().getAny();
 				for (Element element : props)
 				{
-					String namespace = element.getNamespaceURI();
-					if (namespace == null)
-					{
-						customPropsMap.put(new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
-								element.getLocalName(),
-								SardineUtil.DEFAULT_NAMESPACE_PREFIX),
-								element.getTextContent());
-					}
-					else
-					{
-						if (element.getPrefix() == null)
-						{
-							customPropsMap.put(new QName(element.getNamespaceURI(),
-									element.getLocalName()),
-									element.getTextContent());
-						}
-						else
-						{
-							customPropsMap.put(new QName(element.getNamespaceURI(),
-									element.getLocalName(),
-									element.getPrefix()),
-									element.getTextContent());
-						}
-					}
-
+					customPropsMap.put(SardineUtil.toQName(element), element.getTextContent());
 				}
 			}
 		}
@@ -477,6 +494,14 @@ public class DavResource
 	public List<QName> getResourceTypes()
 	{
 		return this.resourceTypes;
+	}
+
+	/**
+	 * @return Resource types
+	 */
+	public List<QName> getSupportedReports()
+	{
+		return this.supportedReports;
 	}
 
 	/**

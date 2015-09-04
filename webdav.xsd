@@ -22,7 +22,6 @@
         targetNamespace="DAV:"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:dav="DAV:"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
         elementFormDefault="qualified">
 
     <element name="activelock">
@@ -173,34 +172,35 @@
 
     <element name="prop">
         <complexType>
-            <all>
-                <element ref="dav:creationdate" minOccurs="0"/>
-                <element ref="dav:displayname" minOccurs="0"/>
-                <element ref="dav:getcontentlanguage" minOccurs="0"/>
-                <element ref="dav:getcontentlength" minOccurs="0"/>
-                <element ref="dav:getcontenttype" minOccurs="0"/>
-                <element ref="dav:getetag" minOccurs="0"/>
-                <element ref="dav:getlastmodified" minOccurs="0"/>
-                <element ref="dav:lockdiscovery" minOccurs="0"/>
-                <element ref="dav:resourcetype" minOccurs="0"/>
-                <element ref="dav:supportedlock" minOccurs="0"/>
-                <element ref="dav:quota-available-bytes" minOccurs="0"/>
-                <element ref="dav:quota-used-bytes" minOccurs="0"/>
+            <all minOccurs="0">
+                <element ref="dav:creationdate"/>
+                <element ref="dav:displayname"/>
+                <element ref="dav:getcontentlanguage"/>
+                <element ref="dav:getcontentlength"/>
+                <element ref="dav:getcontenttype"/>
+                <element ref="dav:getetag"/>
+                <element ref="dav:getlastmodified"/>
+                <element ref="dav:lockdiscovery"/>
+                <element ref="dav:resourcetype"/>
+                <element ref="dav:supportedlock"/>
+                <element ref="dav:supported-report-set"/>
+                <element ref="dav:quota-available-bytes"/>
+                <element ref="dav:quota-used-bytes"/>
                 <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
                 <!--
-                <element ref="dav:contentclass" minOccurs="0"/>
-                <element ref="dav:defaultdocument" minOccurs="0"/>
-                <element ref="dav:href" minOccurs="0"/>
-                <element ref="dav:iscollection" minOccurs="0"/>
-                <element ref="dav:ishidden" minOccurs="0"/>
-                <element ref="dav:isreadonly" minOccurs="0"/>
-                <element ref="dav:isroot" minOccurs="0"/>
-                <element ref="dav:isstructureddocument" minOccurs="0"/>
-                <element ref="dav:lastaccessed" minOccurs="0"/>
-                <element ref="dav:name" minOccurs="0"/>
-                <element ref="dav:parentname" minOccurs="0"/>
+                <element ref="dav:contentclass"/>
+                <element ref="dav:defaultdocument"/>
+                <element ref="dav:href"/>
+                <element ref="dav:iscollection"/>
+                <element ref="dav:ishidden"/>
+                <element ref="dav:isreadonly"/>
+                <element ref="dav:isroot"/>
+                <element ref="dav:isstructureddocument"/>
+                <element ref="dav:lastaccessed"/>
+                <element ref="dav:name"/>
+                <element ref="dav:parentname"/>
                 -->
-                <any processContents="skip" namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+                <any processContents="skip" namespace="##other" maxOccurs="unbounded" />
             </all>
         </complexType>
     </element>
@@ -362,7 +362,33 @@
 
     <element name="searchrequest">
         <complexType>
-            <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+            <sequence>
+                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="supported-report-set">
+        <complexType>
+            <sequence>
+                <element maxOccurs="unbounded" ref="dav:supported-report"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="supported-report">
+        <complexType>
+            <sequence>
+                <element ref="dav:report"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="report">
+        <complexType>
+            <sequence>
+                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+            </sequence>
         </complexType>
     </element>
 

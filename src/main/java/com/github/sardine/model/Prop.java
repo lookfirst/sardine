@@ -67,6 +67,8 @@ public class Prop {
     protected Lockdiscovery lockdiscovery;
     protected Resourcetype resourcetype;
     protected Supportedlock supportedlock;
+    @XmlElement(name = "supported-report-set")
+    protected SupportedReportSet supportedReportSet;
     @XmlElement(name = "quota-available-bytes")
     protected QuotaAvailableBytes quotaAvailableBytes;
     @XmlElement(name = "quota-used-bytes")
@@ -322,6 +324,30 @@ public class Prop {
      */
     public void setSupportedlock(Supportedlock value) {
         this.supportedlock = value;
+    }
+
+    /**
+     * Gets the value of the supportedReportSet property.
+     *
+     * @return
+     *     possible object is
+     *     {@link SupportedReportSet }
+     *
+     */
+    public SupportedReportSet getSupportedReportSet() {
+        return supportedReportSet;
+    }
+
+    /**
+     * Sets the value of the supportedReportSet property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link SupportedReportSet }
+     *
+     */
+    public void setSupportedReportSet(SupportedReportSet value) {
+        this.supportedReportSet = value;
     }
 
     /**

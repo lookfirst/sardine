@@ -43,7 +43,7 @@ import java.util.TimeZone;
 public final class SardineUtil
 {
 	private SardineUtil() {}
-	
+
 	private final static String[] SUPPORTED_DATE_FORMATS = new String[]{
 	  "yyyy-MM-dd'T'HH:mm:ss'Z'",
 	  "EEE, dd MMM yyyy HH:mm:ss zzz",
@@ -94,7 +94,7 @@ public final class SardineUtil
 	 * Date formats using for Date parsing.
 	 */
 	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS;
-	
+
 	static {
 		List<ThreadLocal<SimpleDateFormat>> l = new ArrayList<ThreadLocal<SimpleDateFormat>>(SUPPORTED_DATE_FORMATS.length);
 		for (int i = 0; i<SUPPORTED_DATE_FORMATS.length; i++){
@@ -102,7 +102,7 @@ public final class SardineUtil
 		}
 		DATETIME_FORMATS = Collections.unmodifiableList(l);
 	}
-	
+
 	/**
 	 * Loops over all the possible date formats and tries to find the right one.
 	 *
@@ -297,6 +297,28 @@ public final class SardineUtil
 			result.add(createQNameWithCustomNamespace(entry));
 		}
 		return result;
+	}
+
+	public static QName toQName(Element element) {
+		String namespace = element.getNamespaceURI();
+		if (namespace == null)
+		{
+			return new QName(SardineUtil.DEFAULT_NAMESPACE_URI,
+					element.getLocalName(),
+					SardineUtil.DEFAULT_NAMESPACE_PREFIX);
+		}
+		else if (element.getPrefix() == null)
+		{
+			return new QName(element.getNamespaceURI(),
+					element.getLocalName());
+		}
+		else
+		{
+			return new QName(element.getNamespaceURI(),
+					element.getLocalName(),
+					element.getPrefix());
+		}
+
 	}
 
 	/**
