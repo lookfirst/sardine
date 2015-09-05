@@ -125,6 +125,7 @@
             <sequence>
                 <element ref="dav:response" maxOccurs="unbounded"/>
                 <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:sync-token" minOccurs="0" maxOccurs="1"/>
             </sequence>
         </complexType>
     </element>
@@ -152,7 +153,7 @@
     <element name="error">
         <complexType>
             <sequence>
-                <any namespace="http://www.w3.org/namespace/"/>
+                <any namespace="##any"/>
             </sequence>
         </complexType>
     </element>
@@ -172,33 +173,33 @@
 
     <element name="prop">
         <complexType>
-            <all minOccurs="0">
-                <element ref="dav:creationdate"/>
-                <element ref="dav:displayname"/>
-                <element ref="dav:getcontentlanguage"/>
-                <element ref="dav:getcontentlength"/>
-                <element ref="dav:getcontenttype"/>
-                <element ref="dav:getetag"/>
-                <element ref="dav:getlastmodified"/>
-                <element ref="dav:lockdiscovery"/>
-                <element ref="dav:resourcetype"/>
-                <element ref="dav:supportedlock"/>
-                <element ref="dav:supported-report-set"/>
-                <element ref="dav:quota-available-bytes"/>
-                <element ref="dav:quota-used-bytes"/>
+            <all>
+                <element ref="dav:creationdate" minOccurs="0"/>
+                <element ref="dav:displayname" minOccurs="0"/>
+                <element ref="dav:getcontentlanguage" minOccurs="0"/>
+                <element ref="dav:getcontentlength" minOccurs="0"/>
+                <element ref="dav:getcontenttype" minOccurs="0"/>
+                <element ref="dav:getetag" minOccurs="0"/>
+                <element ref="dav:getlastmodified" minOccurs="0"/>
+                <element ref="dav:lockdiscovery" minOccurs="0"/>
+                <element ref="dav:resourcetype" minOccurs="0"/>
+                <element ref="dav:supportedlock" minOccurs="0"/>
+                <element ref="dav:supported-report-set" minOccurs="0"/>
+                <element ref="dav:quota-available-bytes" minOccurs="0"/>
+                <element ref="dav:quota-used-bytes" minOccurs="0"/>
                 <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
                 <!--
-                <element ref="dav:contentclass"/>
-                <element ref="dav:defaultdocument"/>
-                <element ref="dav:href"/>
-                <element ref="dav:iscollection"/>
-                <element ref="dav:ishidden"/>
-                <element ref="dav:isreadonly"/>
-                <element ref="dav:isroot"/>
-                <element ref="dav:isstructureddocument"/>
-                <element ref="dav:lastaccessed"/>
-                <element ref="dav:name"/>
-                <element ref="dav:parentname"/>
+                <element ref="dav:contentclass" minOccurs="0"/>
+                <element ref="dav:defaultdocument" minOccurs="0"/>
+                <element ref="dav:href" minOccurs="0"/>
+                <element ref="dav:iscollection" minOccurs="0"/>
+                <element ref="dav:ishidden" minOccurs="0"/>
+                <element ref="dav:isreadonly" minOccurs="0"/>
+                <element ref="dav:isroot" minOccurs="0"/>
+                <element ref="dav:isstructureddocument" minOccurs="0"/>
+                <element ref="dav:lastaccessed" minOccurs="0"/>
+                <element ref="dav:name" minOccurs="0"/>
+                <element ref="dav:parentname" minOccurs="0"/>
                 -->
                 <any processContents="skip" namespace="##other" maxOccurs="unbounded" />
             </all>
@@ -387,10 +388,35 @@
     <element name="report">
         <complexType>
             <sequence>
-                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1"/>
             </sequence>
         </complexType>
     </element>
+
+    <element name="sync-collection">
+        <complexType>
+            <sequence>
+                <element ref="dav:sync-token" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:sync-level" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:prop" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:limit" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="sync-token" type="anyURI"/>
+
+    <element name="sync-level" type="string">
+        <simpleType>
+            <restriction base="string">
+                <enumeration value="0"/>
+                <enumeration value="1"/>
+                <enumeration value="infinity"/>
+            </restriction>
+        </simpleType>
+    </element>
+
+    <element name="limit" type="integer"/>
 
     <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
     <!--

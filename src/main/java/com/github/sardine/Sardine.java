@@ -1,5 +1,6 @@
 package com.github.sardine;
 
+import com.github.sardine.report.SardineReport;
 import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -52,7 +53,7 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
 	 *              -1 for infinite recursion)
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -63,7 +64,7 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
 	 *              -1 for infinite recursion)
 	 * @param props Additional properties which should be requested.
 	 * @return List of resources for this URI including the parent resource itself
@@ -75,7 +76,7 @@ public interface Sardine
 	 * Gets a directory listing using WebDAV <code>PROPFIND</code>.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
 	 *              -1 for infinite recursion)
 	 * @param allProp If allprop should be used, which can be inefficient sometimes;
 	 * warning: no allprop does not retrieve custom props, just the basic ones
@@ -89,13 +90,25 @@ public interface Sardine
 	 * are retrieved.
 	 *
 	 * @param url   Path to the resource including protocol and hostname
-	 * @param depth The depth to look at (use 0 for single ressource, 1 for directory listing,
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
 	 *              -1 for infinite recursion)
-	 * @param props Set of properties to be requested.
+	 * @param props Set of properties to be requested
 	 * @return List of resources for this URI including the parent resource itself
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	List<DavResource> propfind(String url, int depth, Set<QName> props) throws IOException;
+
+	/**
+	 * Runs a report on the given resource using WebDAV <code>REPORT</code>.
+	 *
+	 * @param url    Path to the resource including protocol and hostname
+	 * @param depth  The depth to look at (use 0 for single resource, 1 for directory listing,
+	 *               -1 for infinite recursion)
+	 * @param report The report to run
+	 * @return Result of the report, packaged in a report-specific result object
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	<T> T report(String url, int depth, SardineReport<T> report) throws IOException;
 
 	/**
 	 * Perform a search of the Webdav repository.

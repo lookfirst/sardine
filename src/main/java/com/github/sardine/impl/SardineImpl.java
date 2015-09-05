@@ -36,6 +36,7 @@ import com.github.sardine.impl.methods.HttpMkCol;
 import com.github.sardine.impl.methods.HttpMove;
 import com.github.sardine.impl.methods.HttpPropFind;
 import com.github.sardine.impl.methods.HttpPropPatch;
+import com.github.sardine.impl.methods.HttpReport;
 import com.github.sardine.impl.methods.HttpSearch;
 import com.github.sardine.impl.methods.HttpUnlock;
 import com.github.sardine.model.Ace;
@@ -61,6 +62,7 @@ import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
+import com.github.sardine.report.SardineReport;
 import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
@@ -299,9 +301,11 @@ public class SardineImpl implements Sardine
 	@Override
 	public void ignoreCookies()
 	{
-		this.builder.setDefaultCookieSpecRegistry(new Lookup<CookieSpecProvider>() {
+		this.builder.setDefaultCookieSpecRegistry(new Lookup<CookieSpecProvider>()
+		{
 			@Override
-			public CookieSpecProvider lookup(String name) {
+			public CookieSpecProvider lookup(String name)
+			{
 				return new IgnoreSpecFactory();
 			}
 		});
@@ -453,6 +457,15 @@ public class SardineImpl implements Sardine
 			}
 		}
 		return resources;
+	}
+
+	public <T> T report(String url, int depth, SardineReport<T> report) throws IOException
+	{
+		HttpReport entity = new HttpReport(url);
+		entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
+		entity.setEntity(new StringEntity(report.toXml(), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		return report.fromMultistatus(multistatus);
 	}
 
 	public List<DavResource> search(String url, String language, String query) throws IOException
