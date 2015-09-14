@@ -65,9 +65,6 @@ import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.util.SardineUtil;
-
-import java.io.File;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -104,6 +101,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
@@ -122,7 +120,7 @@ import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
@@ -134,8 +132,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
-import org.apache.http.entity.FileEntity;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -170,6 +166,16 @@ public class SardineImpl implements Sardine
 	public SardineImpl()
 	{
 		this.builder = this.configure(null, null);
+		this.client = this.builder.build();
+	}
+
+	/**
+	 * Access resources with Bearer authorization
+	 */
+	public SardineImpl(String bearerAuth)
+	{
+		Header bearerHeader = new BasicHeader("Authorization", "Bearer " + bearerAuth);
+		this.builder = this.configure(null, null).setDefaultHeaders(Collections.singletonList(bearerHeader));
 		this.client = this.builder.build();
 	}
 
@@ -378,11 +384,14 @@ public class SardineImpl implements Sardine
     @Override
     public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
     {
-        if (allProp) {
+        if (allProp)
+        {
             Propfind body = new Propfind();
             body.setAllprop(new Allprop());
-            return list(url, depth, body);
-        } else {
+            return propfind(url, depth, body);
+        }
+        else
+        {
             return list(url, depth, Collections.<QName>emptySet());
         }
     }
@@ -400,19 +409,34 @@ public class SardineImpl implements Sardine
         prop.setGetcontenttype(objectFactory.createGetcontenttype());
         prop.setResourcetype(objectFactory.createResourcetype());
         prop.setGetetag(objectFactory.createGetetag());
-        List<Element> any = prop.getAny();
-        for (QName entry : props) {
-            Element element = SardineUtil.createElement(entry);
-            any.add(element);
-        }
+		addCustomProperties(prop, props);
         body.setProp(prop);
-        return list(url, depth, body);
+        return propfind(url, depth, body);
     }
 
-    protected List<DavResource> list(String url, int depth, Propfind body) throws IOException
+	@Override
+	public List<DavResource> propfind(String url, int depth, java.util.Set<QName> props) throws IOException
+	{
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		addCustomProperties(prop, props);
+		body.setProp(prop);
+		return propfind(url, depth, body);
+	}
+
+	private void addCustomProperties(Prop prop, java.util.Set<QName> props) {
+		List<Element> any = prop.getAny();
+		for (QName entry : props)
+		{
+			Element element = SardineUtil.createElement(entry);
+			any.add(element);
+		}
+	}
+
+	protected List<DavResource> propfind(String url, int depth, Propfind body) throws IOException
     {
         HttpPropFind entity = new HttpPropFind(url);
-        entity.setDepth(Integer.toString(depth));
+        entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
         entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
         Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
         List<Response> responses = multistatus.getResponse();
@@ -475,7 +499,8 @@ public class SardineImpl implements Sardine
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
 		List<Element> setPropsElements = new ArrayList<Element>();
-		for (Entry<QName, String> entry : setProps.entrySet()) {
+		for (Entry<QName, String> entry : setProps.entrySet())
+		{
 			Element element = SardineUtil.createElement(entry.getKey());
 			element.setTextContent(entry.getValue());
 			setPropsElements.add(element);
@@ -735,7 +760,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException {
         List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: headers.entrySet()) {
+        for(Map.Entry<String, String> h: headers.entrySet())
+		{
             list.add(new BasicHeader(h.getKey(), h.getValue()));
         }
         return this.get(url, list);
@@ -804,9 +830,11 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException {
+	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	{
         List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: headers.entrySet()) {
+        for(Map.Entry<String, String> h: headers.entrySet())
+		{
             list.add(new BasicHeader(h.getKey(), h.getValue()));
         }
         this.put(url, dataStream, list);
