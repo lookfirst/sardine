@@ -16,10 +16,10 @@
 
 package com.github.sardine.impl.methods;
 
-import java.net.URI;
-
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+
+import java.net.URI;
 
 /**
  * Simple class for making WebDAV <code>PROPFIND</code> requests.
@@ -42,7 +42,7 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	 */
 	public HttpPropFind(final URI uri)
 	{
-		this.setDepth(String.valueOf("1"));
+		this.setDepth("1");
 		this.setURI(uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
@@ -59,8 +59,9 @@ public class HttpPropFind extends HttpEntityEnclosingRequestBase
 	 *
 	 * @param depth <code>"0"</code>, <code>"1"</code> or <code>"infinity"</code>.
 	 */
-	public void setDepth(String depth)
+	public HttpPropFind setDepth(String depth)
 	{
 		this.setHeader(HttpHeaders.DEPTH, depth);
+		return this;
 	}
 }
