@@ -17,6 +17,7 @@
 package com.github.sardine.impl;
 
 import com.github.sardine.impl.methods.HttpPropFind;
+import com.github.sardine.impl.methods.HttpReport;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -52,6 +53,16 @@ public class SardineRedirectStrategy extends DefaultRedirectStrategy {
                 propfind.setDepth(depth.getValue());
             }
             return this.copyEntity(propfind, request);
+        }
+        else if (method.equalsIgnoreCase(HttpReport.METHOD_NAME))
+        {
+            HttpReport report = new HttpReport(this.getLocationURI(request, response, context));
+            Header depth = request.getFirstHeader("Depth");
+            if (depth != null && depth.getValue() != null)
+            {
+                report.setDepth(depth.getValue());
+            }
+            return this.copyEntity(report, request);
         }
         return super.getRedirect(request, response, context);
     }

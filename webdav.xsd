@@ -22,7 +22,6 @@
         targetNamespace="DAV:"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:dav="DAV:"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
         elementFormDefault="qualified">
 
     <element name="activelock">
@@ -126,6 +125,7 @@
             <sequence>
                 <element ref="dav:response" maxOccurs="unbounded"/>
                 <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:sync-token" minOccurs="0" maxOccurs="1"/>
             </sequence>
         </complexType>
     </element>
@@ -153,7 +153,7 @@
     <element name="error">
         <complexType>
             <sequence>
-                <any namespace="http://www.w3.org/namespace/"/>
+                <any namespace="##any"/>
             </sequence>
         </complexType>
     </element>
@@ -184,6 +184,7 @@
                 <element ref="dav:lockdiscovery" minOccurs="0"/>
                 <element ref="dav:resourcetype" minOccurs="0"/>
                 <element ref="dav:supportedlock" minOccurs="0"/>
+                <element ref="dav:supported-report-set" minOccurs="0"/>
                 <element ref="dav:quota-available-bytes" minOccurs="0"/>
                 <element ref="dav:quota-used-bytes" minOccurs="0"/>
                 <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
@@ -200,7 +201,7 @@
                 <element ref="dav:name" minOccurs="0"/>
                 <element ref="dav:parentname" minOccurs="0"/>
                 -->
-                <any processContents="skip" namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+                <any processContents="skip" namespace="##other" maxOccurs="unbounded" />
             </all>
         </complexType>
     </element>
@@ -362,9 +363,60 @@
 
     <element name="searchrequest">
         <complexType>
-            <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+            <sequence>
+                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1" />
+            </sequence>
         </complexType>
     </element>
+
+    <element name="supported-report-set">
+        <complexType>
+            <sequence>
+                <element maxOccurs="unbounded" ref="dav:supported-report"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="supported-report">
+        <complexType>
+            <sequence>
+                <element ref="dav:report"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="report">
+        <complexType>
+            <sequence>
+                <any processContents="skip" namespace="##other" minOccurs="1" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="sync-collection">
+        <complexType>
+            <sequence>
+                <element ref="dav:sync-token" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:sync-level" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:prop" minOccurs="1" maxOccurs="1"/>
+                <element ref="dav:limit" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="sync-token" type="anyURI"/>
+
+    <element name="sync-level" type="string">
+        <simpleType>
+            <restriction base="string">
+                <enumeration value="0"/>
+                <enumeration value="1"/>
+                <enumeration value="infinity"/>
+            </restriction>
+        </simpleType>
+    </element>
+
+    <element name="limit" type="integer"/>
 
     <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
     <!--
