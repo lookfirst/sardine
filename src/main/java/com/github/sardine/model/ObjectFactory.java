@@ -37,9 +37,9 @@ public class ObjectFactory
 	private final static QName _Status_QNAME = new QName("DAV:", "status");
 	private final static QName _Responsedescription_QNAME = new QName("DAV:", "responsedescription");
 	private final static QName _Href_QNAME = new QName("DAV:", "href");
-	private final static QName _Limit_QNAME = new QName("DAV:", "limit");
 	private final static QName _SyncToken_QNAME = new QName("DAV:", "sync-token");
 	private final static QName _Dst_QNAME = new QName("DAV:", "dst");
+	private final static QName _Nresults_QNAME = new QName("DAV:", "nresults");
 	private final static QName _Src_QNAME = new QName("DAV:", "src");
 	private final static QName _Depth_QNAME = new QName("DAV:", "depth");
 
@@ -275,6 +275,14 @@ public class ObjectFactory
 	}
 
 	/**
+	 * Create an instance of {@link Limit }
+	 *
+	 */
+	public Limit createLimit() {
+		return new Limit();
+	}
+
+	/**
 	 * Create an instance of {@link Allprop }
 	 */
 	public Allprop createAllprop()
@@ -492,15 +500,6 @@ public class ObjectFactory
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link BigInteger }{@code >}}
-	 *
-	 */
-	@XmlElementDecl(namespace = "DAV:", name = "limit")
-	public JAXBElement<BigInteger> createLimit(BigInteger value) {
-		return new JAXBElement<BigInteger>(_Limit_QNAME, BigInteger.class, null, value);
-	}
-
-	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
 	 *
 	 */
@@ -516,6 +515,15 @@ public class ObjectFactory
 	@XmlElementDecl(namespace = "DAV:", name = "dst")
 	public JAXBElement<String> createDst(String value) {
 		return new JAXBElement<String>(_Dst_QNAME, String.class, null, value);
+	}
+
+	/**
+	 * Create an instance of {@link JAXBElement }{@code <}{@link BigInteger }{@code >}}
+	 *
+	 */
+	@XmlElementDecl(namespace = "DAV:", name = "nresults")
+	public JAXBElement<BigInteger> createNresults(BigInteger value) {
+		return new JAXBElement<BigInteger>(_Nresults_QNAME, BigInteger.class, null, value);
 	}
 
 	/**

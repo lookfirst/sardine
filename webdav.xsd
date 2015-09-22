@@ -398,8 +398,8 @@
             <sequence>
                 <element ref="dav:sync-token" minOccurs="1" maxOccurs="1"/>
                 <element ref="dav:sync-level" minOccurs="1" maxOccurs="1"/>
-                <element ref="dav:prop" minOccurs="1" maxOccurs="1"/>
                 <element ref="dav:limit" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:prop" minOccurs="1" maxOccurs="1"/>
             </sequence>
         </complexType>
     </element>
@@ -409,14 +409,21 @@
     <element name="sync-level" type="string">
         <simpleType>
             <restriction base="string">
-                <enumeration value="0"/>
                 <enumeration value="1"/>
-                <enumeration value="infinity"/>
+                <enumeration value="infinite"/>
             </restriction>
         </simpleType>
     </element>
 
-    <element name="limit" type="integer"/>
+    <element name="limit">
+        <complexType>
+            <sequence>
+                <element ref="dav:nresults" minOccurs="1" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="nresults" type="integer"/>
 
     <!-- Microsoft has some own elements in DAV namespace - don't use it for now -->
     <!--
