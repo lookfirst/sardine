@@ -138,12 +138,11 @@
                     <sequence>
                         <element ref="dav:status"/>
                     </sequence>
-                    <sequence>
-                        <element ref="dav:propstat" maxOccurs="unbounded"/>
-                    </sequence>
+                    <element ref="dav:propstat" maxOccurs="unbounded"/>
                 </choice>
                 <element ref="dav:error" minOccurs="0" maxOccurs="1"/>
                 <element ref="dav:responsedescription" minOccurs="0" maxOccurs="1"/>
+                <element ref="dav:location" minOccurs="0" maxOccurs="1"/>
             </sequence>
         </complexType>
     </element>
@@ -170,6 +169,14 @@
     </element>
 
     <element name="responsedescription" type="xsd:string"/>
+
+    <element name="location">
+        <complexType>
+            <sequence>
+                <element ref="dav:href" maxOccurs="1"/>
+            </sequence>
+        </complexType>
+    </element>
 
     <element name="prop">
         <complexType>
