@@ -17,6 +17,7 @@
 package com.github.sardine;
 
 import com.github.sardine.impl.SardineException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.UUID;
