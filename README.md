@@ -9,7 +9,7 @@ The [UsageGuide](https://github.com/lookfirst/sardine/wiki/UsageGuide) documents
 
 ```java
 Sardine sardine = SardineFactory.begin();
-List<DavResource> resources = sardine.getResources("http://yourdavserver.com/adirectory/");
+List<DavResource> resources = sardine.list("http://yourdavserver.com/adirectory/");
 for (DavResource res : resources)
 {
      System.out.println(res);
