@@ -75,6 +75,7 @@ public class DavResourceTest
 			return this;
 		}
 
+		@SuppressWarnings("unused")
 		Builder withEtag(String etag)
 		{
 			this.etag = etag;
@@ -96,6 +97,7 @@ public class DavResourceTest
 			return this;
 		}
 
+		@SuppressWarnings("unused")
 		Builder supportingReports(List<QName> supportedReports) {
 			this.supportedReports = supportedReports;
 			return this;

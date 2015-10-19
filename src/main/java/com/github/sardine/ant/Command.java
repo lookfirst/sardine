@@ -16,7 +16,7 @@ public abstract class Command extends ProjectComponent
 {
 
 	/** Parent task. */
-	private SardineTask fSardineTask = null;
+	private SardineTask sardineTask = null;
 
 	/**
 	 * This is called prior to {@link #execute()} in order to enable the command implementation to validate
@@ -44,10 +44,10 @@ public abstract class Command extends ProjectComponent
 			execute();
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (fSardineTask.isFailonerror()) {
+			if (sardineTask.isFailonerror()) {
 				throw e;
 			}
-			fSardineTask.log(getClass().getSimpleName() + " failed: " + e.getLocalizedMessage(), e,
+			sardineTask.log(getClass().getSimpleName() + " failed: " + e.getLocalizedMessage(), e,
 					Project.MSG_ERR);
 		}
 	}
@@ -56,7 +56,7 @@ public abstract class Command extends ProjectComponent
 	 * Sets the SardineTask
 	 */
 	public final void setTask(SardineTask task) {
-		fSardineTask = task;
+		sardineTask = task;
 	}
 
 	/**
@@ -65,6 +65,6 @@ public abstract class Command extends ProjectComponent
 	 * @return the Sardine for this command
 	 */
 	protected final Sardine getSardine() {
-		return fSardineTask.getSardine();
+		return sardineTask.getSardine();
 	}
 }
