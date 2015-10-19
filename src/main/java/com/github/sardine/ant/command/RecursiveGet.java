@@ -21,20 +21,20 @@ public class RecursiveGet extends Command {
 	/**
 	 * Webdav server url
 	 */
-	String fServerUrl;
+	String serverUrl;
 	/**
 	 * Remote directory path
 	 */
-	String fRemoteDirectory;
+	String remoteDirectory;
 	/**
 	 * Local directory path
 	 */
-	String fLocalDirectory;
+	String localDirectory;
 
 	/**
 	 * true if existent local files will be overwritten; otherwise, false.
 	 */
-	boolean fOverwriteFiles = false;
+	boolean overwriteFiles = false;
 
 	/**
 	 * {@inheritDoc}
@@ -43,13 +43,13 @@ public class RecursiveGet extends Command {
 	protected void validateAttributes() throws Exception {
 		StringBuilder sb = new StringBuilder();
 
-		if (fServerUrl == null) {
+		if (serverUrl == null) {
 			sb.append("[serverUrl] must not be null\n");
 		}
-		if (fRemoteDirectory == null) {
+		if (remoteDirectory == null) {
 			sb.append("[remoteDirectory] must not be null\n");
 		}
-		if (fLocalDirectory == null) {
+		if (localDirectory == null) {
 			sb.append("[localDirectory] must not be null\n");
 		}
 
@@ -67,7 +67,7 @@ public class RecursiveGet extends Command {
 
 		// add an extra leading slash, if it will be swallowed by resolve if
 		// duplicated
-		URI remoteDirectoryUrl = new URI(fServerUrl + '/').resolve(fRemoteDirectory);
+		URI remoteDirectoryUrl = new URI(serverUrl + '/').resolve(remoteDirectory);
 
 		String remoteDirectoryPath = remoteDirectoryUrl.getPath();
 
@@ -76,16 +76,16 @@ public class RecursiveGet extends Command {
 		for (DavResource davResource : resource) {
 			if (!davResource.isDirectory()) {
 				String filePathRelativeToRemoteDirectory = davResource.getPath().replace(remoteDirectoryPath, "");
-				Path localFilePath = Paths.get(fLocalDirectory, filePathRelativeToRemoteDirectory);
+				Path localFilePath = Paths.get(localDirectory, filePathRelativeToRemoteDirectory);
 
 				Files.createDirectories(localFilePath.getParent());
 
 				log("downloading " + filePathRelativeToRemoteDirectory + " to " + localFilePath);
 
-				String remoteFileUrl = new URI(fServerUrl + '/').resolve(davResource.getPath()).toString();
+				String remoteFileUrl = new URI(serverUrl + '/').resolve(davResource.getPath()).toString();
 				InputStream ioStream = getSardine().get(remoteFileUrl);
 				try {
-					if (fOverwriteFiles) {
+					if (overwriteFiles) {
 						Files.copy(ioStream, localFilePath, StandardCopyOption.REPLACE_EXISTING);
 					} else {
 						Files.copy(ioStream, localFilePath);
@@ -96,23 +96,23 @@ public class RecursiveGet extends Command {
 				}
 			}
 		}
-		log("downloaded files to " + fLocalDirectory);
+		log("downloaded files to " + localDirectory);
 	}
 
-	public void setServerUrl(String url) {
-		this.fServerUrl = url;
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
 
-	public void setRemoteDirectory(String resource) {
-		this.fRemoteDirectory = resource;
+	public void setRemoteDirectory(String remoteDirectory) {
+		this.remoteDirectory = remoteDirectory;
 	}
 
-	public void setLocalDirectory(String destination) {
-		this.fLocalDirectory = destination;
+	public void setLocalDirectory(String localDirectory) {
+		this.localDirectory = localDirectory;
 	}
 
 	public void setOverwriteFiles(boolean overwriteFiles) {
-		this.fOverwriteFiles = overwriteFiles;
+		this.overwriteFiles = overwriteFiles;
 	}
 
 }
