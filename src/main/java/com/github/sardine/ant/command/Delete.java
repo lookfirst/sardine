@@ -10,15 +10,15 @@ import com.github.sardine.ant.Command;
 public class Delete extends Command
 {
 	/** To delete. */
-	private String fUrl;
+	private String url;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void execute() throws Exception {
-		log("deleting " + fUrl);
-		getSardine().delete(fUrl);
+		log("deleting " + url);
+		getSardine().delete(url);
 	}
 
 	/**
@@ -26,12 +26,12 @@ public class Delete extends Command
 	 */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fUrl == null)
+		if (url == null)
 			throw new IllegalArgumentException("url must not be null");
 	}
 
 	/** Set URL to delete. */
 	public void setUrl(String url) {
-		fUrl = url;
+		this.url = url;
 	}
 }

@@ -10,15 +10,15 @@ import com.github.sardine.ant.Command;
 public class CreateDirectory extends Command
 {
 	/** URL to create. */
-	private String fUrl;
+	private String url;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void execute() throws Exception {
-		log("creating directory " + fUrl);
-		getSardine().createDirectory(fUrl);
+		log("creating directory " + url);
+		getSardine().createDirectory(url);
 	}
 
 	/**
@@ -26,12 +26,12 @@ public class CreateDirectory extends Command
 	 */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fUrl == null)
+		if (url == null)
 			throw new IllegalArgumentException("url must not be null");
 	}
 
 	/** Set the URL to create. */
 	public void setUrl(String url) {
-		fUrl = url;
+		this.url = url;
 	}
 }
