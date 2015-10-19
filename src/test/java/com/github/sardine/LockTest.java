@@ -18,7 +18,9 @@ package com.github.sardine;
 
 import com.github.sardine.impl.SardineException;
 import org.junit.Test;
+
 import java.util.UUID;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -70,6 +72,7 @@ public class LockTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void lockRefreshUnlock() throws Exception
 	{
