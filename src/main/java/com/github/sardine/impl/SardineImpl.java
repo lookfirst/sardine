@@ -680,8 +680,9 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			return new DavQuota(responses.get(0));
+                    if (responses.get(0).getPropstat().get(0).getStatus().contains("200")) return new DavQuota(responses.get(0));
 		}
+                return null;
 	}
 
 	@Override
