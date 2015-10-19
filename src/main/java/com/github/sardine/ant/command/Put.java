@@ -24,19 +24,19 @@ import com.github.sardine.ant.Command;
 public class Put extends Command {
 
 	/** The destination URL as a string. */
-	private String fUrlString;
+	private String urlString;
 
 	/** The parsed destination URL. */
-	private URL fDest;
+	private URL dest;
 
 	/** An sets of source files. */
-	private List<FileSet> fSrcFileSets = new ArrayList<FileSet>();
+	private List<FileSet> srcFileSets = new ArrayList<FileSet>();
 
 	/** A single source file. */
-	private File fSrcFile = null;
+	private File srcFile = null;
 
 	/** The optional content type of the single source file. */
-	private String fContentType;
+	private String contentType;
 
 	/**
 	 * {@inheritDoc}
@@ -45,18 +45,18 @@ public class Put extends Command {
 	protected void execute() throws Exception {
 		long fileCounter = 0;
 
-		if (fSrcFile != null) {
-			process(fSrcFile, fDest, false);
+		if (srcFile != null) {
+			process(srcFile, dest, false);
 			fileCounter++;
 		} else {
-			String urlString = fDest.toString();
+			String urlString = dest.toString();
 			// URL has to be a directory when working with file sets
 			urlString = urlString.endsWith("/") ? urlString : (urlString + '/');
 			URL baseUrl = new URL(urlString);
 			// to prevent unnecessary dir checks
 			Set<URL> alreadyCreated = new HashSet<URL>();
 			File currentParentDir = null;
-			for (Iterator<FileSet> setIterator = fSrcFileSets.iterator(); setIterator.hasNext();) {
+			for (Iterator<FileSet> setIterator = srcFileSets.iterator(); setIterator.hasNext();) {
 				FileSet fileSet = setIterator.next();
 				File dir = fileSet.getDir(getProject());
 				log("putting from " + dir + " to " + baseUrl);
@@ -81,7 +81,7 @@ public class Put extends Command {
 
 	/**
 	 * Check and if necessary create the parent directory for files to put. Thus it is possible to put whole
-	 * directory trees, even if the subdirecories of the tree do not yet exist.
+	 * directory trees, even if the sub-directories of the tree do not yet exist.
 	 *
 	 * @param baseUrl is the root which must already exist, parent directories to this URL will not be created
 	 *        automatically
@@ -110,7 +110,7 @@ public class Put extends Command {
 	 */
 	private void process(File file, URL dest, boolean expectContinue) throws Exception {
 		log("putting " + file + " to " + dest + " with expectContinue=" + expectContinue, Project.MSG_VERBOSE);
-		getSardine().put(dest.toString(), file, fContentType, expectContinue);
+		getSardine().put(dest.toString(), file, contentType, expectContinue);
 	}
 
 	/**
@@ -118,34 +118,34 @@ public class Put extends Command {
 	 */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fUrlString == null)
+		if (urlString == null)
 			throw new NullPointerException("url must not be null");
-		fDest = new URL(fUrlString);
+		dest = new URL(urlString);
 
-		if (fSrcFile == null && fSrcFileSets.size() == 0)
+		if (srcFile == null && srcFileSets.size() == 0)
 			throw new NullPointerException("Need to define either the file attribute or add a fileset.");
 
-		if (fSrcFile != null && !fSrcFile.isFile())
-			throw new Exception(fSrcFile + " is not a file");
+		if (srcFile != null && !srcFile.isFile())
+			throw new Exception(srcFile + " is not a file");
 	}
 
 	/** Set destination URL. */
 	public void setUrl(String urlString) {
-		fUrlString = urlString;
+		this.urlString = urlString;
 	}
 
 	/** Set source file. */
 	public void setFile(File file) {
-		fSrcFile = file;
+		this.srcFile = file;
 	}
 
 	/** Set optional content type of the source file. */
 	public void setContentType(String contentType) {
-		fContentType = contentType;
+		this.contentType = contentType;
 	}
 
 	/** Add a source file set. */
 	public void addConfiguredFileset(FileSet value) {
-		fSrcFileSets.add(value);
+		this.srcFileSets.add(value);
 	}
 }

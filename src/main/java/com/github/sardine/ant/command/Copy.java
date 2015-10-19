@@ -10,18 +10,18 @@ import com.github.sardine.ant.Command;
 public class Copy extends Command
 {
 	/** Source */
-	private String fSrcUrl;
+	private String srcUrl;
 
 	/** Destination */
-	private String fDstUrl;
+	private String dstUrl;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void execute() throws Exception {
-		log("copying " + fSrcUrl + " to " + fDstUrl);
-		getSardine().copy(fSrcUrl, fDstUrl);
+		log("copying " + srcUrl + " to " + dstUrl);
+		getSardine().copy(srcUrl, dstUrl);
 	}
 
 	/**
@@ -29,17 +29,17 @@ public class Copy extends Command
 	 */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fSrcUrl == null || fDstUrl == null)
+		if (srcUrl == null || dstUrl == null)
 			throw new IllegalArgumentException("srcUrl and dstUrl must not be null");
 	}
 
 	/** Set the source URL */
 	public void setSrcUrl(String srcUrl) {
-		fSrcUrl = srcUrl;
+		this.srcUrl = srcUrl;
 	}
 
 	/** Set the destination URL */
 	public void setDstUrl(String dstUrl) {
-		fDstUrl = dstUrl;
+		this.dstUrl = dstUrl;
 	}
 }

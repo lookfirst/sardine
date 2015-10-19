@@ -10,34 +10,34 @@ import com.github.sardine.ant.Command;
 public class Move extends Command
 {
 	/** Source */
-	private String fSrcUrl;
+	private String srcUrl;
 
 	/** Destination */
-	private String fDstUrl;
+	private String dstUrl;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void execute() throws Exception {
-		log("moving " + fSrcUrl + " to " + fDstUrl);
-		getSardine().move(fSrcUrl, fDstUrl);
+		log("moving " + srcUrl + " to " + dstUrl);
+		getSardine().move(srcUrl, dstUrl);
 	}
 
 	/** */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fSrcUrl == null || fDstUrl == null)
+		if (srcUrl == null || dstUrl == null)
 			throw new IllegalArgumentException("srcUrl and dstUrl must not be null");
 	}
 
 	/** Set the source URL. */
 	public void setSrcUrl(String srcUrl) {
-		fSrcUrl = srcUrl;
+		this.srcUrl = srcUrl;
 	}
 
 	/** Set the destination URL. */
 	public void setDstUrl(String dstUrl) {
-		fDstUrl = dstUrl;
+		this.dstUrl = dstUrl;
 	}
 }

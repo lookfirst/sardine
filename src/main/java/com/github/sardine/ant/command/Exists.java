@@ -12,18 +12,18 @@ import com.github.sardine.ant.Command;
 public class Exists extends Command
 {
 	/** URL to check. */
-	private String fUrl;
+	private String url;
 
 	/** Property to set if URL exists. */
-	private String fProperty;
+	private String property;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void execute() throws Exception {
-		if (getSardine().exists(fUrl))
-			getProject().setProperty(fProperty, "true");
+		if (getSardine().exists(url))
+			getProject().setProperty(property, "true");
 	}
 
 	/**
@@ -31,20 +31,20 @@ public class Exists extends Command
 	 */
 	@Override
 	protected void validateAttributes() throws Exception {
-		if (fUrl == null)
+		if (url == null)
 			throw new IllegalArgumentException("url must not be null");
 
-		if (fProperty == null)
+		if (property == null)
 			throw new IllegalArgumentException("property must not be null");
 	}
 
 	/** Set URL to check. */
 	public void setUrl(String url) {
-		fUrl = url;
+		this.url = url;
 	}
 
 	/** Set property to set if URL exists. */
 	public void setProperty(String property) {
-		fProperty = property;
+		this.property = property;
 	}
 }
