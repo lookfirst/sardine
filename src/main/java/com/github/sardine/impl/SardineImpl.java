@@ -27,7 +27,7 @@ import com.github.sardine.impl.handler.ExistsResponseHandler;
 import com.github.sardine.impl.handler.LockResponseHandler;
 import com.github.sardine.impl.handler.MultiStatusResponseHandler;
 import com.github.sardine.impl.handler.VoidResponseHandler;
-import com.github.sardine.impl.io.ConsumingInputStream;
+import com.github.sardine.impl.io.AbortingInputStream;
 import com.github.sardine.impl.io.ContentLengthInputStream;
 import com.github.sardine.impl.methods.HttpAcl;
 import com.github.sardine.impl.methods.HttpCopy;
@@ -793,8 +793,8 @@ public class SardineImpl implements Sardine
 		try
 		{
 			handler.handleResponse(response);
-			// Will consume the entity when the stream is closed.
-			return new ConsumingInputStream(response);
+			// Will abort the read when closed before EOF.
+			return new AbortingInputStream(response);
 		}
 		catch (IOException ex)
 		{
