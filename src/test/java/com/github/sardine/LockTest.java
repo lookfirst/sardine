@@ -18,6 +18,8 @@ package com.github.sardine;
 
 import com.github.sardine.impl.SardineException;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
 import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,17 +75,19 @@ public class LockTest
 	@Test
 	public void lockRefreshUnlock() throws Exception
 	{
-		Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin();
 
-		String existingFile = "5bac62e9-d233-438b-8d45-4c8ceb8d3069";
-		String existingFileUrl = "http://test.cyberduck.ch/dav/anon/sardine/" + existingFile;
+        // Touch enw file
+        final UUID file = UUID.randomUUID();
+        final String url = String.format("http://test.cyberduck.ch/dav/anon/sardine/%s", file);
+        sardine.put(url, new ByteArrayInputStream(new byte[0]));
 
-		String lockToken = sardine.lock(existingFileUrl);
-		String result = sardine.refreshLock(existingFileUrl, lockToken, existingFile);
+        String lockToken = sardine.lock(url);
+        String result = sardine.refreshLock(url, lockToken, url);
 
-		assertTrue(lockToken.startsWith("opaquelocktoken:"));
-		assertTrue(lockToken.equals(result));
+        assertTrue(lockToken.startsWith("opaquelocktoken:"));
+        assertTrue(lockToken.equals(result));
 
-		sardine.unlock(existingFileUrl, lockToken);
-	}
+        sardine.unlock(url, lockToken);
+    }
 }
