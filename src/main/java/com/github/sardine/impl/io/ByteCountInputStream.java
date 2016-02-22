@@ -16,49 +16,54 @@
 
 package com.github.sardine.impl.io;
 
-import org.apache.http.HttpResponse;
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ContentLengthInputStream extends FilterInputStream
+public class ByteCountInputStream extends FilterInputStream
 {
 
-	private Long length;
+	private Long byteCount = 0L;
 
-	public ContentLengthInputStream(final HttpResponse response) throws IOException
-	{
-		super(response.getEntity().getContent());
-		this.length = response.getEntity().getContentLength();
-	}
-
-	public ContentLengthInputStream(final InputStream in, final Long length)
+	public ByteCountInputStream(final InputStream in)
 	{
 		super(in);
-		this.length = length;
 	}
 
-	public Long getLength()
+	@Override
+	public long skip(long n) throws IOException
 	{
-		return length;
+		final long skip = in.skip(n);
+		byteCount += skip;
+		return skip;
 	}
 
 	@Override
 	public int read() throws IOException
 	{
-		return in.read();
+		final int data = in.read();
+		byteCount += data == -1 ? 0 : 1;
+		return data;
 	}
 
 	@Override
 	public int read(byte[] b) throws IOException
 	{
-		return in.read(b);
+		final int read = in.read(b);
+		byteCount += read == -1 ? 0 : read;
+		return read;
 	}
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException
 	{
-		return in.read(b, off, len);
+		final int read = in.read(b, off, len);
+		byteCount += read == -1 ? 0 : read;
+		return read;
+	}
+
+	public Long getByteCount()
+	{
+		return byteCount;
 	}
 }
