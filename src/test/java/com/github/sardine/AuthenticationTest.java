@@ -16,6 +16,8 @@
 
 package com.github.sardine;
 
+import com.github.sardine.impl.SardineException;
+import com.github.sardine.impl.SardineImpl;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -39,14 +41,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import com.github.sardine.impl.SardineException;
-import com.github.sardine.impl.SardineImpl;
-
 import static org.junit.Assert.*;
 
-/**
- * @version $Id:$
- */
 public class AuthenticationTest
 {
 	private static final String TEST_PROPERTIES_FILENAME = "test.properties";

@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @version $Id: VoidResponseHandler.java 233 2011-05-24 11:55:15Z dkocher@sudo.ch $
- */
 public class HeadersResponseHandler extends ValidatingResponseHandler<Map<String, String>> {
     @Override
     public Map<String, String> handleResponse(HttpResponse response) throws IOException {
