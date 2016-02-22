@@ -33,7 +33,7 @@ public class ByteCountInputStream extends FilterInputStream
 	@Override
 	public long skip(long n) throws IOException
 	{
-		final long skip = super.skip(n);
+		final long skip = in.skip(n);
 		byteCount += skip;
 		return skip;
 	}
@@ -41,24 +41,24 @@ public class ByteCountInputStream extends FilterInputStream
 	@Override
 	public int read() throws IOException
 	{
-		final int read = super.read();
-		byteCount += read > 0 ? read : 0;
-		return read;
+		final int data = in.read();
+		byteCount += data == -1 ? 0 : 1;
+		return data;
 	}
 
 	@Override
 	public int read(byte[] b) throws IOException
 	{
-		final int read = super.read(b);
-		byteCount += read > 0 ? read : 0;
+		final int read = in.read(b);
+		byteCount += read == -1 ? 0 : read;
 		return read;
 	}
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException
 	{
-		final int read = super.read(b, off, len);
-		byteCount += read > 0 ? read : 0;
+		final int read = in.read(b, off, len);
+		byteCount += read == -1 ? 0 : read;
 		return read;
 	}
 
