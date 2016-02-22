@@ -21,6 +21,9 @@ import com.github.sardine.model.Response;
 import com.github.sardine.model.SupportedReport;
 import com.github.sardine.model.SupportedReportSet;
 import com.github.sardine.util.SardineUtil;
+import org.apache.http.HttpStatus;
+import org.apache.http.ParseException;
+import org.apache.http.message.BasicLineParser;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -50,7 +53,7 @@ public class DavResource
 	public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
 	/**
-	 * The default content-lenght if {@link Getcontentlength} is not set in
+	 * The default content-length if {@link Getcontentlength} is not set in
 	 * the {@link com.github.sardine.model.Multistatus} response.
 	 */
 	public static final long DEFAULT_CONTENT_LENGTH = -1;
@@ -61,21 +64,62 @@ public class DavResource
 	public static final String HTTPD_UNIX_DIRECTORY_CONTENT_TYPE = "httpd/unix-directory";
 
 	/**
+	 * The default status code if {@link Response#getStatus} is not set in
+	 * the {@link com.github.sardine.model.Multistatus} response.
+	 */
+	public static final int DEFAULT_STATUS_CODE = HttpStatus.SC_OK;
+
+	/**
 	 * Path component seperator
 	 */
 	private static final String SEPARATOR = "/";
 
 	private final URI href;
-	private final Date creation;
-	private final Date modified;
-	private final String contentType;
-	private final String etag;
-	private final String displayName;
-	private final List<QName> resourceTypes;
-	private final String contentLanguage;
-	private final Long contentLength;
-	private final List<QName> supportedReports;
-	private final Map<QName, String> customProps;
+	private final int status;
+	private final DavProperties props;
+
+	private class DavProperties
+	{
+		final Date creation;
+		final Date modified;
+		final String contentType;
+		final String etag;
+		final String displayName;
+		final List<QName> resourceTypes;
+		final String contentLanguage;
+		final Long contentLength;
+		final List<QName> supportedReports;
+		final Map<QName, String> customProps;
+
+		DavProperties(Date creation, Date modified, String contentType,
+					  Long contentLength, String etag, String displayName, List<QName> resourceTypes,
+					  String contentLanguage, List<QName> supportedReports, Map<QName, String> customProps)
+		{
+			this.creation = creation;
+			this.modified = modified;
+			this.contentType = contentType;
+			this.contentLength = contentLength;
+			this.etag = etag;
+			this.displayName = displayName;
+			this.resourceTypes = resourceTypes;
+			this.contentLanguage = contentLanguage;
+			this.supportedReports = supportedReports;
+			this.customProps = customProps;
+		}
+
+		DavProperties(Response response) {
+			this.creation = SardineUtil.parseDate(getCreationDate(response));
+			this.modified = SardineUtil.parseDate(getModifiedDate(response));
+			this.contentType = getContentType(response);
+			this.contentLength = getContentLength(response);
+			this.etag = getEtag(response);
+			this.displayName = getDisplayName(response);
+			this.resourceTypes = getResourceTypes(response);
+			this.contentLanguage = getContentLanguage(response);
+			this.supportedReports = getSupportedReports(response);
+			this.customProps = getCustomProps(response);
+		}
+	}
 
 	/**
 	 * Represents a webdav response block.
@@ -89,16 +133,9 @@ public class DavResource
 			throws URISyntaxException
 	{
 		this.href = new URI(href);
-		this.creation = creation;
-		this.modified = modified;
-		this.contentType = contentType;
-		this.contentLength = contentLength;
-		this.etag = etag;
-		this.displayName = displayName;
-		this.resourceTypes = resourceTypes;
-		this.contentLanguage = contentLanguage;
-		this.supportedReports = supportedReports;
-		this.customProps = customProps;
+		this.status = DEFAULT_STATUS_CODE;
+		this.props = new DavProperties(creation, modified, contentType, contentLength, etag, displayName,
+				resourceTypes, contentLanguage, supportedReports, customProps);
 	}
 
 	/**
@@ -110,16 +147,33 @@ public class DavResource
 	public DavResource(Response response) throws URISyntaxException
 	{
 		this.href = new URI(response.getHref().get(0));
-		this.creation = SardineUtil.parseDate(this.getCreationDate(response));
-		this.modified = SardineUtil.parseDate(this.getModifiedDate(response));
-		this.contentType = this.getContentType(response);
-		this.contentLength = this.getContentLength(response);
-		this.etag = this.getEtag(response);
-		this.displayName = this.getDisplayName(response);
-		this.resourceTypes = this.getResourceTypes(response);
-		this.contentLanguage = this.getContentLanguage(response);
-		this.supportedReports = this.getSupportedReports(response);
-		this.customProps = this.getCustomProps(response);
+		this.status = getStatusCode(response);
+		this.props = new DavProperties(response);
+	}
+
+	/**
+	 * Retrieves the status code portion of the Response's <CODE>status</CODE> element.
+	 * If it is not present, returns {@link #DEFAULT_STATUS_CODE} (a.k.a. <CODE>200</CODE>).
+	 *
+	 * @param response The response complex type of the multistatus
+	 * @return DEFAULT_STATUS_CODE if not found in response; -1 if status line was malformed
+	 */
+	private int getStatusCode(Response response)
+	{
+		String status = response.getStatus();
+		if (status == null || status.isEmpty())
+		{
+			return DEFAULT_STATUS_CODE;
+		}
+		try
+		{
+			return BasicLineParser.parseStatusLine(response.getStatus(), null).getStatusCode();
+		}
+		catch (ParseException e)
+		{
+			log.warning(String.format("Failed to parse status line: %s", status));
+			return -1;
+		}
 	}
 
 	/**
@@ -433,11 +487,19 @@ public class DavResource
 	}
 
 	/**
+	 * @return Status code (or 200 if not present, or -1 if malformed)
+	 */
+	public int getStatusCode()
+	{
+		return this.status;
+	}
+
+	/**
 	 * @return Timestamp
 	 */
 	public Date getCreation()
 	{
-		return this.creation;
+		return this.props.creation;
 	}
 
 	/**
@@ -445,7 +507,7 @@ public class DavResource
 	 */
 	public Date getModified()
 	{
-		return this.modified;
+		return this.props.modified;
 	}
 
 	/**
@@ -453,7 +515,7 @@ public class DavResource
 	 */
 	public String getContentType()
 	{
-		return this.contentType;
+		return this.props.contentType;
 	}
 
 	/**
@@ -461,7 +523,7 @@ public class DavResource
 	 */
 	public Long getContentLength()
 	{
-		return this.contentLength;
+		return this.props.contentLength;
 	}
 
 	/**
@@ -469,7 +531,7 @@ public class DavResource
 	 */
 	public String getEtag()
 	{
-		return this.etag;
+		return this.props.etag;
 	}
 
 	/**
@@ -477,7 +539,7 @@ public class DavResource
 	 */
 	public String getContentLanguage()
 	{
-		return this.contentLanguage;
+		return this.props.contentLanguage;
 	}
 
 	/**
@@ -485,7 +547,7 @@ public class DavResource
 	 */
 	public String getDisplayName()
 	{
-		return this.displayName;
+		return this.props.displayName;
 	}
 
 	/**
@@ -493,7 +555,7 @@ public class DavResource
 	 */
 	public List<QName> getResourceTypes()
 	{
-		return this.resourceTypes;
+		return this.props.resourceTypes;
 	}
 
 	/**
@@ -501,7 +563,7 @@ public class DavResource
 	 */
 	public List<QName> getSupportedReports()
 	{
-		return this.supportedReports;
+		return this.props.supportedReports;
 	}
 
 	/**
@@ -511,7 +573,7 @@ public class DavResource
 	 */
 	public boolean isDirectory()
 	{
-		return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE.equals(this.contentType);
+		return HTTPD_UNIX_DIRECTORY_CONTENT_TYPE.equals(this.props.contentType);
 	}
 
 	/**
@@ -533,7 +595,7 @@ public class DavResource
 	 */
 	public Map<QName, String> getCustomPropsNS()
 	{
-		return this.customProps;
+		return this.props.customProps;
 	}
 
 	/**

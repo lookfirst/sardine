@@ -1,6 +1,7 @@
 package com.github.sardine.report;
 
 import com.github.sardine.DavResource;
+import com.github.sardine.model.Limit;
 import com.github.sardine.model.Multistatus;
 import com.github.sardine.model.Prop;
 import com.github.sardine.model.Response;
@@ -22,9 +23,8 @@ public class SyncCollectionReport extends SardineReport<SyncCollectionReport.Res
 
 	public enum SyncLevel
 	{
-		LEVEL_0("0"),
 		LEVEL_1("1"),
-		LEVEL_INFINITY("infinity");
+		LEVEL_INFINITY("infinite");
 
 		private final String value;
 
@@ -68,7 +68,9 @@ public class SyncCollectionReport extends SardineReport<SyncCollectionReport.Res
 		syncCollection.setProp(prop);
 		if (limit != null && limit > 0)
 		{
-			syncCollection.setLimit(BigInteger.valueOf(limit));
+			Limit l = new Limit();
+			l.setNresults(BigInteger.valueOf(limit));
+			syncCollection.setLimit(l);
 		}
 		return syncCollection;
 	}
