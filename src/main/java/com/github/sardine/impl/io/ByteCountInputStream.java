@@ -23,7 +23,7 @@ import java.io.InputStream;
 public class ByteCountInputStream extends FilterInputStream
 {
 
-	private Long byteCount;
+	private Long byteCount = 0L;
 
 	public ByteCountInputStream(final InputStream in)
 	{
