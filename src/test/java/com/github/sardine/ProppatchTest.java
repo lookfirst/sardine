@@ -16,11 +16,11 @@
 
 package com.github.sardine;
 
+import com.github.sardine.util.SardineUtil;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,13 +32,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import com.github.sardine.util.SardineUtil;
-
 import static org.junit.Assert.*;
 
-/**
- * @version $Id:$
- */
 public class ProppatchTest
 {
 	/**
