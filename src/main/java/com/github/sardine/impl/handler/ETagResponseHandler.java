@@ -21,9 +21,6 @@ import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 
-/**
- * @version $Id: VoidResponseHandler.java 233 2011-05-24 11:55:15Z dkocher@sudo.ch $
- */
 public class ETagResponseHandler extends ValidatingResponseHandler<String> {
     @Override
     public String handleResponse(HttpResponse response) throws IOException {
