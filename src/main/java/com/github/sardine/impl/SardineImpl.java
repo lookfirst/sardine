@@ -27,8 +27,8 @@ import com.github.sardine.impl.handler.ExistsResponseHandler;
 import com.github.sardine.impl.handler.LockResponseHandler;
 import com.github.sardine.impl.handler.MultiStatusResponseHandler;
 import com.github.sardine.impl.handler.VoidResponseHandler;
-import com.github.sardine.impl.io.AbortingInputStream;
 import com.github.sardine.impl.io.ContentLengthInputStream;
+import com.github.sardine.impl.io.HttpMethodReleaseInputStream;
 import com.github.sardine.impl.methods.HttpAcl;
 import com.github.sardine.impl.methods.HttpCopy;
 import com.github.sardine.impl.methods.HttpLock;
@@ -62,10 +62,10 @@ import com.github.sardine.model.QuotaUsedBytes;
 import com.github.sardine.model.Remove;
 import com.github.sardine.model.Resourcetype;
 import com.github.sardine.model.Response;
-import com.github.sardine.report.SardineReport;
 import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
+import com.github.sardine.report.SardineReport;
 import com.github.sardine.util.SardineUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -246,8 +246,8 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-        this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
-        this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
+		this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
 	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
@@ -379,44 +379,44 @@ public class SardineImpl implements Sardine
 		return this.list(url, 1);
 	}
 
-    @Override
-    public List<DavResource> list(String url, int depth) throws IOException
-    {
-        return list(url, depth, true);
-    }
+	@Override
+	public List<DavResource> list(String url, int depth) throws IOException
+	{
+		return list(url, depth, true);
+	}
 
-    @Override
-    public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
-    {
-        if (allProp)
-        {
-            Propfind body = new Propfind();
-            body.setAllprop(new Allprop());
-            return propfind(url, depth, body);
-        }
-        else
-        {
-            return list(url, depth, Collections.<QName>emptySet());
-        }
-    }
+	@Override
+	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
+	{
+		if (allProp)
+		{
+			Propfind body = new Propfind();
+			body.setAllprop(new Allprop());
+			return propfind(url, depth, body);
+		}
+		else
+		{
+			return list(url, depth, Collections.<QName>emptySet());
+		}
+	}
 
-    @Override
-    public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
-    {
-        Propfind body = new Propfind();
-        Prop prop = new Prop();
-        ObjectFactory objectFactory = new ObjectFactory();
-        prop.setGetcontentlength(objectFactory.createGetcontentlength());
-        prop.setGetlastmodified(objectFactory.createGetlastmodified());
-        prop.setCreationdate(objectFactory.createCreationdate());
-        prop.setDisplayname(objectFactory.createDisplayname());
-        prop.setGetcontenttype(objectFactory.createGetcontenttype());
-        prop.setResourcetype(objectFactory.createResourcetype());
-        prop.setGetetag(objectFactory.createGetetag());
+	@Override
+	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
+	{
+		Propfind body = new Propfind();
+		Prop prop = new Prop();
+		ObjectFactory objectFactory = new ObjectFactory();
+		prop.setGetcontentlength(objectFactory.createGetcontentlength());
+		prop.setGetlastmodified(objectFactory.createGetlastmodified());
+		prop.setCreationdate(objectFactory.createCreationdate());
+		prop.setDisplayname(objectFactory.createDisplayname());
+		prop.setGetcontenttype(objectFactory.createGetcontenttype());
+		prop.setResourcetype(objectFactory.createResourcetype());
+		prop.setGetetag(objectFactory.createGetetag());
 		addCustomProperties(prop, props);
-        body.setProp(prop);
-        return propfind(url, depth, body);
-    }
+		body.setProp(prop);
+		return propfind(url, depth, body);
+	}
 
 	@Override
 	public List<DavResource> propfind(String url, int depth, java.util.Set<QName> props) throws IOException
@@ -428,7 +428,8 @@ public class SardineImpl implements Sardine
 		return propfind(url, depth, body);
 	}
 
-	private void addCustomProperties(Prop prop, java.util.Set<QName> props) {
+	private void addCustomProperties(Prop prop, java.util.Set<QName> props)
+	{
 		List<Element> any = prop.getAny();
 		for (QName entry : props)
 		{
@@ -438,13 +439,13 @@ public class SardineImpl implements Sardine
 	}
 
 	protected List<DavResource> propfind(String url, int depth, Propfind body) throws IOException
-    {
-        HttpPropFind entity = new HttpPropFind(url);
-        entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
-        entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-        Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
-        List<Response> responses = multistatus.getResponse();
-        List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+	{
+		HttpPropFind entity = new HttpPropFind(url);
+		entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		List<Response> responses = multistatus.getResponse();
+		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -491,7 +492,7 @@ public class SardineImpl implements Sardine
 		return resources;
 	}
 
-    @Override
+	@Override
 	public void setCustomProps(String url, Map<String, String> set, List<String> remove) throws IOException
 	{
 		this.patch(url, SardineUtil.toQName(set), SardineUtil.toQName(remove));
@@ -771,16 +772,18 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException {
-        List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: headers.entrySet())
+	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
+	{
+		List<Header> list = new ArrayList<Header>();
+		for (Map.Entry<String, String> h : headers.entrySet())
 		{
-            list.add(new BasicHeader(h.getKey(), h.getValue()));
-        }
-        return this.get(url, list);
-    }
+			list.add(new BasicHeader(h.getKey(), h.getValue()));
+		}
+		return this.get(url, list);
+	}
 
-   	public ContentLengthInputStream get(String url, List<Header> headers) throws IOException {
+	public ContentLengthInputStream get(String url, List<Header> headers) throws IOException
+	{
 		HttpGet get = new HttpGet(url);
 		for (Header header : headers)
 		{
@@ -794,7 +797,7 @@ public class SardineImpl implements Sardine
 		{
 			handler.handleResponse(response);
 			// Will abort the read when closed before EOF.
-			return new AbortingInputStream(response);
+			return new ContentLengthInputStream(new HttpMethodReleaseInputStream(response), response.getEntity().getContentLength());
 		}
 		catch (IOException ex)
 		{
@@ -845,13 +848,13 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
 	{
-        List<Header> list = new ArrayList<Header>();
-        for(Map.Entry<String, String> h: headers.entrySet())
+		List<Header> list = new ArrayList<Header>();
+		for (Map.Entry<String, String> h : headers.entrySet())
 		{
-            list.add(new BasicHeader(h.getKey(), h.getValue()));
-        }
-        this.put(url, dataStream, list);
-    }
+			list.add(new BasicHeader(h.getKey(), h.getValue()));
+		}
+		this.put(url, dataStream, list);
+	}
 
 	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
 	{
@@ -870,7 +873,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-        List<Header> headers = new ArrayList<Header>();
+		List<Header> headers = new ArrayList<Header>();
 		if (contentType != null)
 		{
 			headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType));
@@ -926,13 +929,15 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
-	public void put(String url, File localFile, String contentType) throws IOException {
+	public void put(String url, File localFile, String contentType) throws IOException
+	{
 		//don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
 		put(url, localFile, contentType, false);
 	}
 
 	@Override
-	public void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException {
+	public void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException
+	{
 		FileEntity content = new FileEntity(localFile);
 		this.put(url, content, contentType, expectContinue);
 	}
@@ -1002,7 +1007,8 @@ public class SardineImpl implements Sardine
 			// Execute with response handler
 			return this.client.execute(request, responseHandler, this.context);
 		}
-		catch (HttpResponseException e) {
+		catch (HttpResponseException e)
+		{
 			// Don't abort if we get this exception, caller may want to repeat request.
 			throw e;
 		}
