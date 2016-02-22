@@ -33,9 +33,8 @@ public class LockTest
 	public void testLockUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		// mod_dav supports Range headers for PUT
-		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
-		sardine.put(url, new byte[]{});
+		String url = String.format("http://test.cyberduck.ch/dav/anon/sardine/%s", UUID.randomUUID().toString());
+		sardine.put(url, new byte[0]);
 		try
 		{
 			String token = sardine.lock(url);
@@ -72,22 +71,28 @@ public class LockTest
 		}
 	}
 
-	@Test
-	public void lockRefreshUnlock() throws Exception
-	{
+    @Test
+    public void lockRefreshUnlock() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
 
         // Touch enw file
         final UUID file = UUID.randomUUID();
         final String url = String.format("http://test.cyberduck.ch/dav/anon/sardine/%s", file);
         sardine.put(url, new ByteArrayInputStream(new byte[0]));
+        try
+        {
 
-        String lockToken = sardine.lock(url);
-        String result = sardine.refreshLock(url, lockToken, url);
+            String lockToken = sardine.lock(url);
+            String result = sardine.refreshLock(url, lockToken, url);
 
-        assertTrue(lockToken.startsWith("opaquelocktoken:"));
-        assertTrue(lockToken.equals(result));
+            assertTrue(lockToken.startsWith("opaquelocktoken:"));
+            assertTrue(lockToken.equals(result));
 
-        sardine.unlock(url, lockToken);
+            sardine.unlock(url, lockToken);
+        }
+        finally {
+            sardine.delete(url);
+        }
     }
 }
