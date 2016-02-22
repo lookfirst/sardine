@@ -205,7 +205,7 @@ public final class SardineUtil
 	 * @return A new unmarshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	private static Unmarshaller createUnmarshaller()
+	private static Unmarshaller createUnmarshaller() throws IOException
 	{
 		try
 		{
@@ -213,7 +213,7 @@ public final class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			throw new RuntimeException(e.getMessage(), e);
+			throw new IOException(e.getMessage(), e);
 		}
 	}
 
@@ -221,7 +221,7 @@ public final class SardineUtil
 	 * @return A new marshaller
 	 * @throws IOException When there is a JAXB error
 	 */
-	private static Marshaller createMarshaller()
+	private static Marshaller createMarshaller() throws IOException
 	{
 		try
 		{
@@ -229,7 +229,7 @@ public final class SardineUtil
 		}
 		catch (JAXBException e)
 		{
-			throw new RuntimeException(e.getMessage(), e);
+			throw new IOException(e.getMessage(), e);
 		}
 	}
 
@@ -255,7 +255,7 @@ public final class SardineUtil
 	 * @return The XML string for the WebDAV request
 	 * @throws RuntimeException When there is a JAXB error
 	 */
-	public static String toXml(Object jaxbElement)
+	public static String toXml(Object jaxbElement) throws IOException
 	{
 		StringWriter writer = new StringWriter();
 		try
