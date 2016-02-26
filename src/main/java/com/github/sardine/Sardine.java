@@ -2,6 +2,7 @@ package com.github.sardine;
 
 import com.github.sardine.report.SardineReport;
 import org.w3c.dom.Element;
+
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
@@ -455,7 +456,7 @@ public interface Sardine
 	/**
 	 * Ignores cookies.
 	 */
-	public void ignoreCookies();
+	void ignoreCookies();
 
 	/**
 	 * Send a <code>Basic</code> authentication header with each request even before 401 is returned.
@@ -493,6 +494,6 @@ public interface Sardine
 	 * client has been shutdown, it should not be used to make any more
 	 * requests.
 	 */
-	public void shutdown() throws IOException;
+	void shutdown() throws IOException;
 
 }
