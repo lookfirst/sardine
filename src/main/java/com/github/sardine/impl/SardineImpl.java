@@ -1019,11 +1019,11 @@ public class SardineImpl implements Sardine
 	 * Common method as single entry point responsible fo request execution
 	 * @param context clientContext to be used when executing request
 	 * @param request Request to execute
-	 * @param maybeResponseHandler can be null if you need raw HttpResponse or not null response handler for result handling.
-	 * @param <T> will return raw HttpResponse when maybeResponseHandler is null or value reslved using provided ResponseHandler instance
-	 * @return value resolved using response handler or raw HttpResponse when maybeResponseHandler is null
+	 * @param responseHandler can be null if you need raw HttpResponse or not null response handler for result handling.
+	 * @param <T> will return raw HttpResponse when responseHandler is null or value reslved using provided ResponseHandler instance
+	 * @return value resolved using response handler or raw HttpResponse when responseHandler is null
 	 */
-	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> maybeResponseHandler)
+	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
 	{
 		try
@@ -1031,9 +1031,9 @@ public class SardineImpl implements Sardine
 			// Clear circular redirect cache
 			context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 
-			if (maybeResponseHandler != null)
+			if (responseHandler != null)
 			{
-				return this.client.execute(request, maybeResponseHandler, context);
+				return this.client.execute(request, responseHandler, context);
 			}
 			else
 			{
