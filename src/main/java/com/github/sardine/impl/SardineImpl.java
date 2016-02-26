@@ -149,7 +149,7 @@ public class SardineImpl implements Sardine
 	/**
 	 * HTTP client implementation
 	 */
-	private CloseableHttpClient client;
+	protected CloseableHttpClient client;
 
 	/**
 	 * HTTP client configuration
