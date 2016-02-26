@@ -1000,23 +1000,7 @@ public class SardineImpl implements Sardine
 	protected <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
 	{
-		try
-		{
-			// Clear circular redirect cache
-			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
-			// Execute with response handler
-			return this.client.execute(request, responseHandler, this.context);
-		}
-		catch (HttpResponseException e)
-		{
-			// Don't abort if we get this exception, caller may want to repeat request.
-			throw e;
-		}
-		catch (IOException e)
-		{
-			request.abort();
-			throw e;
-		}
+		return execute(context, request, responseHandler);
 	}
 
 	/**
@@ -1028,12 +1012,33 @@ public class SardineImpl implements Sardine
 	protected HttpResponse execute(HttpRequestBase request)
 			throws IOException
 	{
+		return execute(context, request, null);
+	}
+
+	/**
+	 * Common method as single entry point responsible fo request execution
+	 * @param context clientContext to be used when executing request
+	 * @param request Request to execute
+	 * @param maybeResponseHandler can be null if you need raw HttpResponse or not null response handler for result handling.
+	 * @param <T> will return raw HttpResponse when maybeResponseHandler is null or value reslved using provided ResponseHandler instance
+	 * @return value resolved using response handler or raw HttpResponse when maybeResponseHandler is null
+	 */
+	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> maybeResponseHandler)
+			throws IOException
+	{
 		try
 		{
 			// Clear circular redirect cache
-			this.context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
-			// Execute with no response handler
-			return this.client.execute(request, this.context);
+			context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+
+			if (maybeResponseHandler != null)
+			{
+				return this.client.execute(request, maybeResponseHandler, context);
+			}
+			else
+			{
+				return (T) this.client.execute(request, context);
+			}
 		}
 		catch (HttpResponseException e)
 		{
