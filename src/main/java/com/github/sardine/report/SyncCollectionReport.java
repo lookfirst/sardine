@@ -9,6 +9,7 @@ import com.github.sardine.util.SardineUtil;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -85,6 +86,10 @@ public class SyncCollectionReport extends SardineReport<SyncCollectionReport.Res
 				resources.add(new DavResource(response));
 			}
 			catch (URISyntaxException e)
+			{
+				log.warning(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
+			}
+			catch (UnsupportedEncodingException e)
 			{
 				log.warning(String.format("Ignore resource with invalid URI %s", response.getHref().get(0)));
 			}

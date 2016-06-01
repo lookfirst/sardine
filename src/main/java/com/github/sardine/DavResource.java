@@ -21,11 +21,14 @@ import com.github.sardine.model.Response;
 import com.github.sardine.model.SupportedReport;
 import com.github.sardine.model.SupportedReportSet;
 import com.github.sardine.util.SardineUtil;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -107,9 +110,18 @@ public class DavResource
 	 * @param response The response complex type of the multistatus
 	 * @throws java.net.URISyntaxException If parsing the href from the response element fails
 	 */
-	public DavResource(Response response) throws URISyntaxException
+	public DavResource(Response response) throws URISyntaxException, UnsupportedEncodingException
 	{
-		this.href = new URI(response.getHref().get(0));
+		URI href;
+		try
+		{
+			href = new URI(response.getHref().get(0));
+		}
+		catch (URISyntaxException e)
+		{
+			href = new URI(URLEncoder.encode(response.getHref().get(0), "UTF-8"));
+		}
+		this.href = href;
 		this.creation = SardineUtil.parseDate(this.getCreationDate(response));
 		this.modified = SardineUtil.parseDate(this.getModifiedDate(response));
 		this.contentType = this.getContentType(response);
