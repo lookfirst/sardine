@@ -18,6 +18,7 @@ package com.github.sardine;
 
 import com.github.sardine.util.SardineUtil;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
+@Category(IntegrationTest.class)
 public class ProppatchTest
 {
 	/**

@@ -18,51 +18,28 @@ package com.github.sardine;
 
 import com.github.sardine.impl.SardineException;
 import com.github.sardine.impl.SardineImpl;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpContext;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.experimental.categories.Category;
 
-import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
 
+@Category(IntegrationTest.class)
 public class AuthenticationTest
 {
-	private static final String TEST_PROPERTIES_FILENAME = "test.properties";
-	protected Properties properties;
-
-	@Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-	@Before
-	public void properties() throws Exception
-	{
-		thrown.expect(NullPointerException.class);
-		properties = new Properties();
-		properties.load(ClassLoader.getSystemResourceAsStream(TEST_PROPERTIES_FILENAME));
-	}
-
 	@Test
 	public void testBasicAuth() throws Exception
 	{
-		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
+		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
 		try
 		{
 			URI url = URI.create("http://test.cyberduck.ch/dav/basic/");
@@ -79,7 +56,7 @@ public class AuthenticationTest
 	@Test
 	public void testDigestAuth() throws Exception
 	{
-		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
+		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
 		try
 		{
 			URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
@@ -94,47 +71,12 @@ public class AuthenticationTest
 	}
 
 	@Test
-	public void testDigestAuthWithBasicPreemptive() throws Exception
-	{
-		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
-		sardine.enablePreemptiveAuthentication(url.getHost());
-		try
-		{
-			sardine.list(url.toString());
-			fail("Expected authentication to fail");
-		}
-		catch (SardineException e)
-		{
-			// Preemptive basic authentication is expected to fail when no basic
-			// method is returned in Authentication response header
-		}
-	}
-
-	@Test
 	public void testDigestAuthWithBasicPreemptiveAuthenticationEnabled() throws Exception
 	{
-		Sardine sardine = SardineFactory.begin(properties.getProperty("username"), properties.getProperty("password"));
-		try
-		{
-			URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
-			sardine.enablePreemptiveAuthentication(url.getHost());
-			sardine.list(url.toString());
-			fail("Expected authentication to fail becuase of preemptive credential cache");
-		}
-		catch (SardineException e)
-		{
-			// If preemptive basic authentication is enabled, we cannot login
-			// with digest authentication. This is currently expected.
-			assertEquals(401, e.getStatusCode());
-		}
-	}
-
-	@Test
-	@Ignore
-	public void testNtlmAuth() throws Exception
-	{
-		fail("Need a NTLM enabled WebDAV server for testing");
+		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
+		URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
+		sardine.enablePreemptiveAuthentication(url.getHost());
+		assertNotNull(sardine.list(url.toString()));
 	}
 
 	@Test
@@ -179,25 +121,5 @@ public class AuthenticationTest
 			// Make sure credentials have been queried
 			assertEquals("No preemptive authentication attempt", 0, count.getCount());
 		}
-	}
-
-	@Test
-	public void testBasicPreemptiveAuthHeader() throws Exception
-	{
-		final HttpClientBuilder client = HttpClientBuilder.create();
-		client.addInterceptorFirst(new HttpRequestInterceptor()
-		{
-			public void process(final HttpRequest r, final HttpContext context) throws HttpException, IOException
-			{
-				assertNotNull(r.getHeaders(HttpHeaders.AUTHORIZATION));
-				assertEquals(1, r.getHeaders(HttpHeaders.AUTHORIZATION).length);
-			}
-		});
-		Sardine sardine = new SardineImpl(client);
-		sardine.setCredentials("anonymous", null);
-		// mod_dav supports Range headers for PUT
-		final URI url = URI.create("http://sardine.googlecode.com/svn/trunk/README.html");
-		sardine.enablePreemptiveAuthentication(url.getHost());
-		assertTrue(sardine.exists(url.toString()));
 	}
 }
