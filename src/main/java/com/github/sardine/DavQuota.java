@@ -28,8 +28,18 @@ public class DavQuota {
 
 	public DavQuota(Response response) {
 		Prop prop = response.getPropstat().get(0).getProp();
-		this.quotaAvailableBytes = Long.valueOf(prop.getQuotaAvailableBytes().getContent().get(0));
-		this.quotaUsedBytes = Long.valueOf(prop.getQuotaUsedBytes().getContent().get(0));
+		if(prop.getQuotaAvailableBytes().getContent().isEmpty()) {
+			this.quotaAvailableBytes = Long.MAX_VALUE;
+		}
+		else {
+			this.quotaAvailableBytes = Long.valueOf(prop.getQuotaAvailableBytes().getContent().get(0));
+		}
+		if(prop.getQuotaUsedBytes().getContent().isEmpty()) {
+			this.quotaUsedBytes = 0L;
+		}
+		else {
+			this.quotaUsedBytes = Long.valueOf(prop.getQuotaUsedBytes().getContent().get(0));
+		}
 	}
 
 	public long getQuotaAvailableBytes() {
