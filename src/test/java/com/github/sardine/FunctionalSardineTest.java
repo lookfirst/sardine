@@ -32,6 +32,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -55,8 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
-/**
- */
+@Category(IntegrationTest.class)
 public class FunctionalSardineTest
 {
 
