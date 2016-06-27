@@ -1,14 +1,18 @@
 package com.github.sardine;
 
 import com.github.sardine.model.Prop;
+import com.github.sardine.model.Propstat;
 import com.github.sardine.model.Response;
+
+import java.util.List;
 
 /**
  * Quota and Size Properties
  *
  * @author Alexander Makarov
  */
-public class DavQuota {
+public class DavQuota
+{
 	/**
 	 * The DAV:quota-available-bytes property value is the value in octets
 	 * representing the amount of additional disk space beyond the current
@@ -26,27 +30,67 @@ public class DavQuota {
 	 */
 	private final long quotaUsedBytes;
 
-	public DavQuota(Response response) {
-		Prop prop = response.getPropstat().get(0).getProp();
-		if(prop.getQuotaAvailableBytes().getContent().isEmpty()) {
-			this.quotaAvailableBytes = Long.MAX_VALUE;
+	public DavQuota(Response response)
+	{
+		this.quotaAvailableBytes = this.getAvailable(response);
+		this.quotaUsedBytes = this.getUsed(response);
+	}
+
+	private long getAvailable(Response response) {
+		final List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return Long.MAX_VALUE;
 		}
-		else {
-			this.quotaAvailableBytes = Long.valueOf(prop.getQuotaAvailableBytes().getContent().get(0));
-		}
-		if(prop.getQuotaUsedBytes().getContent().isEmpty()) {
-			this.quotaUsedBytes = 0L;
-		}
-		else {
-			this.quotaUsedBytes = Long.valueOf(prop.getQuotaUsedBytes().getContent().get(0));
+		else
+		{
+			for (Propstat propstat : list)
+			{
+				final Prop prop = propstat.getProp();
+				if(null == prop) {
+					continue;
+				}
+				if (prop.getQuotaAvailableBytes().getContent().isEmpty())
+				{
+					continue;
+				}
+				return Long.valueOf(prop.getQuotaAvailableBytes().getContent().get(0));
+			}
+			return Long.MAX_VALUE;
 		}
 	}
 
-	public long getQuotaAvailableBytes() {
+	private long getUsed(Response response) {
+		final List<Propstat> list = response.getPropstat();
+		if (list.isEmpty())
+		{
+			return 0L;
+		}
+		else
+		{
+			for (Propstat propstat : list)
+			{
+				final Prop prop = propstat.getProp();
+				if(null == prop) {
+					continue;
+				}
+				if (prop.getQuotaUsedBytes().getContent().isEmpty())
+				{
+					continue;
+				}
+				return Long.valueOf(prop.getQuotaUsedBytes().getContent().get(0));
+			}
+			return 0L;
+		}
+	}
+
+	public long getQuotaAvailableBytes()
+	{
 		return quotaAvailableBytes;
 	}
 
-	public long getQuotaUsedBytes() {
+	public long getQuotaUsedBytes()
+	{
 		return quotaUsedBytes;
 	}
 
