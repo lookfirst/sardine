@@ -50,6 +50,9 @@ public class DavQuota
 				if(null == prop) {
 					continue;
 				}
+				if(null == prop.getQuotaAvailableBytes()) {
+					continue;
+				}
 				if (prop.getQuotaAvailableBytes().getContent().isEmpty())
 				{
 					continue;
@@ -72,6 +75,9 @@ public class DavQuota
 			{
 				final Prop prop = propstat.getProp();
 				if(null == prop) {
+					continue;
+				}
+				if(null == prop.getQuotaUsedBytes()) {
 					continue;
 				}
 				if (prop.getQuotaUsedBytes().getContent().isEmpty())
