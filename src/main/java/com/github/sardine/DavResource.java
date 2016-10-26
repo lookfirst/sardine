@@ -547,7 +547,7 @@ public class DavResource
 	/**
 	 * Last path component.
 	 *
-	 * @return The name of the resource URI decoded. An empty string if this resource denotes a directory.
+	 * @return The name of the resource URI decoded.
 	 * @see #getHref()
 	 */
 	public String getName()
