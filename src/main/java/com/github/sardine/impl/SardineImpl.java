@@ -117,7 +117,9 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.cookie.IgnoreSpecProvider;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
@@ -1028,16 +1030,14 @@ public class SardineImpl implements Sardine
 	{
 		try
 		{
-			// Clear circular redirect cache
-			context.removeAttribute(HttpClientContext.REDIRECT_LOCATIONS);
-
+			HttpContext requestLocalContext = new BasicHttpContext(context);
 			if (responseHandler != null)
 			{
-				return this.client.execute(request, responseHandler, context);
+				return this.client.execute(request, responseHandler, requestLocalContext);
 			}
 			else
 			{
-				return (T) this.client.execute(request, context);
+				return (T) this.client.execute(request, requestLocalContext);
 			}
 		}
 		catch (HttpResponseException e)
