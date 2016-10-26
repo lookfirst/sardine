@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -195,6 +196,20 @@ public final class SardineUtil
 			// Backward compatibility
 			failure.initCause(e);
 			throw failure;
+		}
+		finally
+		{
+			if (unmarshaller instanceof Closeable)
+			{
+				try
+				{
+					((Closeable) unmarshaller).close();
+				}
+				catch (IOException e)
+				{
+					// there's not much we can do here
+				}
+			}
 		}
 	}
 
