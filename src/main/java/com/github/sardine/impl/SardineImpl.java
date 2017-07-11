@@ -67,6 +67,7 @@ import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.report.SardineReport;
 import com.github.sardine.util.SardineUtil;
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -130,6 +131,7 @@ import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -348,6 +350,11 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
 	{
+		enablePreemptiveAuthentication(hostname, httpPort, httpsPort, Consts.ISO_8859_1);
+	}
+
+	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort, Charset credentialsCharset)
+	{
 		AuthCache cache = this.context.getAuthCache();
 		if (cache == null)
 		{
@@ -357,7 +364,7 @@ public class SardineImpl implements Sardine
 
 		}
 		// Generate Basic preemptive scheme object and stick it to the local execution context
-		BasicScheme basicAuth = new BasicScheme();
+		BasicScheme basicAuth = new BasicScheme(credentialsCharset);
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
 		cache.put(new HttpHost(hostname, httpPort, "http"), basicAuth);
 		cache.put(new HttpHost(hostname, httpsPort, "https"), basicAuth);
