@@ -1028,9 +1028,9 @@ public class SardineImpl implements Sardine
 	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> responseHandler)
 			throws IOException
 	{
+		HttpContext requestLocalContext = new BasicHttpContext(context);
 		try
 		{
-			HttpContext requestLocalContext = new BasicHttpContext(context);
 			if (responseHandler != null)
 			{
 				return this.client.execute(request, responseHandler, requestLocalContext);
@@ -1049,6 +1049,10 @@ public class SardineImpl implements Sardine
 		{
 			request.abort();
 			throw e;
+		}
+		finally
+		{
+			context.setAttribute(HttpClientContext.USER_TOKEN, requestLocalContext.getAttribute(HttpClientContext.USER_TOKEN));
 		}
 	}
 
