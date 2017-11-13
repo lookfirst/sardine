@@ -8,13 +8,21 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.FilterChain;
+import org.apache.tools.ant.types.FilterSet;
+import org.apache.tools.ant.types.FilterSetCollection;
+import org.apache.tools.ant.types.Resource;
+import org.apache.tools.ant.types.resources.FileResource;
+import org.apache.tools.ant.types.resources.StringResource;
+import org.apache.tools.ant.util.FileUtils;
+import org.apache.tools.ant.util.ResourceUtils;
 
 import com.github.sardine.Sardine;
 import com.github.sardine.ant.Command;
-
 
 /**
  * A nice ant wrapper around sardine.put().
@@ -37,6 +45,13 @@ public class Put extends Command {
 
 	/** The optional content type of the single source file. */
 	private String contentType;
+
+	/** Settings for put with filtering. */
+	private FilterSetCollection filterSets = new FilterSetCollection();
+	private Vector<FilterChain> filterChains = new Vector<FilterChain>();
+	private String inputEncoding = null;
+	private String outputEncoding = null;
+	private boolean inMemoryFiltering = true;
 
 	/**
 	 * {@inheritDoc}
@@ -110,7 +125,25 @@ public class Put extends Command {
 	 */
 	private void process(File file, URL dest, boolean expectContinue) throws Exception {
 		log("putting " + file + " to " + dest + " with expectContinue=" + expectContinue, Project.MSG_VERBOSE);
-		getSardine().put(dest.toString(), file, contentType, expectContinue);
+		if (filterSets.hasFilters() || !filterChains.isEmpty()) {
+			Resource filteredResult;
+			File tempFile = null;
+			if (inMemoryFiltering) {
+				filteredResult = new StringResource();
+			} else {
+				tempFile = File.createTempFile("filterResult", ".tmp");
+				filteredResult = new FileResource(tempFile);
+			}
+			try {
+				ResourceUtils.copyResource(new FileResource(file), filteredResult, filterSets, filterChains, false,
+						false, false, inputEncoding, outputEncoding, getProject());
+				getSardine().put(dest.toString(), filteredResult.getInputStream(), contentType, expectContinue);
+			} finally {
+				FileUtils.delete(tempFile);
+			}
+		} else {
+			getSardine().put(dest.toString(), file, contentType, expectContinue);
+		}
 	}
 
 	/**
@@ -147,5 +180,91 @@ public class Put extends Command {
 	/** Add a source file set. */
 	public void addConfiguredFileset(FileSet value) {
 		this.srcFileSets.add(value);
+	}
+
+	/**
+	 * Add a filterset.
+	 *
+	 * @return a filter set object.
+	 */
+	public FilterSet createFilterSet() {
+		FilterSet filterSet = new FilterSet();
+		filterSets.addFilterSet(filterSet);
+		return filterSet;
+	}
+
+	/**
+	 * Add a FilterChain.
+	 *
+	 * @return a filter chain object.
+	 */
+	public FilterChain createFilterChain() {
+		FilterChain filterChain = new FilterChain();
+		filterChains.addElement(filterChain);
+		return filterChain;
+	}
+
+	/**
+	 * Set the character encoding.
+	 * 
+	 * @param encoding the character encoding.
+	 */
+	public void setEncoding(String encoding) {
+		inputEncoding = encoding;
+		if (outputEncoding == null) {
+			outputEncoding = encoding;
+		}
+	}
+
+	/**
+	 * Get the character encoding to be used.
+	 * 
+	 * @return the character encoding, <code>null</code> if not set.
+	 */
+	public String getEncoding() {
+		return inputEncoding;
+	}
+
+	/**
+	 * Set the character encoding for output files.
+	 * 
+	 * @param encoding the output character encoding.
+	 */
+	public void setOutputEncoding(String encoding) {
+		outputEncoding = encoding;
+	}
+
+	/**
+	 * Get the character encoding for output files.
+	 * 
+	 * @return the character encoding for output files, <code>null</code> if not set.
+	 */
+	public String getOutputEncoding() {
+		return outputEncoding;
+	}
+
+	/**
+	 * Get the setting for in memory filtering.
+	 * 
+	 * @return the setting for in memory filtering
+	 */
+	public boolean getInMemoryFiltering() {
+		return inMemoryFiltering;
+	}
+
+	/**
+	 * Defines whether the filtering result should be stored in memory or in a temporary file before it becomes
+	 * put.
+	 * <p>
+	 * Due to the filtering implementation of Ant is not done in a streaming manner, it is required to store the
+	 * result before it can be put to the destination URL. For small files it is reasonable to hold the result in
+	 * memory. Large files will require a according amount of heap memory and thus it is advisable to turn the in
+	 * memory buffer off.
+	 * 
+	 * @param inMemoryFiltering default is <code>true</code>; <code>false</code> will write the results to a
+	 *        temporary file
+	 */
+	public void setInMemoryFiltering(boolean inMemoryFiltering) {
+		this.inMemoryFiltering = inMemoryFiltering;
 	}
 }
