@@ -250,7 +250,12 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-		this.context.setCredentialsProvider(this.createDefaultCredentialsProvider(username, password, domain, workstation));
+		this.setCredentials(this.createDefaultCredentialsProvider(username, password, domain, workstation));
+	}
+
+	public void setCredentials(CredentialsProvider provider)
+	{
+		this.context.setCredentialsProvider(provider);
 		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
