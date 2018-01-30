@@ -193,7 +193,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password)
 	{
-		this.builder = this.configure(null, this.getCredentialsProvider(username, password, null, null));
+		this.builder = this.configure(null, this.createDefaultCredentialsProvider(username, password, null, null));
 		this.client = this.builder.build();
 	}
 
@@ -204,7 +204,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String username, String password, ProxySelector selector)
 	{
-		this.builder = this.configure(selector, this.getCredentialsProvider(username, password, null, null));
+		this.builder = this.configure(selector, this.createDefaultCredentialsProvider(username, password, null, null));
 		this.client = this.builder.build();
 	}
 
@@ -250,11 +250,16 @@ public class SardineImpl implements Sardine
 	@Override
 	public void setCredentials(String username, String password, String domain, String workstation)
 	{
-		this.context.setCredentialsProvider(this.getCredentialsProvider(username, password, domain, workstation));
+		this.setCredentials(this.createDefaultCredentialsProvider(username, password, domain, workstation));
+	}
+
+	public void setCredentials(CredentialsProvider provider)
+	{
+		this.context.setCredentialsProvider(provider);
 		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
-	private CredentialsProvider getCredentialsProvider(String username, String password, String domain, String workstation)
+	private CredentialsProvider createDefaultCredentialsProvider(String username, String password, String domain, String workstation)
 	{
 		CredentialsProvider provider = new BasicCredentialsProvider();
 		if (username != null)
@@ -270,7 +275,7 @@ public class SardineImpl implements Sardine
 					new UsernamePasswordCredentials(username, password));
 			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.SPNEGO),
-					new UsernamePasswordCredentials(username, password));
+					new NTCredentials(username, password, workstation, domain));
 			provider.setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.KERBEROS),
 					new UsernamePasswordCredentials(username, password));
