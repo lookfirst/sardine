@@ -70,6 +70,8 @@ public class HttpMethodReleaseInputStream extends ByteCountInputStream
 				// connections unavailable for reuse.
 				// The response proxy will force close the connection.
 				((CloseableHttpResponse) response).close();
+				// Close the entity stream
+				super.close();
 			}
 		}
 		else
