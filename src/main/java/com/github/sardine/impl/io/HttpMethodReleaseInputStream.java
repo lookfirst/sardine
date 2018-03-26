@@ -51,33 +51,19 @@ public class HttpMethodReleaseInputStream extends ByteCountInputStream
 	@Override
 	public void close() throws IOException
 	{
-		if (response instanceof CloseableHttpResponse)
+		if (response instanceof CloseableHttpResponse &&
+				this.getByteCount() != response.getEntity().getContentLength())
 		{
-			long read = this.getByteCount();
-			if (read == response.getEntity().getContentLength())
+			if (log.isLoggable(Level.WARNING))
 			{
-				// Fully consumed
-				super.close();
+				log.warning(String.format("Abort connection for response %s", response));
 			}
-			else
-			{
-				if (log.isLoggable(Level.WARNING))
-				{
-					log.warning(String.format("Abort connection for response %s", response));
-				}
-				// Close an HTTP response as quickly as possible, avoiding consuming
-				// response data unnecessarily though at the expense of making underlying
-				// connections unavailable for reuse.
-				// The response proxy will force close the connection.
-				((CloseableHttpResponse) response).close();
-				// Close the entity stream
-				super.close();
-			}
+			// Close an HTTP response as quickly as possible, avoiding consuming
+			// response data unnecessarily though at the expense of making underlying
+			// connections unavailable for reuse.
+			// The response proxy will force close the connection.
+			((CloseableHttpResponse) response).close();
 		}
-		else
-		{
-			// Consume and close
-			super.close();
-		}
+		super.close();
 	}
 }
