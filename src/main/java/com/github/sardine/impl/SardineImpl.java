@@ -562,17 +562,19 @@ public class SardineImpl implements Sardine
 		}
 		// Remove properties
 		{
-			Remove remove = new Remove();
-			body.getRemoveOrSet().add(remove);
-			Prop prop = new Prop();
-			// Returns a reference to the live list
-			List<Element> any = prop.getAny();
-			for (QName entry : removeProps)
-			{
-				Element element = SardineUtil.createElement(entry);
-				any.add(element);
+			if (!removeProps.isEmpty()) {
+				Remove remove = new Remove();
+				body.getRemoveOrSet().add(remove);
+				Prop prop = new Prop();
+				// Returns a reference to the live list
+				List<Element> any = prop.getAny();
+				for (QName entry : removeProps)
+				{
+					Element element = SardineUtil.createElement(entry);
+					any.add(element);
+				}
+				remove.setProp(prop);
 			}
-			remove.setProp(prop);
 		}
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
