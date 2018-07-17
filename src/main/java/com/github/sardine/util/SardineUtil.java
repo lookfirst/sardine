@@ -85,7 +85,8 @@ public final class SardineUtil
 	{
 		try
 		{
-			JAXB_CONTEXT = JAXBContext.newInstance(ObjectFactory.class);
+			Class<ObjectFactory> objectFactoryClass = ObjectFactory.class;
+			JAXB_CONTEXT = JAXBContext.newInstance(objectFactoryClass.getPackage().getName(), objectFactoryClass.getClassLoader());
 		}
 		catch (JAXBException e)
 		{
