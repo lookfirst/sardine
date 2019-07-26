@@ -495,5 +495,4 @@ public interface Sardine
 	 * requests.
 	 */
 	void shutdown() throws IOException;
-
 }

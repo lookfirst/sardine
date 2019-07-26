@@ -41,6 +41,24 @@ public final class SardineFactory
 	 */
 	public static Sardine begin(String username, String password, ProxySelector proxy)
 	{
-		return new SardineImpl(username, password, proxy);
+		return new SardineImpl(username, password, 5, false, false, proxy);
+	}
+
+	/**
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 * @param proxy	Proxy configuration
+	 * @param allowAllCertificates Allow all ssl
+	 * @param threadCount The number of threads you will be fetching with. Used for setting proper max routes.
+	 * @param useIpAddressForSslConnections  Use the ip address of the server when doing SSL verification.
+	 */
+	public static Sardine begin(String username,
+															String password,
+															int threadCount,
+															boolean allowAllCertificates,
+															boolean useIpAddressForSslConnections,
+															ProxySelector proxy)
+	{
+		return new SardineImpl(username, password, threadCount, allowAllCertificates, useIpAddressForSslConnections, proxy);
 	}
 }
