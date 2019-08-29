@@ -16,6 +16,7 @@ public class ByteCountInputStreamTest
 		in.read();
 		assertEquals(1, in.getByteCount(), 0L);
 		in.read(new byte[2]);
+        in.close();
 	}
 
 	@Test
@@ -24,6 +25,7 @@ public class ByteCountInputStreamTest
 		final ByteCountInputStream in = new ByteCountInputStream(new ByteArrayInputStream(new byte[2]));
 		in.read(new byte[2]);
 		assertEquals(2, in.getByteCount(), 0L);
+        in.close();
 	}
 
 	@Test
@@ -32,5 +34,6 @@ public class ByteCountInputStreamTest
 		final ByteCountInputStream in = new ByteCountInputStream(new ByteArrayInputStream(new byte[2]));
 		in.read(new byte[2], 1, 1);
 		assertEquals(1, in.getByteCount(), 0L);
+        in.close();
 	}
 }
