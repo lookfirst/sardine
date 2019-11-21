@@ -429,6 +429,7 @@ public class SardineImpl implements Sardine
 		prop.setGetcontenttype(objectFactory.createGetcontenttype());
 		prop.setResourcetype(objectFactory.createResourcetype());
 		prop.setGetetag(objectFactory.createGetetag());
+		prop.setLockdiscovery(objectFactory.createLockdiscovery());
 		addCustomProperties(prop, props);
 		body.setProp(prop);
 		return propfind(url, depth, body);

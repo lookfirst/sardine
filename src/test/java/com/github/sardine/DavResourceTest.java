@@ -43,6 +43,7 @@ public class DavResourceTest
 		private String contentType;
 		private String etag;
 		private String displayName;
+		private String lockToken;
 		private List<QName> resourceTypes= Collections.<QName>emptyList();
 		private String contentLanguage;
 		private Long contentLength = -1L;
@@ -90,6 +91,11 @@ public class DavResourceTest
 			return this;
 		}
 
+		Builder withLockToken(String lockToken) {
+			this.lockToken = lockToken;
+			return this;
+		}
+
 		Builder withResourceTypes(List<QName> resourceTypes) {
 			this.resourceTypes = resourceTypes;
 			return this;
@@ -114,7 +120,7 @@ public class DavResourceTest
 		DavResource build() throws URISyntaxException
 		{
 			return new DavResource(href, creation, modified, contentType, contentLength, etag,
-					displayName, resourceTypes, contentLanguage, supportedReports, customProps);
+					displayName, lockToken, resourceTypes, contentLanguage, supportedReports, customProps);
 		}
 	}
 
