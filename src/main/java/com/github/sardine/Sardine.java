@@ -181,7 +181,7 @@ public interface Sardine
 	/**
 	 * Uses HTTP <code>PUT</code> to send data to a server. Repeatable on authentication failure.
 	 *
-	 * @param url  Path to the resource including protocol and hostname
+	 * @param url  Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param data Input source
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -190,7 +190,7 @@ public interface Sardine
 	/**
 	 * Uses <code>PUT</code> to send data to a server. Not repeatable on authentication failure.
 	 *
-	 * @param url		Path to the resource including protocol and hostname
+	 * @param url		Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param dataStream Input source
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -200,7 +200,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to send data to a server with a specific content type
 	 * header. Repeatable on authentication failure.
 	 *
-	 * @param url		 Path to the resource including protocol and hostname
+	 * @param url		 Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param data		Input source
 	 * @param contentType MIME type to add to the HTTP request header
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -211,7 +211,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to send data to a server with a specific content
 	 * type header. Not repeatable on authentication failure.
 	 *
-	 * @param url		 Path to the resource including protocol and hostname
+	 * @param url		 Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param dataStream  Input source
 	 * @param contentType MIME type to add to the HTTP request header
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -222,7 +222,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to send data to a server with a specific content
 	 * type header. Not repeatable on authentication failure.
 	 *
-	 * @param url			Path to the resource including protocol and hostname
+	 * @param url			Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param dataStream	 Input source
 	 * @param contentType	MIME type to add to the HTTP request header
 	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
@@ -234,7 +234,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to send data to a server with a specific content
 	 * type header. Not repeatable on authentication failure.
 	 *
-	 * @param url			Path to the resource including protocol and hostname
+	 * @param url			Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param dataStream	 Input source
 	 * @param contentType	MIME type to add to the HTTP request header
 	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
@@ -247,7 +247,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to send data to a server with specific headers. Not repeatable
 	 * on authentication failure.
 	 *
-	 * @param url		Path to the resource including protocol and hostname
+	 * @param url		Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param dataStream Input source
 	 * @param headers	Additional HTTP headers to add to the request
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -258,7 +258,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to upload file to a server with specific contentType.
 	 * Repeatable on authentication failure.
 	 *
-	 * @param url		Path to the resource including protocol and hostname
+	 * @param url		Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param localFile local file to send
 	 * @param contentType	MIME type to add to the HTTP request header
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -269,7 +269,7 @@ public interface Sardine
 	 * Uses <code>PUT</code> to upload file to a server with specific contentType.
 	 * Repeatable on authentication failure.
 	 *
-	 * @param url       Path to the resource including protocol and hostname
+	 * @param url       Path to the resource including protocol and hostname (must not point to a directory)
 	 * @param localFile local file to send
 	 * @param contentType   MIME type to add to the HTTP request header
 	 * @param expectContinue Enable <code>Expect: continue</code> header for <code>PUT</code> requests.
@@ -280,7 +280,7 @@ public interface Sardine
 	/**
 	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
-	 * @param url Path to the resource including protocol and hostname
+	 * @param url Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void delete(String url) throws IOException;
@@ -296,7 +296,7 @@ public interface Sardine
 	/**
 	 * Move a url to from source to destination using WebDAV <code>MOVE</code>. Assumes overwrite.
 	 *
-	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param sourceUrl	  Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
 	 * @param destinationUrl Path to the resource including protocol and hostname
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -305,7 +305,7 @@ public interface Sardine
 	/**
 	 * Move a url to from source to destination using WebDAV <code>MOVE</code>.
 	 *
-	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param sourceUrl	  Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
 	 * @param destinationUrl Path to the resource including protocol and hostname
 	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
 	 * @throws IOException I/O error or HTTP response validation failure
@@ -315,7 +315,7 @@ public interface Sardine
 	/**
 	 * Copy a url from source to destination using WebDAV <code>COPY</code>. Assumes overwrite.
 	 *
-	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param sourceUrl	  Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
 	 * @param destinationUrl Path to the resource including protocol and hostname
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
@@ -324,7 +324,7 @@ public interface Sardine
 	/**
 	 * Copy a url from source to destination using WebDAV <code>COPY</code>.
 	 *
-	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param sourceUrl	  Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
 	 * @param destinationUrl Path to the resource including protocol and hostname
 	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
 	 * @throws IOException I/O error or HTTP response validation failure
