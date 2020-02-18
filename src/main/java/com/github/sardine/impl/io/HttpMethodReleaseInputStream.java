@@ -54,9 +54,10 @@ public class HttpMethodReleaseInputStream extends ByteCountInputStream
 		if (response instanceof CloseableHttpResponse)
 		{
 			long read = this.getByteCount();
-			if (read == response.getEntity().getContentLength())
+			long expected = response.getEntity().getContentLength();
+			if (expected < 0 || read == expected)
 			{
-				// Fully consumed
+				// Either the response doesn't have Content-Length, or it was fully consumed.
 				super.close();
 			}
 			else
