@@ -176,6 +176,18 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.1</version>
         </dependency>
+        <!-- Sardine has a runtime dependency to JAXB. As this not part of JDK 11 anymore,
+             we need a dependency on JAXB-->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.2</version>
+        </dependency>
         <!-- ant and junit must be defined as provided for a successful compile. -->
         <dependency>
             <groupId>org.apache.ant</groupId>
