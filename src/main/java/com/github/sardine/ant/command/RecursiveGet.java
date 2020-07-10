@@ -13,7 +13,7 @@ import com.github.sardine.ant.Command;
 
 /**
  * A nice ant wrapper around sardine.list() and sardine.get().
- * 
+ *
  * @author andreafonti
  */
 public class RecursiveGet extends Command {
@@ -82,8 +82,7 @@ public class RecursiveGet extends Command {
 
 				log("downloading " + filePathRelativeToRemoteDirectory + " to " + localFilePath);
 
-				String remoteFileUrl = new URI(serverUrl + '/').resolve(davResource.getPath()).toString();
-				InputStream ioStream = getSardine().get(remoteFileUrl);
+				InputStream ioStream = getSardine().get(serverUrl + davResource.getHref().toString());
 				try {
 					if (overwriteFiles) {
 						Files.copy(ioStream, localFilePath, StandardCopyOption.REPLACE_EXISTING);
