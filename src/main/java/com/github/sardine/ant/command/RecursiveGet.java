@@ -13,7 +13,7 @@ import com.github.sardine.ant.Command;
 
 /**
  * A nice ant wrapper around sardine.list() and sardine.get().
- * 
+ *
  * @author andreafonti
  */
 public class RecursiveGet extends Command {
@@ -35,6 +35,11 @@ public class RecursiveGet extends Command {
 	 * true if existent local files will be overwritten; otherwise, false.
 	 */
 	boolean overwriteFiles = false;
+
+	/**
+	 * true if existent local files will be skipped; otherwise, false.
+	 */
+	boolean skipExistingFiles = false;
 
 	/**
 	 * {@inheritDoc}
@@ -78,12 +83,16 @@ public class RecursiveGet extends Command {
 				String filePathRelativeToRemoteDirectory = davResource.getPath().replace(remoteDirectoryPath, "");
 				Path localFilePath = Paths.get(localDirectory, filePathRelativeToRemoteDirectory);
 
+				if (skipExistingFiles && Files.exists(localFilePath)) {
+					log("skipping download of already existing file " + localFilePath);
+					continue;
+				}
+
 				Files.createDirectories(localFilePath.getParent());
 
 				log("downloading " + filePathRelativeToRemoteDirectory + " to " + localFilePath);
 
-				String remoteFileUrl = new URI(serverUrl + '/').resolve(davResource.getPath()).toString();
-				InputStream ioStream = getSardine().get(remoteFileUrl);
+				InputStream ioStream = getSardine().get(serverUrl + davResource.getHref().toString());
 				try {
 					if (overwriteFiles) {
 						Files.copy(ioStream, localFilePath, StandardCopyOption.REPLACE_EXISTING);
@@ -115,4 +124,7 @@ public class RecursiveGet extends Command {
 		this.overwriteFiles = overwriteFiles;
 	}
 
+	public void setSkipExistingFiles(boolean skipExistingFiles) {
+		this.skipExistingFiles = skipExistingFiles;
+	}
 }
