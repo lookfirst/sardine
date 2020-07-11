@@ -470,7 +470,7 @@ public class DavResource
 		List<Propstat> list = response.getPropstat();
 		if (list.isEmpty())
 		{
-			return null;
+			return Collections.emptyMap();
 		}
 		Map<QName, String> customPropsMap = new HashMap<QName, String>();
 		for (Propstat propstat : list)
