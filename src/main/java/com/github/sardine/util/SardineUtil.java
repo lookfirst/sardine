@@ -2,6 +2,7 @@ package com.github.sardine.util;
 
 import com.github.sardine.model.ObjectFactory;
 
+import org.apache.http.client.utils.DateUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -24,16 +25,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Basic utility code. I borrowed some code from the webdavlib for
@@ -118,27 +116,7 @@ public final class SardineUtil
 		{
 			return null;
 		}
-		Date date = null;
-		for (int i = 0; i<DATETIME_FORMATS.size(); i++)
-		{
-			ThreadLocal<SimpleDateFormat> format = DATETIME_FORMATS.get(i);
-			SimpleDateFormat sdf = format.get();
-			if (sdf == null){
-				sdf = new SimpleDateFormat(SUPPORTED_DATE_FORMATS[i], Locale.US);
-				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-				format.set(sdf);
-			}
-			try
-			{
-				date = sdf.parse(value);
-				break;
-			}
-			catch (ParseException e)
-			{
-				// We loop through this until we found a valid one.
-			}
-		}
-		return date;
+		return DateUtils.parseDate(value, SUPPORTED_DATE_FORMATS);
 	}
 
 	@SuppressWarnings("unchecked")
