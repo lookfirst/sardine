@@ -30,6 +30,8 @@ import com.github.sardine.impl.handler.VoidResponseHandler;
 import com.github.sardine.impl.io.ContentLengthInputStream;
 import com.github.sardine.impl.io.HttpMethodReleaseInputStream;
 import com.github.sardine.impl.methods.HttpAcl;
+import com.github.sardine.impl.methods.HttpCheckin;
+import com.github.sardine.impl.methods.HttpCheckout;
 import com.github.sardine.impl.methods.HttpCopy;
 import com.github.sardine.impl.methods.HttpLock;
 import com.github.sardine.impl.methods.HttpMkCol;
@@ -39,6 +41,7 @@ import com.github.sardine.impl.methods.HttpPropPatch;
 import com.github.sardine.impl.methods.HttpReport;
 import com.github.sardine.impl.methods.HttpSearch;
 import com.github.sardine.impl.methods.HttpUnlock;
+import com.github.sardine.impl.methods.HttpVersionControl;
 import com.github.sardine.model.Ace;
 import com.github.sardine.model.Acl;
 import com.github.sardine.model.Allprop;
@@ -66,6 +69,7 @@ import com.github.sardine.model.SearchRequest;
 import com.github.sardine.model.Set;
 import com.github.sardine.model.Write;
 import com.github.sardine.report.SardineReport;
+import com.github.sardine.report.VersionTreeReport;
 import com.github.sardine.util.SardineUtil;
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -138,6 +142,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import static com.github.sardine.util.SardineUtil.createQNameWithDefaultNamespace;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the Sardine library lives.
@@ -415,6 +421,21 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
+	public List<DavResource> versionsList(String url) throws IOException {
+		return versionsList(url, 0);
+	}
+
+	@Override
+	public List<DavResource> versionsList(String url, int depth) throws IOException {
+		return versionsList(url, depth, Collections.<QName>emptySet());
+	}
+
+	@Override
+	public List<DavResource> versionsList(String url, int depth, java.util.Set<QName> props) throws IOException {
+		return report(url, depth, new VersionTreeReport(props));
+	}
+
+	@Override
 	public List<DavResource> list(String url, int depth, java.util.Set<QName> props) throws IOException
 	{
 		Propfind body = new Propfind();
@@ -633,6 +654,21 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
+	public void addToVersionControl(String url) throws IOException {
+		this.execute(new HttpVersionControl(url), new VoidResponseHandler());
+	}
+
+	@Override
+	public void checkout(String url) throws IOException {
+		this.execute(new HttpCheckout(url), new VoidResponseHandler());
+	}
+
+	@Override
+	public void checkin(String url) throws IOException {
+		this.execute(new HttpCheckin(url), new VoidResponseHandler());
+	}
+
+	@Override
 	public void setAcl(String url, List<DavAce> aces) throws IOException
 	{
 		HttpAcl entity = new HttpAcl(url);
@@ -785,6 +821,13 @@ public class SardineImpl implements Sardine
 	public ContentLengthInputStream get(String url) throws IOException
 	{
 		return this.get(url, Collections.<String, String>emptyMap());
+	}
+
+	@Override
+	public ContentLengthInputStream get(String url, String version) throws IOException {
+		List<DavResource> versionHistory = propfind(url, 0, Collections.singleton(createQNameWithDefaultNamespace("version-history")));
+		String storageUrl = versionHistory.get(0).getCustomProps().get("version-history");
+		return get(storageUrl + version);
 	}
 
 	@Override

@@ -87,6 +87,37 @@ public interface Sardine
 	List<DavResource> list(String url, int depth, boolean allProp) throws IOException;
 
 	/**
+	 * Gets versions listing of resource.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> versionsList(String url) throws IOException;
+
+	/**
+	 * Gets versions listing of resource.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
+	 *              -1 for infinite recursion)
+	 * @throws IOException I/O error or HTTP response validation failure
+	 *
+	 */
+	List<DavResource> versionsList(String url, int depth) throws IOException;
+
+	/**
+	 * Gets versions listing of resource.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param depth The depth to look at (use 0 for single resource, 1 for directory listing,
+	 *              -1 for infinite recursion)
+	 * @param props Set of properties to be requested
+	 * @throws IOException I/O error or HTTP response validation failure
+	 *
+	 */
+	List<DavResource> versionsList(String url, int depth, Set<QName> props) throws IOException;
+
+	/**
 	 * Fetches a resource using WebDAV <code>PROPFIND</code>. Only the specified properties
 	 * are retrieved.
 	 *
@@ -167,6 +198,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	InputStream get(String url) throws IOException;
+
+	/**
+	 * Uses HTTP <code>GET</code> to download specific version of data from a server.
+	 * The stream must be closed after reading.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param version version of resource
+	 * @return Data stream to read from
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	InputStream get(String url, String version) throws IOException;
 
 	/**
 	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
@@ -388,6 +430,33 @@ public interface Sardine
 	 * @see #lock(String)
 	 */
 	void unlock(String url, String token) throws IOException;
+
+	/**
+	 * Put the resource under version control.
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void addToVersionControl(String url) throws IOException;
+
+	/**
+	 *  CHECKOUT request can be applied only to a checked-in version-controlled resource
+	 *  to allow modifications to the content and properties of that version-controlled resource.
+	 *
+	 * @param url Path to the <b>checked-in, version-controlled</b> resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void checkout(String url) throws IOException;
+
+	/**
+	 * CHECKIN request can be applied to a checked-out version-controlled
+	 * resource to produce a new version whose content and properties
+	 * are copied from the checked-out resource.
+	 *
+	 * @param url Path to the <b>checked-out, version-controlled</b> resource including protocol and hostname
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void checkin(String url) throws IOException;
 
 	/**
 	 * Read access control list for resource
