@@ -101,6 +101,8 @@ import org.apache.http.conn.SchemePortResolver;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ByteArrayEntity;
@@ -121,17 +123,33 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.VersionInfo;
 import org.w3c.dom.Element;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import javax.xml.namespace.QName;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.ProxySelector;
+import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -165,6 +183,21 @@ public class SardineImpl implements Sardine
 	 * logically related requests.
 	 */
 	protected HttpClientContext context = HttpClientContext.create();
+
+	/**
+	 * Number of threads in connection pool.
+	 */
+	int threadCount = 5;
+
+	/**
+	 * Allow all certificates when doing http requests.
+	 */
+	boolean allowAllCertificates = false;
+
+	/**
+	 * Use the IP address for SSL connections when doing SSL.
+	 */
+	boolean useIpAddressForSslConnections = false;
 
 	/**
 	 * Access resources with no authentication
@@ -201,9 +234,20 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 * @param selector Proxy configuration
+	 * @param allowAllCertificates Allow all ssl
+	 * @param threadCount The number of threads you will be fetching with. Used for setting proper max routes.
+	 * @param useIpAddressForSslConnections  Use the ip address of the server when doing SSL verification.
 	 */
-	public SardineImpl(String username, String password, ProxySelector selector)
+	public SardineImpl(String username,
+										 String password,
+										 int threadCount,
+										 boolean allowAllCertificates,
+										 boolean useIpAddressForSslConnections,
+										 ProxySelector selector)
 	{
+    this.threadCount = threadCount;
+    this.allowAllCertificates = allowAllCertificates;
+    this.useIpAddressForSslConnections = useIpAddressForSslConnections;
 		this.builder = this.configure(selector, this.createDefaultCredentialsProvider(username, password, null, null));
 		this.client = this.builder.build();
 	}
@@ -257,6 +301,96 @@ public class SardineImpl implements Sardine
 	{
 		this.context.setCredentialsProvider(provider);
 		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
+	}
+
+	private static KeyManager[] getDefaultKeyManagers() {
+		if ((System.getProperties().get("javax.net.ssl.keyStore") != null)) {
+			try {
+				// initialize default key manager with keystore file and pass
+				KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+				KeyStore ks = KeyStore.getInstance(System.getProperties().getProperty("javax.net.ssl.keyStoreType", "JKS"));
+				char[] ksPass = System.getProperties().getProperty("javax.net.ssl.keyStorePassword").toCharArray();
+				FileInputStream fis = new FileInputStream(System.getProperties().getProperty("javax.net.ssl.keyStore", "keystore.jks"));
+				ks.load(fis, ksPass);
+				kmf.init(ks, ksPass);
+				fis.close();
+				return kmf.getKeyManagers();
+			} catch (Exception e) {
+				log.warning("Unable to initialize keystore");
+			}
+		}
+		return null;
+	}
+
+	public HttpClientConnectionManager makeConnectionManager() {
+		SSLContext sslContext = SSLContexts.createSystemDefault();
+		HostnameVerifier sslHostVerifier = new DefaultHostnameVerifier();
+		if (allowAllCertificates) {
+			try {
+				sslContext = SSLContext.getInstance("SSL");
+				sslContext.init(getDefaultKeyManagers(), new TrustManager[]{
+						new X509ExtendedTrustManager() {
+							@Override
+							public X509Certificate[] getAcceptedIssuers() { return null; }
+
+							@Override
+							public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+
+							@Override
+							public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+
+							@Override
+							public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+
+							@Override
+							public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+
+							@Override
+							public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) { }
+
+							@Override
+							public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) { }
+						}}, new SecureRandom());
+			} catch (NoSuchAlgorithmException e) {
+				log.warning("Failed to create an allow-all TrustManager, using the system default!");
+				sslContext = SSLContexts.createSystemDefault();
+			} catch (KeyManagementException e) {
+				log.warning("Failed to create an allow-all TrustManager, using the system default!");
+				sslContext = SSLContexts.createSystemDefault();
+			}
+			sslHostVerifier = new NoopHostnameVerifier();
+		}
+
+		SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, sslHostVerifier);
+
+		if (useIpAddressForSslConnections && allowAllCertificates) {
+			sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, sslHostVerifier) {
+				@Override
+				public Socket connectSocket(int connectTimeout, Socket socket, HttpHost host,
+																		InetSocketAddress remoteAddress, InetSocketAddress localAddress,
+																		HttpContext context) throws IOException {
+					return super.connectSocket(
+							connectTimeout,
+							socket,
+							new HttpHost(remoteAddress.getAddress().getHostAddress(), remoteAddress.getPort()),
+							remoteAddress,
+							localAddress,
+							context);
+				}
+			};
+		}
+
+		// connection-manager: threaded, with http and https support
+		PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager(
+				RegistryBuilder.<ConnectionSocketFactory>create()
+						.register("http", PlainConnectionSocketFactory.getSocketFactory())
+						.register("https", sslConnectionSocketFactory)
+						.build());
+		manager.setValidateAfterInactivity(10000);
+		manager.setDefaultMaxPerRoute(1000);
+		// safeguard against threadCount being negative
+		manager.setMaxTotal(Math.max(1000, threadCount * 1000));
+		return manager;
 	}
 
 	private CredentialsProvider createDefaultCredentialsProvider(String username, String password, String domain, String workstation)
@@ -1084,8 +1218,7 @@ public class SardineImpl implements Sardine
 	 */
 	protected HttpClientBuilder configure(ProxySelector selector, CredentialsProvider credentials)
 	{
-		Registry<ConnectionSocketFactory> schemeRegistry = this.createDefaultSchemeRegistry();
-		HttpClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
+		HttpClientConnectionManager cm = this.createDefaultConnectionManager();
 		String version = Version.getSpecification();
 		if (version == null)
 		{
@@ -1113,41 +1246,13 @@ public class SardineImpl implements Sardine
 	}
 
 	/**
-	 * Creates a new registry for default ports with socket factories.
-	 */
-	protected Registry<ConnectionSocketFactory> createDefaultSchemeRegistry()
-	{
-		return RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("http", this.createDefaultSocketFactory())
-				.register("https", this.createDefaultSecureSocketFactory())
-				.build();
-	}
-
-	/**
-	 * @return Default socket factory
-	 */
-	protected ConnectionSocketFactory createDefaultSocketFactory()
-	{
-		return PlainConnectionSocketFactory.getSocketFactory();
-	}
-
-	/**
-	 * @return Default SSL socket factory
-	 */
-	protected ConnectionSocketFactory createDefaultSecureSocketFactory()
-	{
-		return SSLConnectionSocketFactory.getSocketFactory();
-	}
-
-	/**
 	 * Use fail fast connection manager when connections are not released properly.
 	 *
-	 * @param schemeRegistry Protocol registry
 	 * @return Default connection manager
 	 */
-	protected HttpClientConnectionManager createDefaultConnectionManager(Registry<ConnectionSocketFactory> schemeRegistry)
+	protected HttpClientConnectionManager createDefaultConnectionManager()
 	{
-		return new PoolingHttpClientConnectionManager(schemeRegistry);
+		return makeConnectionManager();
 	}
 
 	/**
