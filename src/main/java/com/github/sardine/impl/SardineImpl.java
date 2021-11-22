@@ -1099,8 +1099,9 @@ public class SardineImpl implements Sardine
 						// Only selectively enable this for PUT but not all entity enclosing methods
 						.setExpectContinueEnabled(false).build())
 				.setConnectionManager(cm)
-				.setRoutePlanner(this.createDefaultRoutePlanner(this.createDefaultSchemePortResolver(), selector));
-	}
+				.setRoutePlanner(this.createDefaultRoutePlanner(this.createDefaultSchemePortResolver(), selector))
+				.useSystemProperties();
+		}
 
 	protected DefaultSchemePortResolver createDefaultSchemePortResolver()
 	{
