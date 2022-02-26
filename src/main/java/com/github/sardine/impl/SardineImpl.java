@@ -695,12 +695,18 @@ public class SardineImpl implements Sardine
 		{
 			return null;
 		}
-		else
+		DavResource resource;
+		try
 		{
-                    DavResource resource = new DavResource(responses.get(0));
-                    if (resource.getStatusCode() == 200) return new DavQuota(resource);
+			resource = new DavResource(responses.get(0));
 		}
-                return null;
+		catch (URISyntaxException e)
+		{
+			log.warning(String.format("Invalid URI %s", responses.get(0).getHref().get(0)));
+			return null;
+		}
+		if (resource.getStatusCode() == 200) return new DavQuota(responses.get(0));
+        return null;
 	}
 
 	@Override

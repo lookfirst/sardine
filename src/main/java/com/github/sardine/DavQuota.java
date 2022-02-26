@@ -42,52 +42,41 @@ public class DavQuota
 		{
 			return Long.MAX_VALUE;
 		}
-		else
-		{
-			for (Propstat propstat : list)
-			{
-				final Prop prop = propstat.getProp();
-				if(null == prop) {
-					continue;
-				}
-				if(null == prop.getQuotaAvailableBytes()) {
-					continue;
-				}
-				if (prop.getQuotaAvailableBytes().getContent().isEmpty())
-				{
-					continue;
-				}
-				return Long.valueOf(prop.getQuotaAvailableBytes().getContent().get(0));
+		for (Propstat propstat : list) {
+			final Prop prop = propstat.getProp();
+			if (null == prop) {
+				continue;
 			}
-			return Long.MAX_VALUE;
+			if (null == prop.getQuotaAvailableBytes()) {
+				continue;
+			}
+			if (prop.getQuotaAvailableBytes().getContent().isEmpty()) {
+				continue;
+			}
+			return Long.parseLong(prop.getQuotaAvailableBytes().getContent().get(0));
 		}
+		return Long.MAX_VALUE;
 	}
 
 	private long getUsed(Response response) {
 		final List<Propstat> list = response.getPropstat();
-		if (list.isEmpty())
-		{
+		if (list.isEmpty()) {
 			return 0L;
 		}
-		else
-		{
-			for (Propstat propstat : list)
-			{
-				final Prop prop = propstat.getProp();
-				if(null == prop) {
-					continue;
-				}
-				if(null == prop.getQuotaUsedBytes()) {
-					continue;
-				}
-				if (prop.getQuotaUsedBytes().getContent().isEmpty())
-				{
-					continue;
-				}
-				return Long.valueOf(prop.getQuotaUsedBytes().getContent().get(0));
+		for (Propstat propstat : list) {
+			final Prop prop = propstat.getProp();
+			if (null == prop) {
+				continue;
 			}
-			return 0L;
+			if (null == prop.getQuotaUsedBytes()) {
+				continue;
+			}
+			if (prop.getQuotaUsedBytes().getContent().isEmpty()) {
+				continue;
+			}
+			return Long.parseLong(prop.getQuotaUsedBytes().getContent().get(0));
 		}
+		return 0L;
 	}
 
 	public long getQuotaAvailableBytes()
