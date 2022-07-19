@@ -371,8 +371,8 @@ public class SardineImpl implements Sardine
 		// Generate Basic preemptive scheme object and stick it to the local execution context
 		BasicScheme basicAuth = new BasicScheme(credentialsCharset);
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		cache.put(new HttpHost(hostname, httpPort, "http"), basicAuth);
-		cache.put(new HttpHost(hostname, httpsPort, "https"), basicAuth);
+		cache.put(new HttpHost(hostname, httpPort == -1 ? 80 : httpPort, "http"), basicAuth);
+		cache.put(new HttpHost(hostname, httpsPort == -1 ? 443 : httpsPort, "https"), basicAuth);
 	}
 
 	@Override
