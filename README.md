@@ -1,4 +1,7 @@
-[![Build Status](https://travis-ci.org/lookfirst/sardine.png)](https://travis-ci.org/lookfirst/sardine)
+[![GitHub commit](https://img.shields.io/github/last-commit/lookfirst/sardine)](https://github.com/lookfirst/sardine/commits/master)
+[![GitHub license](https://img.shields.io/badge/license-apache2-blue.svg)](https://raw.githubusercontent.com/lookfirst/sardine/master/LICENSE.txt)
+[![Build Status](https://github.com/lookfirst/sardine/workflows/build/badge.svg?branch=master)](https://github.com/lookfirst/sardine/actions)
+
 
 Sardine is useful for interacting with a webdav server and is much easier to programmatically manage remote files than with FTP.
 
