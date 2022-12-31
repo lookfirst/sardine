@@ -282,6 +282,10 @@ public class ObjectFactory
 		return new SyncCollection();
 	}
 
+	public VersionTree createVersionTree() {
+		return new VersionTree();
+	}
+
 	/**
 	 * Create an instance of {@link Limit }
 	 *
