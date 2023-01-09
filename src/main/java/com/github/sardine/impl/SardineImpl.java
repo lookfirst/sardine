@@ -796,6 +796,12 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
+	public ContentLengthInputStream get(DavResource davResource) throws IOException
+	{
+		return this.get(davResource.getHref().toString());
+	}
+
+	@Override
 	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
 	{
 		List<Header> list = new ArrayList<Header>();

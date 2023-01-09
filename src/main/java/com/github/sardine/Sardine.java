@@ -171,6 +171,15 @@ public interface Sardine
 	/**
 	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
 	 *
+	 * @param davResource the resource containing the path
+	 * @return Data stream to read from
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	InputStream get(DavResource davResource) throws IOException;
+
+	/**
+	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
+	 *
 	 * @param url	 Path to the resource including protocol and hostname
 	 * @param headers Additional HTTP headers to add to the request
 	 * @return Data stream to read from
