@@ -16,11 +16,11 @@
 
 package com.github.sardine.impl.io;
 
-import org.apache.http.HttpResponse;
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.http.HttpResponse;
 
 public class ContentLengthInputStream extends FilterInputStream
 {

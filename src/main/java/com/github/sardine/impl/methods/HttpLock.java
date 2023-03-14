@@ -16,9 +16,10 @@
 
 package com.github.sardine.impl.methods;
 
+import java.net.URI;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import java.net.URI;
 
 /**
  */

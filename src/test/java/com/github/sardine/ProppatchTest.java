@@ -16,12 +16,12 @@
 
 package com.github.sardine;
 
-import com.github.sardine.util.SardineUtil;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.w3c.dom.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
-import javax.xml.namespace.QName;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,7 +33,13 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import javax.xml.namespace.QName;
+
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.w3c.dom.Element;
+
+import com.github.sardine.util.SardineUtil;
 
 @Category(IntegrationTest.class)
 public class ProppatchTest

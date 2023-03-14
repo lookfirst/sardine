@@ -16,9 +16,10 @@
 
 package com.github.sardine;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import javax.xml.namespace.QName;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +27,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import javax.xml.namespace.QName;
+
+import org.junit.Test;
 
 /**
  */

@@ -1,8 +1,8 @@
 package com.github.sardine;
 
-import com.github.sardine.impl.SardineImpl;
-
 import java.net.ProxySelector;
+
+import com.github.sardine.impl.SardineImpl;
 
 /**
  * The perfect name for a class. Provides the static methods for working with the Sardine interface.

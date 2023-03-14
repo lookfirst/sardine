@@ -1,5 +1,16 @@
 package com.github.sardine.report;
 
+import java.math.BigInteger;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
+
 import com.github.sardine.DavResource;
 import com.github.sardine.model.Limit;
 import com.github.sardine.model.Multistatus;
@@ -7,15 +18,6 @@ import com.github.sardine.model.Prop;
 import com.github.sardine.model.Response;
 import com.github.sardine.model.SyncCollection;
 import com.github.sardine.util.SardineUtil;
-import org.w3c.dom.Element;
-
-import javax.xml.namespace.QName;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
 
 public class SyncCollectionReport extends SardineReport<SyncCollectionReport.Result>
 {

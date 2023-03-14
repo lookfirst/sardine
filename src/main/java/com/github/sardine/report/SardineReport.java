@@ -1,9 +1,9 @@
 package com.github.sardine.report;
 
+import java.io.IOException;
+
 import com.github.sardine.model.Multistatus;
 import com.github.sardine.util.SardineUtil;
-
-import java.io.IOException;
 
 public abstract class SardineReport<T>
 {
