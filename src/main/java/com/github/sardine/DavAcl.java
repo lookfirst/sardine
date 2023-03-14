@@ -1,14 +1,14 @@
 package com.github.sardine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.sardine.model.Ace;
 import com.github.sardine.model.Acl;
 import com.github.sardine.model.Group;
 import com.github.sardine.model.Owner;
 import com.github.sardine.model.Propstat;
 import com.github.sardine.model.Response;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Describe access rights on a remote server. An access control list (ACL)

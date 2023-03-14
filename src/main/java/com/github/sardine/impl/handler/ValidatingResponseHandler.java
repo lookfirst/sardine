@@ -16,11 +16,12 @@
 
 package com.github.sardine.impl.handler;
 
-import com.github.sardine.impl.SardineException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ResponseHandler;
+
+import com.github.sardine.impl.SardineException;
 
 /**
  * Basic response handler which takes an url for documentation.

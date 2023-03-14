@@ -1,9 +1,5 @@
 package com.github.sardine;
 
-import com.github.sardine.report.SardineReport;
-import org.w3c.dom.Element;
-
-import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +7,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
+
+import com.github.sardine.report.SardineReport;
 
 /**
  * The main interface for Sardine operations.

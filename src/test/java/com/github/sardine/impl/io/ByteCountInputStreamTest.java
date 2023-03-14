@@ -1,10 +1,10 @@
 package com.github.sardine.impl.io;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class ByteCountInputStreamTest
 {

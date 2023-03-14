@@ -16,12 +16,12 @@
 
 package com.github.sardine.impl.handler;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 public class HeadersResponseHandler extends ValidatingResponseHandler<Map<String, String>> {
     @Override
