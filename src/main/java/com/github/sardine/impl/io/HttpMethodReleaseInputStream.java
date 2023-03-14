@@ -16,13 +16,13 @@
 
 package com.github.sardine.impl.io;
 
-import org.apache.http.HttpConnection;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class HttpMethodReleaseInputStream extends ByteCountInputStream
 {

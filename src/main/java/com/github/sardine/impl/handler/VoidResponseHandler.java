@@ -16,9 +16,9 @@
 
 package com.github.sardine.impl.handler;
 
-import org.apache.http.HttpResponse;
-
 import java.io.IOException;
+
+import org.apache.http.HttpResponse;
 
 /**
  * {@link org.apache.http.client.ResponseHandler} which just executes the request and checks the answer is

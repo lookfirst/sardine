@@ -16,11 +16,11 @@
 
 package com.github.sardine;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import org.junit.Test;
 
 import com.github.sardine.model.Allprop;

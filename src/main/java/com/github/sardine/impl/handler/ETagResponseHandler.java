@@ -16,10 +16,10 @@
 
 package com.github.sardine.impl.handler;
 
+import java.io.IOException;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-
-import java.io.IOException;
 
 public class ETagResponseHandler extends ValidatingResponseHandler<String> {
     @Override

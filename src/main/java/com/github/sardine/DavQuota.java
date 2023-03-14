@@ -1,10 +1,10 @@
 package com.github.sardine;
 
+import java.util.List;
+
 import com.github.sardine.model.Prop;
 import com.github.sardine.model.Propstat;
 import com.github.sardine.model.Response;
-
-import java.util.List;
 
 /**
  * Quota and Size Properties

@@ -16,15 +16,17 @@
 
 package com.github.sardine;
 
-import com.github.sardine.impl.SardineException;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import java.io.ByteArrayInputStream;
-import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.util.UUID;
+
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sardine.impl.SardineException;
 
 @Category(IntegrationTest.class)
 public class LockTest

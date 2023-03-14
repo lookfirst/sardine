@@ -1,5 +1,8 @@
 package com.github.sardine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.sardine.model.Ace;
 import com.github.sardine.model.All;
 import com.github.sardine.model.Authenticated;
@@ -22,9 +25,7 @@ import com.github.sardine.model.WriteContent;
 import com.github.sardine.model.WriteProperties;
 import com.github.sardine.util.SardineUtil;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * An Access control element (ACE) either grants or denies a particular set of (non-

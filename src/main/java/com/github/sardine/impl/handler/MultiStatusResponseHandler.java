@@ -16,15 +16,16 @@
 
 package com.github.sardine.impl.handler;
 
-import com.github.sardine.impl.SardineException;
-import com.github.sardine.model.Multistatus;
-import com.github.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.github.sardine.impl.SardineException;
+import com.github.sardine.model.Multistatus;
+import com.github.sardine.util.SardineUtil;
 
 /**
  * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of

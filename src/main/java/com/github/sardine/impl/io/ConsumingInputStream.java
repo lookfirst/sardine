@@ -17,12 +17,12 @@
 
 package com.github.sardine.impl.io;
 
+import java.io.FilterInputStream;
+import java.io.IOException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-
-import java.io.FilterInputStream;
-import java.io.IOException;
 
 /**
  * Wrapper for the input stream, will consume the rest of the response on {@link ConsumingInputStream#close()}.
