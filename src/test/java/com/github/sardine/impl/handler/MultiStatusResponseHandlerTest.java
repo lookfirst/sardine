@@ -16,19 +16,26 @@
 
 package com.github.sardine.impl.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.xml.namespace.QName;
+
+import org.junit.Test;
+
 import com.github.sardine.DavAcl;
 import com.github.sardine.DavPrincipal;
 import com.github.sardine.DavResource;
 import com.github.sardine.model.Multistatus;
 import com.github.sardine.model.Response;
-import org.junit.Test;
 
-import javax.xml.bind.UnmarshalException;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import static org.junit.Assert.*;
+import jakarta.xml.bind.UnmarshalException;
 
 /**
  */
