@@ -57,12 +57,14 @@ import com.github.sardine.util.SardineUtil;
 import jakarta.xml.bind.JAXBException;
 
 @Category(IntegrationTest.class)
-public class FunctionalSardineTest {
+public class FunctionalSardineTest
+{
     @ClassRule
     public static WebDavTestContainer webDavTestContainer = WebDavTestContainer.getInstance();
 
     @Test
-    public void testRead() throws Exception {
+    public void testRead() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         String url = String.format("%s%s", webDavTestContainer.getTestFolderUrl(), "test.txt");
         final InputStream in = sardine.get(url);
@@ -71,7 +73,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testGetFileContentEncoding() throws Exception {
+    public void testGetFileContentEncoding() throws Exception
+    {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
@@ -96,7 +99,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testReadEmptyFile() throws Exception {
+    public void testReadEmptyFile() throws Exception
+    {
         final HttpClientBuilder builder = HttpClientBuilder.create();
         Sardine sardine = new SardineImpl(builder);
         final String url = webDavTestContainer.getRandomTestFileUrl();
@@ -108,7 +112,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testReadCloseNotFullyConsumed() throws Exception {
+    public void testReadCloseNotFullyConsumed() throws Exception
+    {
         // 3 requests in total
         final CountDownLatch c = new CountDownLatch(3);
         final HttpClientBuilder builder = HttpClientBuilder.create();
@@ -151,7 +156,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testReadCloseFullyConsumed() throws Exception {
+    public void testReadCloseFullyConsumed() throws Exception
+    {
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.setConnectionManager(new PoolingHttpClientConnectionManager(Long.MAX_VALUE, TimeUnit.MILLISECONDS) {
             @Override
@@ -179,7 +185,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testGetFileNotFound() throws Exception {
+    public void testGetFileNotFound() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         InputStream in = null;
         try {
@@ -192,7 +199,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testGetTimestamps() throws Exception {
+    public void testGetTimestamps() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl() + "test.txt";
         final List<DavResource> resources = sardine.list(url);
@@ -202,7 +210,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testGetLength() throws Exception {
+    public void testGetLength() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl();
         final List<DavResource> resources = sardine.list(url);
@@ -211,7 +220,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void getDavQuota() throws IOException {
+    public void getDavQuota() throws IOException
+    {
         final String url = webDavTestContainer.getRandomTestDirectoryUrl();
         Sardine sardine = SardineFactory.begin();
         sardine.createDirectory(url);
@@ -221,7 +231,8 @@ public class FunctionalSardineTest {
     }
 
     @Test(expected = SardineException.class)
-    public void testSetAcl() throws IOException {
+    public void testSetAcl() throws IOException
+    {
         final String url = webDavTestContainer.getRandomTestDirectoryUrl();
         Sardine sardine = SardineFactory.begin();
         try {
@@ -254,7 +265,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDavOwner() throws IOException {
+    public void testDavOwner() throws IOException
+    {
         final String url = webDavTestContainer.getRandomTestDirectoryUrl();
         Sardine sardine = SardineFactory.begin();
         try {
@@ -268,7 +280,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDavPrincipals() throws IOException {
+    public void testDavPrincipals() throws IOException
+    {
         final String url = webDavTestContainer.getRandomTestDirectoryUrl();
         Sardine sardine = SardineFactory.begin();
         try {
@@ -284,7 +297,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testPutRange() throws Exception {
+    public void testPutRange() throws Exception
+    {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder client = HttpClientBuilder.create();
         client.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
@@ -317,7 +331,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testGetRange() throws Exception {
+    public void testGetRange() throws Exception
+    {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
@@ -344,7 +359,8 @@ public class FunctionalSardineTest {
     }
 
     @Test(expected = SardineException.class)
-    public void testPutExpectContinue() throws Exception {
+    public void testPutExpectContinue() throws Exception
+    {
         // Anonymous PUT to restricted resource
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getRandomTestBasicAuthFileUrl();
@@ -365,7 +381,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testProxyConfiguration() throws Exception {
+    public void testProxyConfiguration() throws Exception
+    {
         Sardine sardine = SardineFactory.begin(null, null, ProxySelector.getDefault());
         try {
             final List<DavResource> resources = sardine.list(webDavTestContainer.getTestFolderUrl());
@@ -377,7 +394,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testPath() throws Exception {
+    public void testPath() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         List<DavResource> resources = sardine.list(webDavTestContainer.getTestFolderUrl());
         assertFalse(resources.isEmpty());
@@ -388,7 +406,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getRandomTestFileUrl();
         sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
@@ -401,7 +420,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDepth() throws Exception {
+    public void testDepth() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl();
         List<DavResource> resources = sardine.list(url, 0);
@@ -410,7 +430,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDelete() throws Exception {
+    public void testDelete() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getRandomTestFileUrl();
         sardine.put(url, new ByteArrayInputStream("Test".getBytes()));
@@ -419,7 +440,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testMove() throws Exception {
+    public void testMove() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String source = webDavTestContainer.getRandomTestFileUrl();
         final String destination = webDavTestContainer.getRandomTestFileUrl();
@@ -435,7 +457,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testMoveOverwriting() throws Exception {
+    public void testMoveOverwriting() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String source = webDavTestContainer.getRandomTestFileUrl();
         final String destination = webDavTestContainer.getRandomTestFileUrl();
@@ -453,7 +476,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testMoveFailOnExisting() throws Exception {
+    public void testMoveFailOnExisting() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String source = webDavTestContainer.getRandomTestFileUrl();
         final String destination = webDavTestContainer.getRandomTestFileUrl();
@@ -477,7 +501,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testMkdir() throws Exception {
+    public void testMkdir() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getRandomTestDirectoryUrl();
         try {
@@ -492,7 +517,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testExists() throws Exception {
+    public void testExists() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         assertTrue(sardine.exists(webDavTestContainer.getTestFolderUrl()));
         assertTrue(sardine.exists(webDavTestContainer.getTestFolderUrl() + "test.txt"));
@@ -500,7 +526,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDirectoryContentType() throws Exception {
+    public void testDirectoryContentType() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl();
         final List<DavResource> resources = sardine.list(url);
@@ -511,7 +538,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testFileContentType() throws Exception {
+    public void testFileContentType() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl();
         final List<DavResource> resources = sardine.list(url);
@@ -522,7 +550,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testRedirectPermanently() throws Exception {
+    public void testRedirectPermanently() throws Exception
+    {
         Sardine sardine = SardineFactory.begin();
         final String url = webDavTestContainer.getTestFolderUrl();
         try {
@@ -537,7 +566,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testDisallowLoadExternalDtd() throws Exception {
+    public void testDisallowLoadExternalDtd() throws Exception
+    {
         final CountDownLatch entry = new CountDownLatch(1);
         Thread t = new Thread(() -> {
             try {
@@ -558,7 +588,8 @@ public class FunctionalSardineTest {
     }
 
     @Test
-    public void testMetadata() throws Exception {
+    public void testMetadata() throws Exception
+    {
         final String url = webDavTestContainer.getRandomTestFileUrl();
         Sardine sardine = SardineFactory.begin();
         try {
