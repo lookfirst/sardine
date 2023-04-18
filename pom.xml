@@ -90,7 +90,7 @@
                 <configuration>
                     <source>8</source>
                 </configuration>
-                <version>2.10.4</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <goals>
