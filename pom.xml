@@ -177,7 +177,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
+            <version>4.5.13</version>
         </dependency>
         <!-- Sardine has a runtime dependency to JAXB. As this not part of JDK 11 anymore,
              we need a dependency on JAXB-->
