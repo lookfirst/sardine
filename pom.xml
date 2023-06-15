@@ -174,7 +174,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Skip integration tests by default with failsafe plugin -->
-        <skipITs>true</skipITs>
+        <skipITs>false</skipITs>
     </properties>
     <dependencies>
         <dependency>
