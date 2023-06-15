@@ -23,6 +23,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -31,11 +32,14 @@ import com.github.sardine.impl.SardineException;
 @Category(IntegrationTest.class)
 public class LockTest
 {
+	@ClassRule
+	public static WebDavTestContainer webDavTestContainer = WebDavTestContainer.getInstance();
+
 	@Test
 	public void testLockUnlock() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = String.format("http://test.cyberduck.ch/dav/anon/sardine/%s", UUID.randomUUID().toString());
+		final String url = webDavTestContainer.getRandomTestFileUrl();
 		sardine.put(url, new byte[0]);
 		try
 		{
@@ -61,7 +65,7 @@ public class LockTest
 	public void testLockFailureNotImplemented() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = "http://sardine.googlecode.com/svn/trunk/README.html";
+		String url = webDavTestContainer.getTestFolderWithLockNotImplementedUrl() + "test.txt";
 		try
 		{
 			sardine.lock(url);
@@ -80,16 +84,15 @@ public class LockTest
 
         // Touch enw file
         final UUID file = UUID.randomUUID();
-        final String url = String.format("http://test.cyberduck.ch/dav/anon/sardine/%s", file);
+		final String url = webDavTestContainer.getTestFolderUrl() + file;
         sardine.put(url, new ByteArrayInputStream(new byte[0]));
         try
         {
-
             String lockToken = sardine.lock(url);
             String result = sardine.refreshLock(url, lockToken, url);
 
             assertTrue(lockToken.startsWith("opaquelocktoken:"));
-            assertTrue(lockToken.equals(result));
+			assertEquals(lockToken, result);
 
             sardine.unlock(url, lockToken);
         }
