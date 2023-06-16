@@ -31,6 +31,7 @@ import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.http.auth.Credentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -40,13 +41,16 @@ import com.github.sardine.impl.SardineImpl;
 @Category(IntegrationTest.class)
 public class AuthenticationTest
 {
+	@ClassRule
+	public static WebDavTestContainer webDavTestContainer = WebDavTestContainer.getInstance();
+
 	@Test
 	public void testBasicAuth() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
 		try
 		{
-			URI url = URI.create("http://test.cyberduck.ch/dav/basic/");
+			URI url = URI.create(webDavTestContainer.getTestBasicAuthFolderUrl());
 			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
@@ -63,7 +67,7 @@ public class AuthenticationTest
 		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
 		try
 		{
-			URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
+			URI url = URI.create(webDavTestContainer.getTestBasicAuthFolderUrl());
 			final List<DavResource> resources = sardine.list(url.toString());
 			assertNotNull(resources);
 			assertFalse(resources.isEmpty());
@@ -78,7 +82,7 @@ public class AuthenticationTest
 	public void testDigestAuthWithBasicPreemptiveAuthenticationEnabled() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin("jenkins", "jenkins");
-		URI url = URI.create("http://test.cyberduck.ch/dav/digest/");
+		URI url = URI.create(webDavTestContainer.getTestBasicAuthFolderUrl());
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		assertNotNull(sardine.list(url.toString()));
 	}
@@ -110,7 +114,7 @@ public class AuthenticationTest
 			}
 		});
 		SardineImpl sardine = new SardineImpl(client);
-		URI url = URI.create("http://test.cyberduck.ch/dav/basic/");
+		URI url = URI.create(webDavTestContainer.getTestBasicAuthFolderUrl());
 		//Send basic authentication header in initial request
 		sardine.enablePreemptiveAuthentication(url.getHost());
 		try

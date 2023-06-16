@@ -31,10 +31,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Element;
@@ -44,6 +44,9 @@ import com.github.sardine.util.SardineUtil;
 @Category(IntegrationTest.class)
 public class ProppatchTest
 {
+	@ClassRule
+	public static WebDavTestContainer webDavTestContainer = WebDavTestContainer.getInstance();
+
 	/**
 	 * Try to patch property in WebDAV namespace.
 	 */
@@ -51,11 +54,11 @@ public class ProppatchTest
 	public void testAddPropertyDefaultNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = webDavTestContainer.getRandomTestFileUrl();
 		sardine.put(url, new byte[]{});
 		try
 		{
-			HashMap<QName, String> patch = new HashMap<QName, String>();
+			HashMap<QName, String> patch = new HashMap<>();
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 			Calendar now = Calendar.getInstance();
 			now.set(2010, Calendar.MAY, 1);
@@ -81,11 +84,11 @@ public class ProppatchTest
 	public void testAddPropertyCustomNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = webDavTestContainer.getRandomTestFileUrl();
 		sardine.put(url, new byte[]{});
 		try
 		{
-			HashMap<QName, String> patch = new HashMap<QName, String>();
+			HashMap<QName, String> patch = new HashMap<>();
 			patch.put(SardineUtil.createQNameWithCustomNamespace("fish"), "sardine");
 			{
 				List<DavResource> resources = sardine.patch(url, patch);
@@ -110,7 +113,7 @@ public class ProppatchTest
 
 	/**
 	 * Try to add new custom complex properties.
-	 * 
+	 *
 	 * The example comes from <a href="http://www.webdav.org/specs/rfc4918.html#rfc.section.9.2.2">
 	 * http://www.webdav.org/specs/rfc4918.html#rfc.section.9.2.2</a>.
 	 */
@@ -118,7 +121,7 @@ public class ProppatchTest
 	public void testAddCustomComplexProperties() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = webDavTestContainer.getRandomTestFileUrl();
 		sardine.put(url, new byte[]{});
 		try
 		{
@@ -132,20 +135,20 @@ public class ProppatchTest
 			Element author2 = SardineUtil.createElement(authorsElement, authorName);
 			author2.setTextContent("Roy Fielding");
 			authorsElement.appendChild(author2);
-			
+
 			QName fishName = SardineUtil.createQNameWithCustomNamespace("fish");
 			Element fish = SardineUtil.createElement(fishName);
 			fish.setTextContent("sardine");
 
-			List<Element> addProps = new ArrayList<Element>();
+			List<Element> addProps = new ArrayList<>();
 			addProps.add(authorsElement);
 			addProps.add(fish);
-			
-			Set<QName> qnames = new HashSet<QName>();
+
+			Set<QName> qnames = new HashSet<>();
 			qnames.add(authorsName);
 			qnames.add(fishName);
 			{
-				List<DavResource> resources = sardine.patch(url, addProps, Collections.<QName>emptyList());
+				List<DavResource> resources = sardine.patch(url, addProps, Collections.emptyList());
 				assertNotNull(resources);
 				assertEquals(1, resources.size());
 				DavResource resource = resources.iterator().next();
@@ -173,11 +176,11 @@ public class ProppatchTest
 	public void testRemovePropertyCustomNamespace() throws Exception
 	{
 		Sardine sardine = SardineFactory.begin();
-		String url = "http://test.cyberduck.ch/dav/anon/sardine/" + UUID.randomUUID().toString();
+		String url = webDavTestContainer.getRandomTestFileUrl();
 		sardine.put(url, new byte[]{});
 		try
 		{
-			HashMap<QName, String> patch = new HashMap<QName, String>();
+			HashMap<QName, String> patch = new HashMap<>();
 			QName property = SardineUtil.createQNameWithCustomNamespace("fish");
 			patch.put(property, "sardine");
 			{
@@ -187,7 +190,7 @@ public class ProppatchTest
 				DavResource resource = resources.iterator().next();
 				assertTrue(resource.getCustomProps().containsKey("fish"));
 			}
-			sardine.patch(url, Collections.<QName, String>emptyMap(), Collections.singletonList(property));
+			sardine.patch(url, Collections.emptyMap(), Collections.singletonList(property));
 			{
 				List<DavResource> resources = sardine.list(url);
 				assertNotNull(resources);
