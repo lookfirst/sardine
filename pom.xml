@@ -249,7 +249,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <!-- Skip integration tests by default with failsafe plugin -->
-        <skipITs>false</skipITs>
+        <skipITs>true</skipITs>
     </properties>
     <dependencies>
         <dependency>
