@@ -3,7 +3,7 @@
     <groupId>com.github.lookfirst</groupId>
     <artifactId>sardine</artifactId>
     <packaging>jar</packaging>
-    <version>5.12-SNAPSHOT</version>
+    <version>5.12</version>
     <description>An easy to use WebDAV client for Java</description>
     <name>Sardine WebDAV client</name>
     <url>https://github.com/lookfirst/sardine</url>
@@ -17,7 +17,7 @@
         <connection>scm:git:git@github.com:lookfirst/sardine.git</connection>
         <developerConnection>scm:git:git@github.com:lookfirst/sardine.git</developerConnection>
         <url>git@github.com:lookfirst/sardine.git</url>
-      <tag>HEAD</tag>
+      <tag>sardine-5.12</tag>
   </scm>
     <developers>
         <developer>
