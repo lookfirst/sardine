@@ -162,6 +162,18 @@ public interface Sardine
 	List<DavResource> patch(String url, List<Element> addProps, List<QName> removeProps) throws IOException;
 
 	/**
+	 * Add or remove custom properties for a url using WebDAV <code>PROPPATCH</code>.
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param addProps	Properties to add to resource. If a property already exists then its value is replaced.
+	 * @param removeProps Properties to remove from resource. Specifying the removal of a property that does not exist is not an error.
+	 * @param headers Additional HTTP headers to add to the request
+	 * @return The patched resources from the response
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	List<DavResource> patch(String url, List<Element> addProps, List<QName> removeProps, Map<String, String> headers) throws IOException;
+
+	/**
 	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
 	 *
 	 * @param url Path to the resource including protocol and hostname
@@ -288,6 +300,15 @@ public interface Sardine
 	void delete(String url) throws IOException;
 
 	/**
+	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
+	 *
+	 * @param url Path to the resource including protocol and hostname
+	 * @param headers Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void delete(String url, Map<String, String> headers) throws IOException;
+
+	/**
 	 * Uses WebDAV <code>MKCOL</code> to create a directory at the specified url
 	 *
 	 * @param url Path to the resource including protocol and hostname
@@ -315,6 +336,17 @@ public interface Sardine
 	void move(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException;
 
 	/**
+	 * Move a url to from source to destination using WebDAV <code>MOVE</code>.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
+	 * @param headers Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void move(String sourceUrl, String destinationUrl, boolean overwrite, Map<String, String> headers) throws IOException;
+
+	/**
 	 * Copy a url from source to destination using WebDAV <code>COPY</code>. Assumes overwrite.
 	 *
 	 * @param sourceUrl	  Path to the resource including protocol and hostname (trailing slash is mandatory for directories)
@@ -332,6 +364,17 @@ public interface Sardine
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
 	void copy(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException;
+
+	/**
+	 * Copy a url from source to destination using WebDAV <code>COPY</code>.
+	 *
+	 * @param sourceUrl	  Path to the resource including protocol and hostname
+	 * @param destinationUrl Path to the resource including protocol and hostname
+	 * @param overwrite {@code true} to overwrite if the destination exists, {@code false} otherwise.
+	 * @param headers Additional HTTP headers to add to the request
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void copy(String sourceUrl, String destinationUrl, boolean overwrite, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Performs a HTTP <code>HEAD</code> request to see if a resource exists or not.
