@@ -31,3 +31,7 @@ Questions? Please ask on our [mailing list](https://groups.google.com/forum/#!fo
 Sardine available under the Apache License 2.0.
 
 If you like this library, I'd appreciate if you would blog/tweet about it. If you don't like it, well...
+
+
+## Alternatives
+See [Awesome WebDAV: Java libraries](https://github.com/WebDAVDevs/awesome-webdav/blob/main/readme.md#java)
