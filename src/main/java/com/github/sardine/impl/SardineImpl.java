@@ -429,6 +429,7 @@ public class SardineImpl implements Sardine
 		prop.setGetcontenttype(objectFactory.createGetcontenttype());
 		prop.setResourcetype(objectFactory.createResourcetype());
 		prop.setGetetag(objectFactory.createGetetag());
+		prop.setLockdiscovery(objectFactory.createLockdiscovery());
 		addCustomProperties(prop, props);
 		body.setProp(prop);
 		return propfind(url, depth, body);
@@ -546,7 +547,17 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, List<Element> setProps, List<QName> removeProps) throws IOException
 	{
-		HttpPropPatch entity = new HttpPropPatch(url);
+		return this.patch(url, setProps, removeProps, Collections.<String, String>emptyMap());
+	}
+
+	@Override
+	public List<DavResource> patch(String url, List<Element> setProps, List<QName> removeProps, Map<String, String> headers) throws IOException
+	{
+		HttpPropPatch patch = new HttpPropPatch(url);
+		for (Map.Entry<String, String> h : headers.entrySet())
+		{
+			patch.addHeader(new BasicHeader(h.getKey(), h.getValue()));
+		}
 		// Build WebDAV <code>PROPPATCH</code> entity.
 		Propertyupdate body = new Propertyupdate();
 		// Add properties
@@ -578,8 +589,8 @@ public class SardineImpl implements Sardine
 				remove.setProp(prop);
 			}
 		}
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
+		patch.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		Multistatus multistatus = this.execute(patch, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
 		for (Response response : responses)
@@ -958,7 +969,7 @@ public class SardineImpl implements Sardine
 	public void put(String url, File localFile, String contentType) throws IOException
 	{
 		//don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
-		put(url, localFile, contentType, false);
+		this.put(url, localFile, contentType, false);
 	}
 
 	@Override
@@ -971,6 +982,12 @@ public class SardineImpl implements Sardine
 	@Override
 	public void delete(String url) throws IOException
 	{
+		this.delete(url, Collections.<String, String>emptyMap());
+	}
+
+	@Override
+	public void delete(String url, Map<String, String> headers) throws IOException
+	{
 		HttpDelete delete = new HttpDelete(url);
 		this.execute(delete, new VoidResponseHandler());
 	}
@@ -978,26 +995,46 @@ public class SardineImpl implements Sardine
 	@Override
 	public void move(String sourceUrl, String destinationUrl) throws IOException
 	{
-		move(sourceUrl, destinationUrl, true);
+		this.move(sourceUrl, destinationUrl, true);
 	}
 
 	@Override
 	public void move(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
 	{
+		this.move(sourceUrl, destinationUrl, overwrite, Collections.<String, String>emptyMap());
+	}
+
+	@Override
+	public void move(String sourceUrl, String destinationUrl, boolean overwrite, Map<String, String> headers) throws IOException
+	{
 		HttpMove move = new HttpMove(sourceUrl, destinationUrl, overwrite);
+		for (Map.Entry<String, String> h : headers.entrySet())
+		{
+			move.addHeader(new BasicHeader(h.getKey(), h.getValue()));
+		}
 		this.execute(move, new VoidResponseHandler());
 	}
 
 	@Override
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
-		copy(sourceUrl, destinationUrl, true);
+		this.copy(sourceUrl, destinationUrl, true);
 	}
 
 	@Override
 	public void copy(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
 	{
+		this.copy(sourceUrl, destinationUrl, overwrite, Collections.<String, String>emptyMap());
+	}
+
+	@Override
+	public void copy(String sourceUrl, String destinationUrl, boolean overwrite, Map<String, String> headers) throws IOException
+	{
 		HttpCopy copy = new HttpCopy(sourceUrl, destinationUrl, overwrite);
+		for (Map.Entry<String, String> h : headers.entrySet())
+		{
+			copy.addHeader(new BasicHeader(h.getKey(), h.getValue()));
+		}
 		this.execute(copy, new VoidResponseHandler());
 	}
 
