@@ -18,42 +18,39 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.HttpHeaders;
 
 /**
+ *
  */
-public class HttpUnlock extends HttpRequestBase
-{
-	public static final String METHOD_NAME = "UNLOCK";
+public class HttpUnlock extends HttpUriRequestBase {
+    public static final String METHOD_NAME = "UNLOCK";
 
-	/**
-	 * @param url   The resource
-	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed.
-	 *              The lock token in the Lock-Token request header must identify a lock that contains the resource
-	 *              identified by Request-URI as a member.
-	 */
-	public HttpUnlock(String url, String token)
-	{
-		this(URI.create(url), token);
-	}
+    /**
+     * @param url   The resource
+     * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed. The
+     *              lock token in the Lock-Token request header must identify a lock that contains the resource
+     *              identified by Request-URI as a member.
+     */
+    public HttpUnlock(String url, String token) {
+        this(URI.create(url), token);
+    }
 
-	/**
-	 * @param url   The resource
-	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed.
-	 *              The lock token in the Lock-Token request header must identify a lock that contains the resource
-	 *              identified by Request-URI as a member.
-	 */
-	public HttpUnlock(URI url, String token)
-	{
-		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
-		this.setHeader("Lock-Token", "<" + token + ">");
-	}
+    /**
+     * @param url   The resource
+     * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed. The
+     *              lock token in the Lock-Token request header must identify a lock that contains the resource
+     *              identified by Request-URI as a member.
+     */
+    public HttpUnlock(URI url, String token) {
+        super(METHOD_NAME, url);
+        this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
+        this.setHeader("Lock-Token", "<" + token + ">");
+    }
 
-	@Override
-	public String getMethod()
-	{
-		return METHOD_NAME;
-	}
+    @Override
+    public String getMethod() {
+        return METHOD_NAME;
+    }
 }

@@ -18,13 +18,13 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 
 /**
  * Simple class for making <code>MKCOL</code> requests.
  *
  */
-public class HttpMkCol extends HttpEntityEnclosingRequestBase
+public class HttpMkCol extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "MKCOL";
 
@@ -35,10 +35,9 @@ public class HttpMkCol extends HttpEntityEnclosingRequestBase
 
 	public HttpMkCol(URI url)
 	{
-		this.setURI(url);
+		super(METHOD_NAME, url);
 	}
 
-	@Override
 	public String getMethod()
 	{
 		return METHOD_NAME;

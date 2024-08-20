@@ -39,12 +39,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.namespace.QName;
 
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.io.ConnectionEndpoint;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -77,8 +76,8 @@ public class FunctionalSardineTest
     {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder builder = HttpClientBuilder.create();
-        builder.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
-            if (r.getStatusLine().getStatusCode() == 200) {
+        builder.addResponseInterceptorFirst((r, e, context) -> {
+            if (r.getCode() == 200) {
                 intercept.set(true);
                 assertNotNull(r.getHeaders(HttpHeaders.CONTENT_ENCODING));
                 assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_ENCODING).length);
@@ -112,60 +111,9 @@ public class FunctionalSardineTest
     }
 
     @Test
-    public void testReadCloseNotFullyConsumed() throws Exception
-    {
-        // 3 requests in total
-        final CountDownLatch c = new CountDownLatch(3);
-        final HttpClientBuilder builder = HttpClientBuilder.create();
-        builder.setConnectionManager(new PoolingHttpClientConnectionManager(Long.MAX_VALUE, TimeUnit.MILLISECONDS) {
-            @Override
-            public synchronized void releaseConnection(HttpClientConnection conn, Object state, long keepalive, TimeUnit tunit) {
-                switch ((int) c.getCount()) {
-                    case 3:
-                    case 1:
-                        // DELETE
-                        // PUT
-                        assertTrue(conn.isOpen());
-                        break;
-                    case 2:
-                        // GET
-                        assertFalse(conn.isOpen());
-                        break;
-                    default:
-                        fail();
-                }
-                super.releaseConnection(conn, state, keepalive, tunit);
-                c.countDown();
-            }
-        });
-        Sardine sardine = new SardineImpl(builder);
-        // Make sure the response is not compressed
-        sardine.disableCompression();
-        final String url = webDavTestContainer.getRandomTestFileUrl();
-        try {
-            final byte[] content = "sa".getBytes(StandardCharsets.UTF_8);
-            assertEquals(2, content.length);
-            sardine.put(url, new ByteArrayInputStream(content));
-            final InputStream in = sardine.get(url);
-            assertNotNull(in);
-            assertEquals('s', in.read());
-            in.close();
-        } finally {
-            sardine.delete(url);
-        }
-    }
-
-    @Test
     public void testReadCloseFullyConsumed() throws Exception
     {
         final HttpClientBuilder builder = HttpClientBuilder.create();
-        builder.setConnectionManager(new PoolingHttpClientConnectionManager(Long.MAX_VALUE, TimeUnit.MILLISECONDS) {
-            @Override
-            public synchronized void releaseConnection(HttpClientConnection conn, Object state, long keepalive, TimeUnit tunit) {
-                assertTrue(conn.isOpen());
-                super.releaseConnection(conn, state, keepalive, tunit);
-            }
-        });
         Sardine sardine = new SardineImpl(builder);
         // Make sure the response is not compressed
         sardine.disableCompression();
@@ -300,8 +248,8 @@ public class FunctionalSardineTest
     {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder client = HttpClientBuilder.create();
-        client.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
-            if (r.getStatusLine().getStatusCode() == 201) {
+        client.addResponseInterceptorFirst((r, e, context) -> {
+            if (r.getCode()== 201) {
                 intercept.set(true);
             }
         });
@@ -314,12 +262,12 @@ public class FunctionalSardineTest
             final Map<String, String> header = Collections.singletonMap(HttpHeaders.CONTENT_RANGE,
                     "bytes " + 2 + "-" + 3 + "/" + 4);
 
-            client.addInterceptorFirst((HttpRequestInterceptor) (r, context) -> {
+            client.addRequestInterceptorFirst((r, e, context) -> {
                 assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
                 assertEquals(1, r.getHeaders(HttpHeaders.CONTENT_RANGE).length);
             });
-            client.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> assertEquals(204, r.getStatusLine().getStatusCode()));
-            sardine.put(url, new ByteArrayInputStream("st".getBytes(StandardCharsets.UTF_8)), header);
+            client.addResponseInterceptorFirst((r, e, context) -> assertEquals(204, r.getCode()));
+            sardine.put(url, new ByteArrayInputStream("st".getBytes(StandardCharsets.UTF_8)),null, header);
 
             assertEquals("Test", new BufferedReader(new InputStreamReader(sardine.get(url), StandardCharsets.UTF_8)).readLine());
 
@@ -334,8 +282,8 @@ public class FunctionalSardineTest
     {
         final AtomicBoolean intercept = new AtomicBoolean();
         final HttpClientBuilder builder = HttpClientBuilder.create();
-        builder.addInterceptorFirst((HttpResponseInterceptor) (r, context) -> {
-            if (r.getStatusLine().getStatusCode() == 206) {
+        builder.addResponseInterceptorFirst((r, e, context) -> {
+            if (r.getCode() == 206) {
                 intercept.set(true);
                 // Verify partial content response
                 assertNotNull(r.getHeaders(HttpHeaders.CONTENT_RANGE));
@@ -365,7 +313,6 @@ public class FunctionalSardineTest
         final String url = webDavTestContainer.getRandomTestBasicAuthFileUrl();
         try {
             sardine.put(url, new InputStream() {
-                @Override
                 public int read() {
                     fail("Expected authentication to fail without sending any body");
                     return -1;

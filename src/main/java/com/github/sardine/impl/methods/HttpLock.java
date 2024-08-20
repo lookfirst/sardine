@@ -18,12 +18,12 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.HttpHeaders;
 
 /**
  */
-public class HttpLock extends HttpEntityEnclosingRequestBase
+public class HttpLock extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "LOCK";
 
@@ -34,7 +34,7 @@ public class HttpLock extends HttpEntityEnclosingRequestBase
 
 	public HttpLock(URI url)
 	{
-		this.setURI(url);
+		super(METHOD_NAME, url);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
 
