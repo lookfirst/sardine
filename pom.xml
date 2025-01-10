@@ -289,8 +289,8 @@
         </profile>
     </profiles>
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <!-- Skip integration tests by default with failsafe plugin -->
         <skipITs>false</skipITs>
         <httpclient.version>4.5.14</httpclient.version>
