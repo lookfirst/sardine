@@ -168,6 +168,18 @@ public class DavResource
 	 */
 	private int getStatusCode(Response response)
 	{
+		List<Propstat> list = response.getPropstat();
+		for(Propstat propstat : list) {
+			if(propstat.getStatus() != null) {
+				try {
+					return BasicLineParser.parseStatusLine(propstat.getStatus(), null).getStatusCode();
+				}
+				catch(ParseException e) {
+					log.warning(String.format("Failed to parse status line: %s", propstat.getStatus()));
+					return -1;
+				}
+			}
+		}
 		String status = response.getStatus();
 		if (status == null || status.isEmpty())
 		{
