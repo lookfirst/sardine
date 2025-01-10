@@ -618,13 +618,6 @@ public class SardineImpl implements Sardine
 	public void unlock(String url, String token) throws IOException
 	{
 		HttpUnlock entity = new HttpUnlock(url, token);
-		Lockinfo body = new Lockinfo();
-		Lockscope scopeType = new Lockscope();
-		scopeType.setExclusive(new Exclusive());
-		body.setLockscope(scopeType);
-		Locktype lockType = new Locktype();
-		lockType.setWrite(new Write());
-		body.setLocktype(lockType);
 		this.execute(entity, new VoidResponseHandler());
 	}
 
