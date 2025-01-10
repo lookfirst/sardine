@@ -1097,7 +1097,7 @@ public class SardineImpl implements Sardine
 		if (httpMajorVersion != null){
 			request.setVersion(new ProtocolVersion("HTTP", httpMajorVersion, 0));
 		}
-		HttpContext requestLocalContext = new BasicHttpContext(context);
+		HttpContext requestLocalContext = new HttpClientContext(context);
 		try
 		{
 			if (responseHandler != null)
