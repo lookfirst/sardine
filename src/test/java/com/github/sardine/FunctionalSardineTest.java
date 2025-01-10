@@ -226,8 +226,7 @@ public class FunctionalSardineTest
         Sardine sardine = SardineFactory.begin();
         sardine.createDirectory(url);
         DavQuota davQuota = sardine.getQuota(url);
-        assertTrue(davQuota.getQuotaAvailableBytes() > 0);
-        assertEquals(0, davQuota.getQuotaUsedBytes());
+        assertNull(davQuota);
     }
 
     @Test(expected = SardineException.class)
