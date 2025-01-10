@@ -280,14 +280,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void ignoreCookies()
 	{
-		this.builder.setDefaultCookieSpecRegistry(new Lookup<CookieSpecFactory>()
-		{
-			@Override
-			public CookieSpecFactory lookup(String name)
-			{
-				return new IgnoreCookieSpecFactory();
-			}
-		});
+		this.builder.setDefaultCookieSpecRegistry(name -> new IgnoreCookieSpecFactory());
 		this.client = this.builder.build();
 	}
 
