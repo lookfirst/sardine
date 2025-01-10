@@ -367,7 +367,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			return list(url, depth, Collections.<QName>emptySet());
+			return list(url, depth, Collections.emptySet());
 		}
 	}
 
@@ -378,7 +378,7 @@ public class SardineImpl implements Sardine
 
 	@Override
 	public List<DavResource> versionsList(String url, int depth) throws IOException {
-		return versionsList(url, depth, Collections.<QName>emptySet());
+		return versionsList(url, depth, Collections.emptySet());
 	}
 
 	@Override
@@ -431,7 +431,7 @@ public class SardineImpl implements Sardine
 		entity.setEntity(new StringEntity(SardineUtil.toXml(body), StandardCharsets.UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -463,7 +463,7 @@ public class SardineImpl implements Sardine
 		search.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(search, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -487,7 +487,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps) throws IOException
 	{
-		return this.patch(url, setProps, Collections.<QName>emptyList());
+		return this.patch(url, setProps, Collections.emptyList());
 	}
 
 	/**
@@ -498,7 +498,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
-		List<Element> setPropsElements = new ArrayList<Element>();
+		List<Element> setPropsElements = new ArrayList<>();
 		for (Entry<QName, String> entry : setProps.entrySet())
 		{
 			Element element = SardineUtil.createElement(entry.getKey());
@@ -562,7 +562,7 @@ public class SardineImpl implements Sardine
 		entity.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -629,7 +629,7 @@ public class SardineImpl implements Sardine
 		HttpAcl entity = new HttpAcl(url);
 		// Build WebDAV <code>ACL</code> entity.
 		Acl body = new Acl();
-		body.setAce(new ArrayList<Ace>());
+		body.setAce(new ArrayList<>());
 		for (DavAce davAce : aces)
 		{
 			// protected and inherited acl must not be part of ACL http request
@@ -720,7 +720,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			List<DavPrincipal> collections = new ArrayList<DavPrincipal>();
+			List<DavPrincipal> collections = new ArrayList<>();
 			for (Response r : responses)
 			{
 				if (r.getPropstat() != null)
@@ -760,7 +760,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			List<String> collections = new ArrayList<String>();
+			List<String> collections = new ArrayList<>();
 			for (Response r : responses)
 			{
 				if (r.getPropstat() != null)
@@ -788,7 +788,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public ContentLengthInputStream get(String url) throws IOException
 	{
-		return this.get(url, Collections.<String, String>emptyMap());
+		return this.get(url, Collections.emptyMap());
 	}
 
 	@Override
@@ -801,7 +801,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
 	{
-		List<Header> list = new ArrayList<Header>();
+		List<Header> list = new ArrayList<>();
 		for (Map.Entry<String, String> h : headers.entrySet())
 		{
 			list.add(new BasicHeader(h.getKey(), h.getValue()));
@@ -875,7 +875,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, InputStream dataStream, String contentType, Map<String, String> headers) throws IOException
 	{
-		List<Header> list = new ArrayList<Header>();
+		List<Header> list = new ArrayList<>();
 		for (Map.Entry<String, String> h : headers.entrySet())
 		{
 			list.add(new BasicHeader(h.getKey(), h.getValue()));
@@ -900,7 +900,7 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		List<Header> headers = new ArrayList<Header>();
+		List<Header> headers = new ArrayList<>();
 		if (contentType != null)
 		{
 			headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType));
