@@ -35,6 +35,7 @@ import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.CookieSpecFactory;
 import org.apache.hc.client5.http.entity.GzipDecompressingEntity;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.DefaultSchemePortResolver;
 import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
@@ -47,6 +48,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.protocol.RedirectStrategy;
 import org.apache.hc.client5.http.routing.HttpRoutePlanner;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
@@ -1100,7 +1102,7 @@ public class SardineImpl implements Sardine
 		Integer httpMajorVersion = (Integer) context.getAttribute(HTTP_MAJOR_VERSION);
 
 		if (httpMajorVersion != null){
-		request.setVersion(new ProtocolVersion("HTTP", httpMajorVersion, 0));
+			request.setVersion(new ProtocolVersion("HTTP", httpMajorVersion, 0));
 		}
 		HttpContext requestLocalContext = new BasicHttpContext(context);
 		try
@@ -1154,7 +1156,7 @@ public class SardineImpl implements Sardine
 		return HttpClients.custom()
 				.setUserAgent("Sardine/" + version)
 				.setDefaultCredentialsProvider(credentials)
-//				.setRedirectStrategy(this.createDefaultRedirectStrategy())
+				.setRedirectStrategy(this.createDefaultRedirectStrategy())
 				.setDefaultRequestConfig(RequestConfig.custom()
 						// Only selectively enable this for PUT but not all entity enclosing methods
 						.setExpectContinueEnabled(false).build())
@@ -1167,10 +1169,10 @@ public class SardineImpl implements Sardine
 		return new DefaultSchemePortResolver();
 	}
 
-//	protected SardineRedirectStrategy createDefaultRedirectStrategy()
-//	{
-//		return new SardineRedirectStrategy();
-//	}
+	protected RedirectStrategy createDefaultRedirectStrategy()
+	{
+		return new DefaultRedirectStrategy();
+	}
 
 	/**
 	 * Creates a new registry for default ports with socket factories.
