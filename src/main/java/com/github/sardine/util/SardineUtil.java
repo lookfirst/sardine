@@ -23,7 +23,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -36,16 +38,16 @@ public final class SardineUtil
 {
 	private SardineUtil() {}
 
-	private final static String[] SUPPORTED_DATE_FORMATS = new String[]{
-	  "yyyy-MM-dd'T'HH:mm:ss'Z'",
-	  "EEE, dd MMM yyyy HH:mm:ss zzz",
-	  "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-	  "yyyy-MM-dd'T'HH:mm:ssZ",
-	  "EEE MMM dd HH:mm:ss zzz yyyy",
-	  "EEEEEE, dd-MMM-yy HH:mm:ss zzz",
-	  "EEE MMMM d HH:mm:ss yyyy"};
+    private final static String[] SUPPORTED_DATE_FORMATS = new String[]{
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "EEE, dd MMM yyyy HH:mm:ss zzz", // RFC1123
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "EEE MMM dd HH:mm:ss zzz yyyy",
+			"EEEE, dd-MMM-yy HH:mm:ss zzz",
+            "EEE MMMM d HH:mm:ss yyyy"};
 
-	/**
+    /**
 	 * Default namespace prefix
 	 */
 	public static final String CUSTOM_NAMESPACE_PREFIX = "s";
@@ -85,19 +87,6 @@ public final class SardineUtil
 	}
 
 	/**
-	 * Date formats using for Date parsing.
-	 */
-	private static final List<ThreadLocal<SimpleDateFormat>> DATETIME_FORMATS;
-
-	static {
-		List<ThreadLocal<SimpleDateFormat>> l = new ArrayList<ThreadLocal<SimpleDateFormat>>(SUPPORTED_DATE_FORMATS.length);
-		for (int i = 0; i<SUPPORTED_DATE_FORMATS.length; i++){
-			l.add(new ThreadLocal<SimpleDateFormat>());
-		}
-		DATETIME_FORMATS = Collections.unmodifiableList(l);
-	}
-
-	/**
 	 * Loops over all the possible date formats and tries to find the right one.
 	 *
 	 * @param value ISO date string
@@ -109,7 +98,13 @@ public final class SardineUtil
 		{
 			return null;
 		}
-		return DateUtils.parseDate(value, SUPPORTED_DATE_FORMATS);
+		final Instant parsedInstant = DateUtils.parseDate(value, Arrays.stream(SUPPORTED_DATE_FORMATS)
+				.map(pattern -> DateTimeFormatter.ofPattern(pattern, Locale.US).withZone(ZoneId.of("GMT"))).toArray(DateTimeFormatter[]::new));
+		if (null == parsedInstant)
+		{
+			return null;
+		}
+        return Date.from(parsedInstant);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -163,10 +158,7 @@ public final class SardineUtil
 		catch (JAXBException e)
 		{
 			// Server does not return any valid WebDAV XML that matches our JAXB context
-			IOException failure = new IOException("Not a valid DAV response");
-			// Backward compatibility
-			failure.initCause(e);
-			throw failure;
+            throw new IOException("Not a valid DAV response", e);
 		}
 		finally
 		{

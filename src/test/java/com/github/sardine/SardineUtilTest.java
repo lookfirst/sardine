@@ -34,6 +34,7 @@ public class SardineUtilTest
 	@Test
 	public void testParseDate() throws Exception
 	{
+		assertNotNull(SardineUtil.parseDate("1970-01-01T12:00:00Z"));
 		assertNotNull(SardineUtil.parseDate("2007-07-16T13:35:49Z"));
 		assertNotNull(SardineUtil.parseDate("Mon, 16 Jul 2007 13:35:49 GMT"));
 	}
