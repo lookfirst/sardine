@@ -400,6 +400,14 @@
         </complexType>
     </element>
 
+    <element name="version-tree">
+        <complexType>
+            <sequence>
+                <element ref="dav:prop" minOccurs="0"/>
+            </sequence>
+        </complexType>
+    </element>
+    
     <element name="sync-collection">
         <complexType>
             <sequence>
