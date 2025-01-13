@@ -29,9 +29,9 @@ public class HttpPropFind extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "PROPFIND";
 
-	public HttpPropFind(final String url)
+	public HttpPropFind(String uri)
 	{
-		this(URI.create(url));
+		this(URI.create(uri));
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class HttpPropFind extends HttpUriRequestBase
 	 *
 	 * @param uri The resource
 	 */
-	public HttpPropFind(final URI uri)
+	public HttpPropFind(URI uri)
 	{
 		super(METHOD_NAME, uri);
 		this.setDepth("1");

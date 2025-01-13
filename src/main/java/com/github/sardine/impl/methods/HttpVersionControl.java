@@ -11,12 +11,12 @@ public class HttpVersionControl extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "VERSION-CONTROL";
 
-    public HttpVersionControl(String url) {
-        this(URI.create(url));
+    public HttpVersionControl(String uri) {
+        this(URI.create(uri));
     }
 
-    public HttpVersionControl(URI url) {
-        super(METHOD_NAME, url);
+    public HttpVersionControl(URI uri) {
+        super(METHOD_NAME, uri);
     }
 
     @Override

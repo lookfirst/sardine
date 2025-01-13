@@ -11,11 +11,11 @@ public class HttpCheckin extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "CHECKIN";
 
-    public HttpCheckin(final String url) {
-        this(URI.create(url));
+    public HttpCheckin(String uri) {
+        this(URI.create(uri));
     }
 
-    public HttpCheckin(final URI uri) {
+    public HttpCheckin(URI uri) {
         super(METHOD_NAME, uri);
     }
 

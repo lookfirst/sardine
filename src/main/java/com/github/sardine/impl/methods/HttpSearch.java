@@ -14,11 +14,11 @@ import org.apache.hc.core5.http.HttpHeaders;
 public class HttpSearch extends HttpUriRequestBase {
     public static final String METHOD_NAME = "SEARCH";
 
-    public HttpSearch(final String url) {
-        this(URI.create(url));
+    public HttpSearch(String uri) {
+        this(URI.create(uri));
     }
 
-    public HttpSearch(final URI uri) {
+    public HttpSearch(URI uri) {
         super(METHOD_NAME, uri);
         this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
     }

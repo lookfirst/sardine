@@ -29,14 +29,14 @@ public class HttpPropPatch extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "PROPPATCH";
 
-	public HttpPropPatch(String url)
+	public HttpPropPatch(String uri)
 	{
-		this(URI.create(url));
+		this(URI.create(uri));
 	}
 
-	public HttpPropPatch(URI url)
+	public HttpPropPatch(URI uri)
 	{
-		super(METHOD_NAME, url);
+		super(METHOD_NAME, uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
 

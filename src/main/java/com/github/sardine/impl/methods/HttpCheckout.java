@@ -11,11 +11,11 @@ public class HttpCheckout extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "CHECKOUT";
 
-    public HttpCheckout(final String url) {
-        this(URI.create(url));
+    public HttpCheckout(String uri) {
+        this(URI.create(uri));
     }
 
-    public HttpCheckout(final URI uri) {
+    public HttpCheckout(URI uri) {
         super(METHOD_NAME, uri);
     }
 

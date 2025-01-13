@@ -28,14 +28,14 @@ public class HttpMkCol extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "MKCOL";
 
-	public HttpMkCol(String url)
+	public HttpMkCol(String uri)
 	{
-		this(URI.create(url));
+		this(URI.create(uri));
 	}
 
-	public HttpMkCol(URI url)
+	public HttpMkCol(URI uri)
 	{
-		super(METHOD_NAME, url);
+		super(METHOD_NAME, uri);
 	}
 
 	public String getMethod()

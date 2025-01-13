@@ -27,14 +27,14 @@ public class HttpLock extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "LOCK";
 
-	public HttpLock(String url)
+	public HttpLock(String uri)
 	{
-		this(URI.create(url));
+		this(URI.create(uri));
 	}
 
-	public HttpLock(URI url)
+	public HttpLock(URI uri)
 	{
-		super(METHOD_NAME, url);
+		super(METHOD_NAME, uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
 

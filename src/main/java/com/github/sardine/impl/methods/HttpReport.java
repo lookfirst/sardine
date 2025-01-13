@@ -9,8 +9,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 public class HttpReport extends HttpUriRequestBase {
     public static final String METHOD_NAME = "REPORT";
 
-    public HttpReport(final String url) {
-        this(URI.create(url));
+    public HttpReport(String uri) {
+        this(URI.create(uri));
     }
 
     /**
@@ -18,7 +18,7 @@ public class HttpReport extends HttpUriRequestBase {
      *
      * @param uri The resource
      */
-    public HttpReport(final URI uri) {
+    public HttpReport(URI uri) {
         super(METHOD_NAME, uri);
         this.setDepth("0");
         this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");

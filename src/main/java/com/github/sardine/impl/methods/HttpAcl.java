@@ -29,15 +29,15 @@ public class HttpAcl extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "ACL";
 
-	public HttpAcl(final String url)
+	public HttpAcl(String uri)
 	{
-		this(URI.create(url));
+		this(URI.create(uri));
 	}
 
 	/**
 	 * @param uri The resource
 	 */
-	public HttpAcl(final URI uri)
+	public HttpAcl(URI uri)
 	{
 		super(METHOD_NAME, uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
