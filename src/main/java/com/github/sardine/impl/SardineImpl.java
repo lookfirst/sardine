@@ -842,7 +842,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, byte[] data, String contentType) throws IOException
 	{
-		ByteArrayEntity entity = new ByteArrayEntity(data, contentType != null ? ContentType.create(contentType) : null);
+		ByteArrayEntity entity = new ByteArrayEntity(data, createContentType(contentType));
 		this.put(url, entity, contentType, true);
 	}
 
@@ -868,7 +868,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength) throws IOException
 	{
-		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength, contentType != null ? ContentType.create(contentType) : null);
+		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength, createContentType(contentType));
 		this.put(url, entity, contentType, expectContinue);
 	}
 
@@ -886,7 +886,7 @@ public class SardineImpl implements Sardine
 	public void put(String url, InputStream dataStream, String contentType, List<Header> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
-		InputStreamEntity entity = new InputStreamEntity(dataStream, -1, contentType != null ? ContentType.create(contentType) : null);
+		InputStreamEntity entity = new InputStreamEntity(dataStream, -1, createContentType(contentType));
 		this.put(url, entity, headers);
 	}
 
@@ -965,7 +965,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException
 	{
-		FileEntity content = new FileEntity(localFile, contentType != null ? ContentType.create(contentType) : null);
+		FileEntity content = new FileEntity(localFile, createContentType(contentType));
 		this.put(url, content, contentType, expectContinue);
 	}
 
@@ -1214,5 +1214,15 @@ public class SardineImpl implements Sardine
 	private static HttpEntity createEntity(Object jaxbElement) throws IOException
 	{
 		return new StringEntity(SardineUtil.toXml(jaxbElement), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Create MIME content type from string
+	 *
+	 * @param contentType MIME content type or null
+	 * @return May be null
+	 */
+	private static ContentType createContentType(String contentType) {
+		return contentType != null ? ContentType.create(contentType) : null;
 	}
 }
