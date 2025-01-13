@@ -25,7 +25,25 @@ public interface Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
+	@Deprecated
+	void setCredentials(String username, String password);
+
+	/**
+	 * Add credentials to any scope.
+	 *
+	 * @param username Use in authentication header credentials
+	 * @param password Use in authentication header credentials
+	 */
 	void setCredentials(String username, char[] password);
+
+	/**
+	 * @param username	Use in authentication header credentials
+	 * @param password	Use in authentication header credentials
+	 * @param domain	  NTLM authentication
+	 * @param workstation NTLM authentication
+	 */
+	@Deprecated
+	void setCredentials(String username, String password, String domain, String workstation);
 
 	/**
 	 * @param username	Use in authentication header credentials

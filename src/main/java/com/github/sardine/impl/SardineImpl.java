@@ -184,6 +184,11 @@ public class SardineImpl implements Sardine
 		this.client = this.builder.build();
 	}
 
+	@Override
+	public void setCredentials(String username, String password) {
+		this.setCredentials(username, password.toCharArray());
+	}
+
 	/**
 	 * Add credentials to any scope. Supports Basic, Digest and NTLM authentication methods.
 	 *
@@ -194,6 +199,11 @@ public class SardineImpl implements Sardine
 	public void setCredentials(String username, char[] password)
 	{
 		this.setCredentials(username, password, "", "");
+	}
+
+	@Override
+	public void setCredentials(String username, String password, String domain, String workstation) {
+		this.setCredentials(username, password.toCharArray(), domain, workstation);
 	}
 
 	/**
