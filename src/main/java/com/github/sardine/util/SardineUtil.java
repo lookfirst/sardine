@@ -158,7 +158,7 @@ public final class SardineUtil
 		catch (JAXBException e)
 		{
 			// Server does not return any valid WebDAV XML that matches our JAXB context
-            throw new IOException("Not a valid DAV response", e);
+			throw new IOException("Not a valid DAV response", e);
 		}
 		finally
 		{
