@@ -327,12 +327,12 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
 	{
-		AuthCache cache = this.context.getAuthCache();
+		AuthCache cache = context.getAuthCache();
 		if (cache == null)
 		{
 			// Add AuthCache to the execution context
 			cache = new BasicAuthCache();
-			this.context.setAuthCache(cache);
+			context.setAuthCache(cache);
 
 		}
 		// Generate Basic preemptive scheme object and stick it to the local execution context
@@ -345,7 +345,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void disablePreemptiveAuthentication()
 	{
-		this.context.removeAttribute(HttpClientContext.AUTH_CACHE);
+		context.setAuthCache(null);
 	}
 
 	@Override
@@ -793,7 +793,7 @@ public class SardineImpl implements Sardine
 
 	@Override
 	public void enableHttp2() {
-		this.context.setAttribute(HTTP_MAJOR_VERSION, 2);
+		context.setAttribute(HTTP_MAJOR_VERSION, 2);
 	}
 
 	@Override
@@ -1095,7 +1095,7 @@ public class SardineImpl implements Sardine
 		if (httpMajorVersion != null){
 			request.setVersion(new ProtocolVersion("HTTP", httpMajorVersion, 0));
 		}
-		HttpContext requestLocalContext = new HttpClientContext(context);
+		HttpClientContext requestLocalContext = new HttpClientContext(context);
 		try
 		{
 			if (responseHandler != null)
@@ -1119,7 +1119,7 @@ public class SardineImpl implements Sardine
 		}
 		finally
 		{
-			context.setAttribute(HttpClientContext.USER_TOKEN, requestLocalContext.getAttribute(HttpClientContext.USER_TOKEN));
+			context.setUserToken(requestLocalContext.getUserToken());
 		}
 	}
 
