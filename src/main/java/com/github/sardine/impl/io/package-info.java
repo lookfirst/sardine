@@ -15,6 +15,6 @@
  */
 
 /**
- * I/O support {@link org.apache.http.client.HttpClient} implementation.
+ * I/O support {@link org.apache.hc.client5.http.classic.HttpClient} implementation.
  */
 package com.github.sardine.impl.io;

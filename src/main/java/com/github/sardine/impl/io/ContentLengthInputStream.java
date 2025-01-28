@@ -20,14 +20,15 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+
 
 public class ContentLengthInputStream extends FilterInputStream
 {
 
 	private Long length;
 
-	public ContentLengthInputStream(final HttpResponse response) throws IOException
+	public ContentLengthInputStream(final ClassicHttpResponse response) throws IOException
 	{
 		super(response.getEntity().getContent());
 		this.length = response.getEntity().getContentLength();

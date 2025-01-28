@@ -26,11 +26,12 @@ import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.BasicUserPrincipal;
-import org.apache.http.auth.Credentials;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.BasicUserPrincipal;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -95,7 +96,7 @@ public class AuthenticationTest
 		client.setDefaultCredentialsProvider(new BasicCredentialsProvider()
 		{
 			@Override
-			public Credentials getCredentials(AuthScope authscope)
+			public Credentials getCredentials(AuthScope authscope, HttpContext httpContext)
 			{
 				// Set flag that credentials have been used indicating preemptive authentication
 				count.countDown();
@@ -106,9 +107,9 @@ public class AuthenticationTest
 						return new BasicUserPrincipal("anonymous");
 					}
 
-					public String getPassword()
+					public char[] getPassword()
 					{
-						return "invalid";
+						return "invalid".toCharArray();
 					}
 				};
 			}

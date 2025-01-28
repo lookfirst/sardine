@@ -101,7 +101,7 @@ public class SardineTask extends Task
 				sardine = SardineFactory.begin(username, password);
 			} else {
 				sardine = SardineFactory.begin();
-				sardine.setCredentials(username, password, domain, workstation);
+				sardine.setCredentials(username, password.toCharArray(), domain, workstation);
 			}
 
 			if (ignoreCookies) {

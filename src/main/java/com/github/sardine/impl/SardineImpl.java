@@ -28,46 +28,44 @@ import com.github.sardine.model.*;
 import com.github.sardine.report.SardineReport;
 import com.github.sardine.report.VersionTreeReport;
 import com.github.sardine.util.SardineUtil;
-import org.apache.http.*;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.AuthState;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.protocol.RequestAcceptEncoding;
-import org.apache.http.client.protocol.ResponseContentEncoding;
-import org.apache.http.config.Lookup;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.SchemePortResolver;
-import org.apache.http.conn.routing.HttpRoutePlanner;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.cookie.CookieSpecProvider;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.*;
-import org.apache.http.impl.conn.DefaultSchemePortResolver;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
-import org.apache.http.impl.cookie.IgnoreSpecProvider;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.VersionInfo;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.SchemePortResolver;
+import org.apache.hc.client5.http.auth.*;
+import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.CookieSpecFactory;
+import org.apache.hc.client5.http.entity.GzipDecompressingEntity;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.impl.DefaultSchemePortResolver;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.cookie.IgnoreCookieSpecFactory;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.protocol.RedirectStrategy;
+import org.apache.hc.client5.http.routing.HttpRoutePlanner;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.config.Lookup;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.FileEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.protocol.BasicHttpContext;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.VersionInfo;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -77,7 +75,7 @@ import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +94,16 @@ public class SardineImpl implements Sardine
 {
 	private static final Logger log = Logger.getLogger(DavResource.class.getName());
 
-	private static final String UTF_8 = "UTF-8";
+	/**
+	 * Value for "Expect" HTTP header
+	 */
+	private static final String EXPECT_CONTINUE = "100-Continue";
+
+	/**
+	 * Default content charset originally used by v4 of HTTP client.
+	 */
+	private static final String DEF_CONTENT_CHARSET = StandardCharsets.ISO_8859_1.name();
+	private static final String HTTP_MAJOR_VERSION = "HTTP_MAJOR_VERSION";
 
 	/**
 	 * HTTP client implementation
@@ -128,7 +135,7 @@ public class SardineImpl implements Sardine
 	 */
 	public SardineImpl(String bearerAuth)
 	{
-		Header bearerHeader = new BasicHeader("Authorization", "Bearer " + bearerAuth);
+		Header bearerHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + bearerAuth);
 		this.builder = this.configure(null, null).setDefaultHeaders(Collections.singletonList(bearerHeader));
 		this.client = this.builder.build();
 	}
@@ -139,7 +146,7 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(String username, String password)
+	public SardineImpl(String username, char[] password)
 	{
 		this.builder = this.configure(null, this.createDefaultCredentialsProvider(username, password, null, null));
 		this.client = this.builder.build();
@@ -150,7 +157,7 @@ public class SardineImpl implements Sardine
 	 * @param password Use in authentication header credentials
 	 * @param selector Proxy configuration
 	 */
-	public SardineImpl(String username, String password, ProxySelector selector)
+	public SardineImpl(String username, char[] password, ProxySelector selector)
 	{
 		this.builder = this.configure(selector, this.createDefaultCredentialsProvider(username, password, null, null));
 		this.client = this.builder.build();
@@ -170,11 +177,16 @@ public class SardineImpl implements Sardine
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public SardineImpl(HttpClientBuilder builder, String username, String password)
+	public SardineImpl(HttpClientBuilder builder, String username, char[] password)
 	{
 		this.builder = builder;
 		this.setCredentials(username, password);
 		this.client = this.builder.build();
+	}
+
+	@Override
+	public void setCredentials(String username, String password) {
+		this.setCredentials(username, password.toCharArray());
 	}
 
 	/**
@@ -184,9 +196,14 @@ public class SardineImpl implements Sardine
 	 * @param password Use in authentication header credentials
 	 */
 	@Override
-	public void setCredentials(String username, String password)
+	public void setCredentials(String username, char[] password)
 	{
 		this.setCredentials(username, password, "", "");
+	}
+
+	@Override
+	public void setCredentials(String username, String password, String domain, String workstation) {
+		this.setCredentials(username, password.toCharArray(), domain, workstation);
 	}
 
 	/**
@@ -196,7 +213,7 @@ public class SardineImpl implements Sardine
 	 * @param workstation NTLM authentication
 	 */
 	@Override
-	public void setCredentials(String username, String password, String domain, String workstation)
+	public void setCredentials(String username, char[] password, String domain, String workstation)
 	{
 		this.setCredentials(this.createDefaultCredentialsProvider(username, password, domain, workstation));
 	}
@@ -204,28 +221,27 @@ public class SardineImpl implements Sardine
 	public void setCredentials(CredentialsProvider provider)
 	{
 		this.context.setCredentialsProvider(provider);
-		this.context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
 	}
 
-	private CredentialsProvider createDefaultCredentialsProvider(String username, String password, String domain, String workstation)
+	private CredentialsProvider createDefaultCredentialsProvider(String username, char[] password, String domain, String workstation)
 	{
-		CredentialsProvider provider = new BasicCredentialsProvider();
+		CredentialsStore provider = new BasicCredentialsProvider();
 		if (username != null)
 		{
 			provider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.NTLM),
+					new AuthScope(null, null, -1, null, StandardAuthScheme.NTLM),
 					new NTCredentials(username, password, workstation, domain));
 			provider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.BASIC),
+					new AuthScope(null, null, -1, null, StandardAuthScheme.BASIC),
 					new UsernamePasswordCredentials(username, password));
 			provider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.DIGEST),
+					new AuthScope(null, null, -1, null, StandardAuthScheme.DIGEST),
 					new UsernamePasswordCredentials(username, password));
 			provider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.SPNEGO),
+					new AuthScope(null, null, -1, null, StandardAuthScheme.SPNEGO),
 					new NTCredentials(username, password, workstation, domain));
 			provider.setCredentials(
-					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthSchemes.KERBEROS),
+					new AuthScope(null, null, -1, null, StandardAuthScheme.KERBEROS),
 					new UsernamePasswordCredentials(username, password));
 		}
 		return provider;
@@ -237,8 +253,23 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enableCompression()
 	{
-		this.builder.addInterceptorLast(new RequestAcceptEncoding());
-		this.builder.addInterceptorLast(new ResponseContentEncoding());
+		// Adding content encoding (gzip) support
+		this.builder.addRequestInterceptorLast((httpRequest, entityDetails, context) -> {
+			httpRequest.addHeader("Accept-Encoding", "gzip");
+		});
+
+		this.builder.addResponseInterceptorLast((httpResponse, entityDetails, context) -> {
+			ClassicHttpResponse classicHttpResponse = (ClassicHttpResponse) httpResponse;
+			HttpEntity entity = classicHttpResponse.getEntity();
+
+			if (httpResponse.containsHeader("Content-Encoding") &&
+					"gzip".equalsIgnoreCase(httpResponse.getHeader("Content-Encoding").getValue())) {
+				// Decompressing the gzip content
+				ClassicHttpResponse.class.cast(httpResponse).setEntity(
+						new GzipDecompressingEntity(entity));
+			}
+		});
+
 		this.client = this.builder.build();
 	}
 
@@ -258,14 +289,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void ignoreCookies()
 	{
-		this.builder.setDefaultCookieSpecRegistry(new Lookup<CookieSpecProvider>()
-		{
-			@Override
-			public CookieSpecProvider lookup(String name)
-			{
-				return new IgnoreSpecProvider();
-			}
-		});
+		this.builder.setDefaultCookieSpecRegistry(name -> new IgnoreCookieSpecFactory());
 		this.client = this.builder.build();
 	}
 
@@ -303,30 +327,25 @@ public class SardineImpl implements Sardine
 	@Override
 	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort)
 	{
-		enablePreemptiveAuthentication(hostname, httpPort, httpsPort, Consts.ISO_8859_1);
-	}
-
-	public void enablePreemptiveAuthentication(String hostname, int httpPort, int httpsPort, Charset credentialsCharset)
-	{
-		AuthCache cache = this.context.getAuthCache();
+		AuthCache cache = context.getAuthCache();
 		if (cache == null)
 		{
 			// Add AuthCache to the execution context
 			cache = new BasicAuthCache();
-			this.context.setAuthCache(cache);
+			context.setAuthCache(cache);
 
 		}
 		// Generate Basic preemptive scheme object and stick it to the local execution context
-		BasicScheme basicAuth = new BasicScheme(credentialsCharset);
+		BasicScheme basicAuth = new BasicScheme();
 		// Configure HttpClient to authenticate preemptively by prepopulating the authentication data cache.
-		cache.put(new HttpHost(hostname, httpPort == -1 ? 80 : httpPort, "http"), basicAuth);
-		cache.put(new HttpHost(hostname, httpsPort == -1 ? 443 : httpsPort, "https"), basicAuth);
+		cache.put(new HttpHost("http", hostname, httpPort), basicAuth);
+		cache.put(new HttpHost("https", hostname, httpsPort), basicAuth);
 	}
 
 	@Override
 	public void disablePreemptiveAuthentication()
 	{
-		this.context.removeAttribute(HttpClientContext.AUTH_CACHE);
+		context.setAuthCache(null);
 	}
 
 	@Override
@@ -358,7 +377,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			return list(url, depth, Collections.<QName>emptySet());
+			return list(url, depth, Collections.emptySet());
 		}
 	}
 
@@ -369,7 +388,7 @@ public class SardineImpl implements Sardine
 
 	@Override
 	public List<DavResource> versionsList(String url, int depth) throws IOException {
-		return versionsList(url, depth, Collections.<QName>emptySet());
+		return versionsList(url, depth, Collections.emptySet());
 	}
 
 	@Override
@@ -420,10 +439,10 @@ public class SardineImpl implements Sardine
 	{
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(new StringEntity(SardineUtil.toXml(body), StandardCharsets.UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -442,20 +461,20 @@ public class SardineImpl implements Sardine
 	{
 		HttpReport entity = new HttpReport(url);
 		entity.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
-		entity.setEntity(new StringEntity(report.toXml(), UTF_8));
+		entity.setEntity(new StringEntity(report.toXml(), StandardCharsets.UTF_8));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		return report.fromMultistatus(multistatus);
 	}
 
 	public List<DavResource> search(String url, String language, String query) throws IOException
 	{
-		HttpEntityEnclosingRequestBase search = new HttpSearch(url);
+		HttpSearch search = new HttpSearch(url);
 		SearchRequest searchBody = new SearchRequest(language, query);
 		String body = SardineUtil.toXml(searchBody);
-		search.setEntity(new StringEntity(body, UTF_8));
+		search.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(search, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -479,7 +498,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps) throws IOException
 	{
-		return this.patch(url, setProps, Collections.<QName>emptyList());
+		return this.patch(url, setProps, Collections.emptyList());
 	}
 
 	/**
@@ -490,7 +509,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, Map<QName, String> setProps, List<QName> removeProps) throws IOException
 	{
-		List<Element> setPropsElements = new ArrayList<Element>();
+		List<Element> setPropsElements = new ArrayList<>();
 		for (Entry<QName, String> entry : setProps.entrySet())
 		{
 			Element element = SardineUtil.createElement(entry.getKey());
@@ -508,7 +527,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public List<DavResource> patch(String url, List<Element> setProps, List<QName> removeProps) throws IOException
 	{
-		return this.patch(url, setProps, removeProps, Collections.<String, String>emptyMap());
+		return this.patch(url, setProps, removeProps, Collections.emptyMap());
 	}
 
 	@Override
@@ -519,6 +538,7 @@ public class SardineImpl implements Sardine
 		{
 			patch.addHeader(new BasicHeader(h.getKey(), h.getValue()));
 		}
+		HttpPropPatch entity = new HttpPropPatch(url);
 		// Build WebDAV <code>PROPPATCH</code> entity.
 		Propertyupdate body = new Propertyupdate();
 		// Add properties
@@ -550,10 +570,10 @@ public class SardineImpl implements Sardine
 				remove.setProp(prop);
 			}
 		}
-		patch.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		Multistatus multistatus = this.execute(patch, new MultiStatusResponseHandler());
+		entity.setEntity(createEntity(body));
+		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
-		List<DavResource> resources = new ArrayList<DavResource>(responses.size());
+		List<DavResource> resources = new ArrayList<>(responses.size());
 		for (Response response : responses)
 		{
 			try
@@ -579,7 +599,7 @@ public class SardineImpl implements Sardine
 		Locktype lockType = new Locktype();
 		lockType.setWrite(new Write());
 		body.setLocktype(lockType);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		// Return the lock token
 		return this.execute(entity, new LockResponseHandler());
 	}
@@ -596,13 +616,6 @@ public class SardineImpl implements Sardine
 	public void unlock(String url, String token) throws IOException
 	{
 		HttpUnlock entity = new HttpUnlock(url, token);
-		Lockinfo body = new Lockinfo();
-		Lockscope scopeType = new Lockscope();
-		scopeType.setExclusive(new Exclusive());
-		body.setLockscope(scopeType);
-		Locktype lockType = new Locktype();
-		lockType.setWrite(new Write());
-		body.setLocktype(lockType);
 		this.execute(entity, new VoidResponseHandler());
 	}
 
@@ -627,7 +640,7 @@ public class SardineImpl implements Sardine
 		HttpAcl entity = new HttpAcl(url);
 		// Build WebDAV <code>ACL</code> entity.
 		Acl body = new Acl();
-		body.setAce(new ArrayList<Ace>());
+		body.setAce(new ArrayList<>());
 		for (DavAce davAce : aces)
 		{
 			// protected and inherited acl must not be part of ACL http request
@@ -638,7 +651,7 @@ public class SardineImpl implements Sardine
 			Ace ace = davAce.toModel();
 			body.getAce().add(ace);
 		}
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		this.execute(entity, new VoidResponseHandler());
 	}
 
@@ -654,7 +667,7 @@ public class SardineImpl implements Sardine
 		prop.setGroup(new Group());
 		prop.setAcl(new Acl());
 		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		if (responses.isEmpty())
@@ -677,7 +690,7 @@ public class SardineImpl implements Sardine
 		prop.setQuotaAvailableBytes(new QuotaAvailableBytes());
 		prop.setQuotaUsedBytes(new QuotaUsedBytes());
 		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		if (responses.isEmpty())
@@ -709,7 +722,7 @@ public class SardineImpl implements Sardine
 		prop.setResourcetype(new Resourcetype());
 		prop.setPrincipalURL(new PrincipalURL());
 		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		if (responses.isEmpty())
@@ -718,7 +731,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			List<DavPrincipal> collections = new ArrayList<DavPrincipal>();
+			List<DavPrincipal> collections = new ArrayList<>();
 			for (Response r : responses)
 			{
 				if (r.getPropstat() != null)
@@ -749,7 +762,7 @@ public class SardineImpl implements Sardine
 		Prop prop = new Prop();
 		prop.setPrincipalCollectionSet(new PrincipalCollectionSet());
 		body.setProp(prop);
-		entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
+		entity.setEntity(createEntity(body));
 		Multistatus multistatus = this.execute(entity, new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
 		if (responses.isEmpty())
@@ -758,7 +771,7 @@ public class SardineImpl implements Sardine
 		}
 		else
 		{
-			List<String> collections = new ArrayList<String>();
+			List<String> collections = new ArrayList<>();
 			for (Response r : responses)
 			{
 				if (r.getPropstat() != null)
@@ -779,9 +792,14 @@ public class SardineImpl implements Sardine
 	}
 
 	@Override
+	public void enableHttp2() {
+		context.setAttribute(HTTP_MAJOR_VERSION, 2);
+	}
+
+	@Override
 	public ContentLengthInputStream get(String url) throws IOException
 	{
-		return this.get(url, Collections.<String, String>emptyMap());
+		return this.get(url, Collections.emptyMap());
 	}
 
 	@Override
@@ -794,7 +812,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public ContentLengthInputStream get(String url, Map<String, String> headers) throws IOException
 	{
-		List<Header> list = new ArrayList<Header>();
+		List<Header> list = new ArrayList<>();
 		for (Map.Entry<String, String> h : headers.entrySet())
 		{
 			list.add(new BasicHeader(h.getKey(), h.getValue()));
@@ -811,7 +829,7 @@ public class SardineImpl implements Sardine
 		}
 		// Must use #execute without handler, otherwise the entity is consumed
 		// already after the handler exits.
-		HttpResponse response = this.execute(get);
+		ClassicHttpResponse response = this.execute(get);
 		VoidResponseHandler handler = new VoidResponseHandler();
 		try
 		{
@@ -835,14 +853,14 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, byte[] data, String contentType) throws IOException
 	{
-		ByteArrayEntity entity = new ByteArrayEntity(data);
+		ByteArrayEntity entity = new ByteArrayEntity(data, createContentType(contentType));
 		this.put(url, entity, contentType, true);
 	}
 
 	@Override
 	public void put(String url, InputStream dataStream) throws IOException
 	{
-		this.put(url, dataStream, (String) null);
+		this.put(url, dataStream, null);
 	}
 
 	@Override
@@ -861,25 +879,25 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, InputStream dataStream, String contentType, boolean expectContinue, long contentLength) throws IOException
 	{
-		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength);
+		InputStreamEntity entity = new InputStreamEntity(dataStream, contentLength, createContentType(contentType));
 		this.put(url, entity, contentType, expectContinue);
 	}
 
 	@Override
-	public void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException
+	public void put(String url, InputStream dataStream, String contentType, Map<String, String> headers) throws IOException
 	{
-		List<Header> list = new ArrayList<Header>();
+		List<Header> list = new ArrayList<>();
 		for (Map.Entry<String, String> h : headers.entrySet())
 		{
 			list.add(new BasicHeader(h.getKey(), h.getValue()));
 		}
-		this.put(url, dataStream, list);
+		this.put(url, dataStream, contentType, list);
 	}
 
-	public void put(String url, InputStream dataStream, List<Header> headers) throws IOException
+	public void put(String url, InputStream dataStream, String contentType, List<Header> headers) throws IOException
 	{
 		// A length of -1 means "go until end of stream"
-		InputStreamEntity entity = new InputStreamEntity(dataStream, -1);
+		InputStreamEntity entity = new InputStreamEntity(dataStream, -1, createContentType(contentType));
 		this.put(url, entity, headers);
 	}
 
@@ -893,14 +911,14 @@ public class SardineImpl implements Sardine
 	 */
 	public void put(String url, HttpEntity entity, String contentType, boolean expectContinue) throws IOException
 	{
-		List<Header> headers = new ArrayList<Header>();
+		List<Header> headers = new ArrayList<>();
 		if (contentType != null)
 		{
 			headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType));
 		}
 		if (expectContinue)
 		{
-			headers.add(new BasicHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE));
+			headers.add(new BasicHeader(HttpHeaders.EXPECT, EXPECT_CONTINUE));
 		}
 		this.put(url, entity, headers);
 	}
@@ -917,7 +935,7 @@ public class SardineImpl implements Sardine
 		this.put(url, entity, headers, new VoidResponseHandler());
 	}
 
-	public <T> T put(String url, HttpEntity entity, List<Header> headers, ResponseHandler<T> handler) throws IOException
+	public <T> T put(String url, HttpEntity entity, List<Header> headers, HttpClientResponseHandler<T> handler) throws IOException
 	{
 		HttpPut put = new HttpPut(url);
 		put.setEntity(entity);
@@ -927,7 +945,7 @@ public class SardineImpl implements Sardine
 		}
 		if (entity.getContentType() == null && !put.containsHeader(HttpHeaders.CONTENT_TYPE))
 		{
-			put.addHeader(HttpHeaders.CONTENT_TYPE, HTTP.DEF_CONTENT_CHARSET.name());
+			put.addHeader(HttpHeaders.CONTENT_TYPE, DEF_CONTENT_CHARSET);
 		}
 		try
 		{
@@ -938,7 +956,7 @@ public class SardineImpl implements Sardine
 			if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED)
 			{
 				// Retry with the Expect header removed
-				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
+				put.removeHeaders(HttpHeaders.EXPECT);
 				if (entity.isRepeatable())
 				{
 					return this.execute(put, handler);
@@ -951,21 +969,21 @@ public class SardineImpl implements Sardine
 	@Override
 	public void put(String url, File localFile, String contentType) throws IOException
 	{
-		//don't use ExpectContinue for repetable FileEntity, some web server (IIS for exmaple) may return 400 bad request after retry
-		this.put(url, localFile, contentType, false);
+		//don't use ExpectContinue for repeatable FileEntity, some web server (IIS for example) may return 400 bad request after retry
+		put(url, localFile, contentType, false);
 	}
 
 	@Override
 	public void put(String url, File localFile, String contentType, boolean expectContinue) throws IOException
 	{
-		FileEntity content = new FileEntity(localFile);
+		FileEntity content = new FileEntity(localFile, createContentType(contentType));
 		this.put(url, content, contentType, expectContinue);
 	}
 
 	@Override
 	public void delete(String url) throws IOException
 	{
-		this.delete(url, Collections.<String, String>emptyMap());
+		this.delete(url, Collections.emptyMap());
 	}
 
 	@Override
@@ -984,7 +1002,7 @@ public class SardineImpl implements Sardine
 	@Override
 	public void move(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
 	{
-		this.move(sourceUrl, destinationUrl, overwrite, Collections.<String, String>emptyMap());
+		this.move(sourceUrl, destinationUrl, overwrite, Collections.emptyMap());
 	}
 
 	@Override
@@ -1001,13 +1019,13 @@ public class SardineImpl implements Sardine
 	@Override
 	public void copy(String sourceUrl, String destinationUrl) throws IOException
 	{
-		this.copy(sourceUrl, destinationUrl, true);
+		copy(sourceUrl, destinationUrl, true);
 	}
 
 	@Override
 	public void copy(String sourceUrl, String destinationUrl, boolean overwrite) throws IOException
 	{
-		this.copy(sourceUrl, destinationUrl, overwrite, Collections.<String, String>emptyMap());
+		this.copy(sourceUrl, destinationUrl, overwrite, Collections.emptyMap());
 	}
 
 	@Override
@@ -1043,7 +1061,7 @@ public class SardineImpl implements Sardine
 	 * @param responseHandler Determines the return type.
 	 * @return parsed response
 	 */
-	protected <T> T execute(HttpRequestBase request, ResponseHandler<T> responseHandler)
+	protected <T> T execute(HttpUriRequestBase request, HttpClientResponseHandler<T> responseHandler)
 			throws IOException
 	{
 		return execute(context, request, responseHandler);
@@ -1055,7 +1073,7 @@ public class SardineImpl implements Sardine
 	 * @param request Request to execute
 	 * @return The response to check the reply status code
 	 */
-	protected HttpResponse execute(HttpRequestBase request)
+	protected ClassicHttpResponse execute(HttpUriRequestBase request)
 			throws IOException
 	{
 		return execute(context, request, null);
@@ -1069,15 +1087,20 @@ public class SardineImpl implements Sardine
 	 * @param <T> will return raw HttpResponse when responseHandler is null or value reslved using provided ResponseHandler instance
 	 * @return value resolved using response handler or raw HttpResponse when responseHandler is null
 	 */
-	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> responseHandler)
+	protected <T> T execute(HttpClientContext context, HttpUriRequestBase request, HttpClientResponseHandler<T> responseHandler)
 			throws IOException
 	{
-		HttpContext requestLocalContext = new BasicHttpContext(context);
+		Integer httpMajorVersion = (Integer) context.getAttribute(HTTP_MAJOR_VERSION);
+
+		if (httpMajorVersion != null){
+			request.setVersion(new ProtocolVersion("HTTP", httpMajorVersion, 0));
+		}
+		HttpClientContext requestLocalContext = new HttpClientContext(context);
 		try
 		{
 			if (responseHandler != null)
 			{
-				return this.client.execute(request, responseHandler, requestLocalContext);
+				return this.client.execute(request, requestLocalContext, responseHandler);
 			}
 			else
 			{
@@ -1096,7 +1119,7 @@ public class SardineImpl implements Sardine
 		}
 		finally
 		{
-			context.setAttribute(HttpClientContext.USER_TOKEN, requestLocalContext.getAttribute(HttpClientContext.USER_TOKEN));
+			context.setUserToken(requestLocalContext.getUserToken());
 		}
 	}
 
@@ -1137,9 +1160,9 @@ public class SardineImpl implements Sardine
 		return new DefaultSchemePortResolver();
 	}
 
-	protected SardineRedirectStrategy createDefaultRedirectStrategy()
+	protected RedirectStrategy createDefaultRedirectStrategy()
 	{
-		return new SardineRedirectStrategy();
+		return new DefaultRedirectStrategy();
 	}
 
 	/**
@@ -1190,5 +1213,27 @@ public class SardineImpl implements Sardine
 	protected HttpRoutePlanner createDefaultRoutePlanner(SchemePortResolver resolver, ProxySelector selector)
 	{
 		return new SystemDefaultRoutePlanner(resolver, selector);
+	}
+
+	/**
+	 * Common logic to create an HTTP entity for a JAXB element.
+	 *
+	 * @param jaxbElement the JAXB element.
+	 * @return the HTTP entity.
+	 * @throws IOException if an error occurs serialising the element.
+	 */
+	private static HttpEntity createEntity(Object jaxbElement) throws IOException
+	{
+		return new StringEntity(SardineUtil.toXml(jaxbElement), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Create MIME content type from string
+	 *
+	 * @param contentType MIME content type or null
+	 * @return May be null
+	 */
+	private static ContentType createContentType(String contentType) {
+		return contentType != null ? ContentType.create(contentType) : null;
 	}
 }

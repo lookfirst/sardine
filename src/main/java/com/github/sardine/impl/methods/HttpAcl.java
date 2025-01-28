@@ -18,17 +18,18 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.HttpHeaders;
+
 
 /**
  * Simple class for making WebDAV <code>ACL</code> requests.
  */
-public class HttpAcl extends HttpEntityEnclosingRequestBase
+public class HttpAcl extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "ACL";
 
-	public HttpAcl(final String uri)
+	public HttpAcl(String uri)
 	{
 		this(URI.create(uri));
 	}
@@ -36,9 +37,9 @@ public class HttpAcl extends HttpEntityEnclosingRequestBase
 	/**
 	 * @param uri The resource
 	 */
-	public HttpAcl(final URI uri)
+	public HttpAcl(URI uri)
 	{
-		this.setURI(uri);
+		super(METHOD_NAME, uri);
 		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
 	}
 

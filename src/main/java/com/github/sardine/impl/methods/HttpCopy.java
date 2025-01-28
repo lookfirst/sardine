@@ -18,22 +18,23 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.HttpHeaders;
+
 
 /**
  * Simple class for making WebDAV <code>COPY</code> requests. Assumes Overwrite = T.
  *
  */
-public class HttpCopy extends HttpRequestBase
+public class HttpCopy extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "COPY";
 
 	public HttpCopy(URI sourceUrl, URI destinationUrl, boolean overwrite)
 	{
+		super(METHOD_NAME, sourceUrl);
 		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toASCIIString());
 		this.setHeader(HttpHeaders.OVERWRITE, overwrite ? "T" : "F");
-		this.setURI(sourceUrl);
 	}
 
 	public HttpCopy(String sourceUrl, String destinationUrl, boolean overwrite)

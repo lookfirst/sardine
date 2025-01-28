@@ -41,6 +41,6 @@ public final class SardineFactory
 	 */
 	public static Sardine begin(String username, String password, ProxySelector proxy)
 	{
-		return new SardineImpl(username, password, proxy);
+		return new SardineImpl(username, password != null ? password.toCharArray() : null, proxy);
 	}
 }

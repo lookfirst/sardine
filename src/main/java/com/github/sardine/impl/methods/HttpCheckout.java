@@ -1,13 +1,13 @@
 package com.github.sardine.impl.methods;
 
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 
 import java.net.URI;
 
 /**
  * Simple class for making WebDAV <code>CHECKOUT</code> requests.
  */
-public class HttpCheckout extends HttpRequestBase {
+public class HttpCheckout extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "CHECKOUT";
 
@@ -16,7 +16,7 @@ public class HttpCheckout extends HttpRequestBase {
     }
 
     public HttpCheckout(URI uri) {
-        this.setURI(uri);
+        super(METHOD_NAME, uri);
     }
 
     @Override
