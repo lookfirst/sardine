@@ -16,7 +16,8 @@
 
 package com.github.sardine.impl;
 
-import org.apache.http.client.HttpResponseException;
+
+import org.apache.hc.client5.http.HttpResponseException;
 
 /**
  * Specialized type of exception for Sardine so

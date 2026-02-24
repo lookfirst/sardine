@@ -20,9 +20,10 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.message.BasicLineParser;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.message.BasicLineParser;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.w3c.dom.Element;
 
 import com.github.sardine.model.Creationdate;
@@ -172,7 +173,9 @@ public class DavResource
 		for(Propstat propstat : list) {
 			if(propstat.getStatus() != null) {
 				try {
-					return BasicLineParser.parseStatusLine(propstat.getStatus(), null).getStatusCode();
+					CharArrayBuffer buffer = new CharArrayBuffer(propstat.getStatus().length());
+					buffer.append(propstat.getStatus());
+					return new BasicLineParser().parseStatusLine(buffer).getStatusCode();
 				}
 				catch(ParseException e) {
 					log.warning(String.format("Failed to parse status line: %s", propstat.getStatus()));
@@ -187,7 +190,9 @@ public class DavResource
 		}
 		try
 		{
-			return BasicLineParser.parseStatusLine(response.getStatus(), null).getStatusCode();
+			CharArrayBuffer buffer = new CharArrayBuffer(response.getStatus().length());
+			buffer.append(response.getStatus());
+			return new BasicLineParser().parseStatusLine(buffer).getStatusCode();
 		}
 		catch (ParseException e)
 		{

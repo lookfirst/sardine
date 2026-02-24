@@ -33,7 +33,7 @@ public class SardineTask extends Task
 	private String username = null;
 
 	/** Attribute password. */
-	private String password = null;
+	private char[] password = null;
 
 	/** Attribute domain for NTLM authentication. */
 	private String domain = null;
@@ -105,7 +105,7 @@ public class SardineTask extends Task
 			}
 
 			if (ignoreCookies) {
-				sardine.ignoreCookies();
+				//sardine.ignoreCookies();
 			}
 
 			if (preemptiveAuthenticationHost != null && !preemptiveAuthenticationHost.isEmpty()) {
@@ -154,10 +154,20 @@ public class SardineTask extends Task
 	 *
 	 * @param password used for authentication
 	 */
-	public void setPassword(String password) {
+	public void setPassword(char[] password) {
 		this.password = password;
 	}
-	
+
+	/**
+	 * Setter for attribute password.
+	 *
+	 * @param password used for authentication
+	 */
+	@Deprecated
+	public void setPassword(String password) {
+		this.password = password == null ? null : password.toCharArray();
+	}
+
 	/**
 	 * Setter for attribute domain for NTLM authentication.
 	 *

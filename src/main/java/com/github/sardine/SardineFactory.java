@@ -29,7 +29,7 @@ public final class SardineFactory
 	 * @param username Use in authentication header credentials
 	 * @param password Use in authentication header credentials
 	 */
-	public static Sardine begin(String username, String password)
+	public static Sardine begin(String username, char[] password)
 	{
 		return begin(username, password, null);
 	}
@@ -39,7 +39,7 @@ public final class SardineFactory
 	 * @param password Use in authentication header credentials
 	 * @param proxy	Proxy configuration
 	 */
-	public static Sardine begin(String username, String password, ProxySelector proxy)
+	public static Sardine begin(String username, char[] password, ProxySelector proxy)
 	{
 		return new SardineImpl(username, password, proxy);
 	}

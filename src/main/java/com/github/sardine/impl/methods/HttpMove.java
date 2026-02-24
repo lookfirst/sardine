@@ -18,22 +18,24 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.HttpHeaders;
+
 
 /**
  * Simple class for making WebDAV <code>MOVE</code> requests.
  *
  */
-public class HttpMove extends HttpRequestBase
+public class HttpMove extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "MOVE";
 
 	public HttpMove(URI sourceUrl, URI destinationUrl, boolean overwrite)
 	{
+		super(METHOD_NAME, destinationUrl);
 		this.setHeader(HttpHeaders.DESTINATION, destinationUrl.toASCIIString());
 		this.setHeader(HttpHeaders.OVERWRITE, overwrite ? "T" : "F");
-		this.setURI(sourceUrl);
+		this.setUri(sourceUrl);
 	}
 
 	public HttpMove(String sourceUrl, String destinationUrl, boolean overwrite)

@@ -19,9 +19,10 @@ package com.github.sardine.impl.handler;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
+
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 
 import com.github.sardine.impl.SardineException;
 import com.github.sardine.model.Prop;
@@ -32,13 +33,13 @@ import com.github.sardine.util.SardineUtil;
 public class LockResponseHandler extends ValidatingResponseHandler<String>
 {
 	@Override
-	public String handleResponse(HttpResponse response) throws IOException
+	public String handleResponse(ClassicHttpResponse response) throws IOException
 	{
 		super.validateResponse(response);
 
 		// Process the response from the server.
 		HttpEntity entity = response.getEntity();
-        StatusLine statusLine = response.getStatusLine();
+        StatusLine statusLine = new StatusLine(response);
 		if (entity == null)
 		{
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),

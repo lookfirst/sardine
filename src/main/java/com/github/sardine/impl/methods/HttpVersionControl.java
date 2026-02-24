@@ -1,13 +1,13 @@
 package com.github.sardine.impl.methods;
 
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 
 import java.net.URI;
 
 /**
  * Simple class for making WebDAV <code>VERSION-CONTROL</code> requests.
  */
-public class HttpVersionControl extends HttpRequestBase {
+public class HttpVersionControl extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "VERSION-CONTROL";
 
@@ -16,7 +16,7 @@ public class HttpVersionControl extends HttpRequestBase {
     }
 
     public HttpVersionControl(URI uri) {
-        this.setURI(uri);
+        super(METHOD_NAME, uri);
     }
 
     @Override

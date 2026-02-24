@@ -18,18 +18,19 @@ package com.github.sardine.impl.handler;
 
 import java.io.IOException;
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+
 
 /**
- * {@link org.apache.http.client.ResponseHandler} which just executes the request and checks the answer is
- * in the valid range of {@link ValidatingResponseHandler#validateResponse(org.apache.http.HttpResponse)}.
+ * {@link org.apache.hc.core5.http.io.HttpClientResponseHandler} which just executes the request and checks the answer is
+ * in the valid range of {@link ValidatingResponseHandler#validateResponse(ClassicHttpResponse)}.
  *
  * @author mirko
  */
 public class VoidResponseHandler extends ValidatingResponseHandler<Void>
 {
 	@Override
-	public Void handleResponse(HttpResponse response) throws IOException
+	public Void handleResponse(ClassicHttpResponse response) throws IOException
 	{
 		this.validateResponse(response);
 		return null;

@@ -5,28 +5,29 @@ package com.github.sardine.impl.methods;
 
 import java.net.URI;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpHeaders;
 
 /**
  * @author <A HREF="mailto:Gary.Williams@sas.com">Gary Williams</A>
  */
 public class HttpSearch
-	extends HttpEntityEnclosingRequestBase
+	extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "SEARCH";
-	
+
 	public HttpSearch(final String uri)
 	{
 		this(URI.create(uri));
 	}
-	
+
 	public HttpSearch(final URI uri)
 	{
-		this.setURI(uri);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
+		super(METHOD_NAME, uri);
+		this.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML);
 	}
-	
+
 	@Override
 	public String getMethod()
 	{

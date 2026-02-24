@@ -19,16 +19,16 @@ package com.github.sardine.impl.handler;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 
 import com.github.sardine.impl.SardineException;
 import com.github.sardine.model.Multistatus;
 import com.github.sardine.util.SardineUtil;
 
 /**
- * {@link org.apache.http.client.ResponseHandler} which returns the {@link Multistatus} response of
+ * {@link org.apache.hc.core5.http.io.HttpClientResponseHandler} which returns the {@link Multistatus} response of
  * a {@link com.github.sardine.impl.methods.HttpPropFind} request.
  *
  * @author mirko
@@ -36,13 +36,13 @@ import com.github.sardine.util.SardineUtil;
 public class MultiStatusResponseHandler extends ValidatingResponseHandler<Multistatus>
 {
 	@Override
-	public Multistatus handleResponse(HttpResponse response) throws IOException
+	public Multistatus handleResponse(ClassicHttpResponse response) throws IOException
 	{
 		super.validateResponse(response);
 
 		// Process the response from the server.
 		HttpEntity entity = response.getEntity();
-		StatusLine statusLine = response.getStatusLine();
+		StatusLine statusLine = new StatusLine(response);
 		if (entity == null)
 		{
 			throw new SardineException("No entity found in response", statusLine.getStatusCode(),

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +30,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.github.sardine.impl.SardineImpl;
+import io.github.atetzner.webdav.server.MiltonWebDAVFileServer;
 import org.junit.Test;
 
 /**
@@ -242,6 +245,24 @@ public class DavResourceTest
 			DavResource resource = new Builder("/Meine%20Anlagen").ofType("httpd/unix-directory").ofLength(0L).build();
 			assertEquals("/Meine Anlagen", resource.getPath());
 			assertEquals("/Meine%20Anlagen", resource.getHref().getRawPath());
+		}
+	}
+
+	@Test
+	public void testMilton() throws Exception {
+		File tempFile = File.createTempFile("test", "milton");
+		MiltonWebDAVFileServer server = new MiltonWebDAVFileServer(tempFile.getParentFile());
+		try {
+			server.setPort(8082);
+			server.getUserCredentials().put("user", "pw"); // optional, defaults to no authentication
+			server.start();
+
+			Sardine sardine = new SardineImpl();
+			sardine.setCredentials("user", "pw".toCharArray());
+			sardine.list("http://localhost:8082/", 0);
+		} finally {
+			tempFile.delete();
+			server.stop();
 		}
 	}
 }

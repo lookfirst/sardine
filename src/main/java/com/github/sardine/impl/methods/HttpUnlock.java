@@ -16,14 +16,15 @@
 
 package com.github.sardine.impl.methods;
 
-import java.net.URI;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpHeaders;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpRequestBase;
+import java.net.URI;
 
 /**
  */
-public class HttpUnlock extends HttpRequestBase
+public class HttpUnlock extends HttpUriRequestBase
 {
 	public static final String METHOD_NAME = "UNLOCK";
 
@@ -39,21 +40,20 @@ public class HttpUnlock extends HttpRequestBase
 	}
 
 	/**
-	 * @param url   The resource
-	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed.
-	 *              The lock token in the Lock-Token request header must identify a lock that contains the resource
+	 * @param uri   The resource
+	 * @param token The Lock-Token request header is used with the UNLOCK method to identify the lock to be removed. The
+	 *              lock token in the Lock-Token request header must identify a lock that contains the resource
 	 *              identified by Request-URI as a member.
 	 */
-	public HttpUnlock(URI url, String token)
+	public HttpUnlock(URI uri, String token)
 	{
-		this.setURI(url);
-		this.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=utf-8");
-		this.setHeader("Lock-Token", "<" + token + ">");
+		super(METHOD_NAME, uri);
+		this.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML);
+		this.setHeader(HttpHeaders.LOCK_TOKEN, "<" + token + ">");
 	}
 
 	@Override
-	public String getMethod()
-	{
+	public String getMethod() {
 		return METHOD_NAME;
 	}
 }

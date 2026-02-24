@@ -15,6 +15,6 @@
  */
 
 /**
- * Response handler with stauts code validation for {@link org.apache.http.client.HttpClient} implementation.
+ * Response handler with status code validation for {@link org.apache.hc.client5.http.classic.HttpClient} implementation.
  */
 package com.github.sardine.impl.handler;

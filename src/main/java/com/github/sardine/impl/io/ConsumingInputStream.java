@@ -20,9 +20,10 @@ package com.github.sardine.impl.io;
 import java.io.FilterInputStream;
 import java.io.IOException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+
 
 /**
  * Wrapper for the input stream, will consume the rest of the response on {@link ConsumingInputStream#close()}.
@@ -36,7 +37,7 @@ public class ConsumingInputStream extends FilterInputStream
 	 * @throws IOException          If there is a problem reading from the response
 	 * @throws NullPointerException If the response has no message entity
 	 */
-	public ConsumingInputStream(final HttpResponse response) throws IOException
+	public ConsumingInputStream(final ClassicHttpResponse response) throws IOException
 	{
 		super(response.getEntity().getContent());
 		this.entity = response.getEntity();
